@@ -1,0 +1,402 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum Role {
+  ADMIN
+  UTILISATEUR
+}
+
+enum Provenance {
+  MBN
+  MANUEL
+}
+
+enum StatutDevoir {
+  A_FAIRE
+  TERMINE
+}
+
+enum StatutControle {
+  A_VENIR
+  PASSE
+}
+
+enum TypeControle {
+  MANUEL
+  AUTOMATIQUE
+}
+
+enum CanalNotification {
+  NAVIGATEUR
+  EMAIL
+  MOBILE
+}
+
+enum TypeRappel {
+  J_MOINS_7
+  J_MOINS_3
+  J_MOINS_2
+  VEILLE
+  MATIN_MEME
+  PERSONNALISE
+}
+
+enum FournisseurNotification {
+  PUSHOVER
+  NTFY
+  GOTIFY
+  AUTRE
+}
+
+enum StatutSynchronisation {
+  EN_COURS
+  SUCCES
+  ECHEC
+}
+
+// ---------------------------------------------------------------------------
+// Utilisateur
+// ---------------------------------------------------------------------------
+
+model Utilisateur {
+  id        String @id @default(cuid())
+  zitadelSub String @unique // OIDC "sub" claim, source of truth for identity
+  email     String @unique
+  nom       String?
+  role      Role   @default(UTILISATEUR)
+  actif     Boolean @default(true)
+
+  // Connexion MonBureauNumerique
+  scolengoTokenChiffre String? // token Scolengo, stocke chiffre
+  fuseauHoraire        String  @default("Europe/Paris")
+
+  // Detection automatique des controles (mots-cles configurables par utilisateur)
+  motsClesControle String[] @default(["controle", "controle", "evaluation", "evaluation", "interrogation", "interro", "devoir surveille", "ds", "examen", "test", "quiz"])
+
+  preferencesAffichage Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  matieres          Matiere[]
+  devoirs           Devoir[]
+  controles         Controle[]
+  notes             Note[]
+  cours             Cours[]
+  chapitres         Chapitre[]
+  notifications     Notification[]
+  parametresNotif   ParametreNotification[]
+  synchronisations  Synchronisation[]
+  journaux          Journal[]
+
+  @@map("utilisateurs")
+}
+
+// ---------------------------------------------------------------------------
+// Matiere / Chapitre
+// ---------------------------------------------------------------------------
+
+model Matiere {
+  id            String @id @default(cuid())
+  utilisateurId String
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+
+  nom       String
+  couleur   String?
+  externalId String? // identifiant MBN pour reconciliation
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  devoirs   Devoir[]
+  controles Controle[]
+  notes     Note[]
+  chapitres Chapitre[]
+
+  @@unique([utilisateurId, nom])
+  @@map("matieres")
+}
+
+model Chapitre {
+  id            String @id @default(cuid())
+  utilisateurId String
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+
+  matiereId String
+  matiere   Matiere @relation(fields: [matiereId], references: [id], onDelete: Cascade)
+
+  nom String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cours Cours[]
+
+  @@unique([matiereId, nom])
+  @@map("chapitres")
+}
+
+// ---------------------------------------------------------------------------
+// Devoir
+// ---------------------------------------------------------------------------
+
+model Devoir {
+  id            String @id @default(cuid())
+  utilisateurId String
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+
+  matiereId String
+  matiere   Matiere @relation(fields: [matiereId], references: [id], onDelete: Cascade)
+
+  enseignant  String?
+  date        DateTime
+  heure       String?
+  titre       String
+  description String?
+  statut      StatutDevoir @default(A_FAIRE)
+  provenance  Provenance   @default(MANUEL)
+  externalId  String?      // identifiant MBN pour reconciliation lors des sync
+
+  // Lorsqu'un mot-cle est detecte, le devoir donne naissance a un Controle.
+  controleGenere Controle?
+
+  documents Document[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("devoirs")
+}
+
+// ---------------------------------------------------------------------------
+// Controle
+// ---------------------------------------------------------------------------
+
+model Controle {
+  id            String @id @default(cuid())
+  utilisateurId String
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+
+  matiereId String
+  matiere   Matiere @relation(fields: [matiereId], references: [id], onDelete: Cascade)
+
+  // Present uniquement si le controle a ete genere depuis un devoir synchronise.
+  devoirSourceId String? @unique
+  devoirSource   Devoir? @relation(fields: [devoirSourceId], references: [id], onDelete: SetNull)
+
+  date       DateTime
+  heure      String?
+  chapitreLibre String? // libelle de chapitre libre, distinct de la bibliotheque de cours
+  commentaire   String?
+  statut     StatutControle @default(A_VENIR)
+  type       TypeControle   @default(MANUEL)
+
+  note      Note?
+  cours     ControleCours[]
+  documents Document[]
+  notifications Notification[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("controles")
+}
+
+// ---------------------------------------------------------------------------
+// Note / Copie
+// ---------------------------------------------------------------------------
+
+model Note {
+  id            String @id @default(cuid())
+  utilisateurId String
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+
+  matiereId String
+  matiere   Matiere @relation(fields: [matiereId], references: [id], onDelete: Cascade)
+
+  controleId String?   @unique
+  controle   Controle? @relation(fields: [controleId], references: [id], onDelete: SetNull)
+
+  date          DateTime
+  noteObtenue   Float
+  noteMaximale  Float
+  coefficient   Float    @default(1)
+  moyenneClasse Float?
+  commentaire   String?
+  provenance    Provenance @default(MANUEL)
+  externalId    String?
+
+  copies Copie[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("notes")
+}
+
+model Copie {
+  id     String @id @default(cuid())
+  noteId String
+  note   Note   @relation(fields: [noteId], references: [id], onDelete: Cascade)
+
+  commentaire  String?
+  dateAjout    DateTime @default(now())
+
+  documents Document[]
+
+  @@map("copies")
+}
+
+// ---------------------------------------------------------------------------
+// Cours
+// ---------------------------------------------------------------------------
+
+model Cours {
+  id            String @id @default(cuid())
+  utilisateurId String
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+
+  chapitreId String
+  chapitre   Chapitre @relation(fields: [chapitreId], references: [id], onDelete: Cascade)
+
+  titre       String
+  description String?
+  date        DateTime @default(now())
+  tags        String[] @default([])
+
+  documents Document[]
+  controles ControleCours[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("cours")
+}
+
+// Liaison many-to-many Controle <-> Cours
+model ControleCours {
+  controleId String
+  controle   Controle @relation(fields: [controleId], references: [id], onDelete: Cascade)
+
+  coursId String
+  cours   Cours  @relation(fields: [coursId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@id([controleId, coursId])
+  @@map("controle_cours")
+}
+
+// ---------------------------------------------------------------------------
+// Document (fichier physique, rattache a exactement un parent)
+// ---------------------------------------------------------------------------
+
+model Document {
+  id           String @id @default(cuid())
+  nomFichier   String
+  typeMime     String
+  tailleOctets Int
+  cheminStockage String
+
+  devoirId   String?
+  devoir     Devoir?   @relation(fields: [devoirId], references: [id], onDelete: Cascade)
+
+  controleId String?
+  controle   Controle? @relation(fields: [controleId], references: [id], onDelete: Cascade)
+
+  copieId    String?
+  copie      Copie?    @relation(fields: [copieId], references: [id], onDelete: Cascade)
+
+  coursId    String?
+  coursParent Cours?   @relation(fields: [coursId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@map("documents")
+}
+
+// ---------------------------------------------------------------------------
+// Notifications / Rappels
+// ---------------------------------------------------------------------------
+
+model ParametreNotification {
+  id            String @id @default(cuid())
+  utilisateurId String
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+
+  fournisseur   FournisseurNotification
+  configuration Json // ex: { "topic": "..." } pour ntfy, { "userKey": "...", "appToken": "..." } pour Pushover
+  actif         Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("parametres_notification")
+}
+
+model Notification {
+  id            String @id @default(cuid())
+  utilisateurId String
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+
+  controleId String
+  controle   Controle @relation(fields: [controleId], references: [id], onDelete: Cascade)
+
+  type          TypeRappel
+  dateEnvoiPrevue DateTime
+  datePersonnalisee DateTime?
+  canaux        CanalNotification[]
+
+  envoyee   Boolean   @default(false)
+  envoyeeLe DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@map("notifications")
+}
+
+// ---------------------------------------------------------------------------
+// Synchronisation / Journal
+// ---------------------------------------------------------------------------
+
+model Synchronisation {
+  id            String @id @default(cuid())
+  utilisateurId String
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+
+  demarreeLe  DateTime  @default(now())
+  termineeLe  DateTime?
+  statut      StatutSynchronisation @default(EN_COURS)
+  elementsImportes Int @default(0)
+  erreurs     String?
+
+  @@map("synchronisations")
+}
+
+model Journal {
+  id            String @id @default(cuid())
+  utilisateurId String?
+  utilisateur   Utilisateur? @relation(fields: [utilisateurId], references: [id], onDelete: SetNull)
+
+  action      String // ex: "CONNEXION", "SYNCHRONISATION", "IMPORT_DOCUMENT", "CREATION_CONTROLE", "MODIFICATION", "ERREUR"
+  entiteType  String?
+  entiteId    String?
+  metadonnees Json?
+
+  createdAt DateTime @default(now())
+
+  @@map("journaux")
+}
