@@ -12,7 +12,7 @@ export default async function PageConnexion({
   if (session) redirect(callbackUrl ?? "/");
 
   return (
-    <main className="flex flex-1 flex-col items-center justify-center gap-6 bg-zinc-50 px-6 dark:bg-black">
+    <main className="flex flex-1 flex-col items-center justify-center gap-6 bg-zinc-100 px-6 dark:bg-black">
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
           Plateforme scolaire

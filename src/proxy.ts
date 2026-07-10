@@ -8,7 +8,10 @@ export default auth((request) => {
 
   const estPublique =
     ROUTES_PUBLIQUES.some((route) => pathname.startsWith(route)) ||
-    pathname.startsWith("/api/auth");
+    pathname.startsWith("/api/auth") ||
+    // Protegees par leur propre secret partage (voir les routes), pas par une session ZITADEL.
+    pathname.startsWith("/api/notifications/verifier") ||
+    pathname.startsWith("/api/synchronisation/verifier");
 
   if (estPublique) return NextResponse.next();
 

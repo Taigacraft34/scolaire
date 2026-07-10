@@ -15,9 +15,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: "/connexion",
   },
   callbacks: {
-    // Il n'existe aucun formulaire d'inscription : ZITADEL est la seule
-    // source de verite pour la creation d'un compte. Ici on se contente de
-    // refleter localement une identite deja provisionnee par un administrateur.
+    // Il n'existe aucun formulaire d'inscription : une authentification ZITADEL
+    // reussie ne suffit pas a elle seule a obtenir un compte local. A la
+    // premiere connexion, l'email doit avoir ete pre-autorise par un
+    // administrateur (table EmailAutorise) ou etre l'admin initial.
     async signIn({ user, profile }) {
       if (!profile?.sub || !user.email) return false;
 
@@ -25,18 +26,41 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         where: { zitadelSub: profile.sub as string },
       });
 
-      if (existant && !existant.actif) return false;
+      if (existant) {
+        if (!existant.actif) return false;
+        await prisma.utilisateur.update({
+          where: { id: existant.id },
+          data: { email: user.email, nom: user.name ?? undefined },
+        });
+        return true;
+      }
 
-      await prisma.utilisateur.upsert({
-        where: { zitadelSub: profile.sub as string },
-        update: { email: user.email, nom: user.name ?? undefined },
-        create: {
-          zitadelSub: profile.sub as string,
-          email: user.email,
-          nom: user.name ?? undefined,
-          role: user.email === process.env.ADMIN_EMAIL_INITIAL ? "ADMIN" : "UTILISATEUR",
-        },
-      });
+      if (user.email === process.env.ADMIN_EMAIL_INITIAL) {
+        await prisma.utilisateur.create({
+          data: {
+            zitadelSub: profile.sub as string,
+            email: user.email,
+            nom: user.name ?? undefined,
+            role: "ADMIN",
+          },
+        });
+        return true;
+      }
+
+      const autorisation = await prisma.emailAutorise.findUnique({ where: { email: user.email } });
+      if (!autorisation) return false;
+
+      await prisma.$transaction([
+        prisma.utilisateur.create({
+          data: {
+            zitadelSub: profile.sub as string,
+            email: user.email,
+            nom: user.name ?? undefined,
+            role: autorisation.role,
+          },
+        }),
+        prisma.emailAutorise.delete({ where: { id: autorisation.id } }),
+      ]);
 
       return true;
     },
@@ -50,6 +74,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           token.utilisateurId = utilisateur.id;
           token.role = utilisateur.role;
           token.actif = utilisateur.actif;
+          token.modeDeveloppeur = utilisateur.modeDeveloppeur;
         }
       }
       return token;
@@ -59,6 +84,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.id = token.utilisateurId as string;
         session.user.role = (token.role as "ADMIN" | "UTILISATEUR" | undefined) ?? "UTILISATEUR";
         session.user.actif = (token.actif as boolean | undefined) ?? true;
+        session.user.modeDeveloppeur = (token.modeDeveloppeur as boolean | undefined) ?? false;
       }
       return session;
     },

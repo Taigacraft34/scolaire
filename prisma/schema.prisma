@@ -67,6 +67,13 @@ enum StatutSynchronisation {
   ECHEC
 }
 
+enum FrequenceSynchronisation {
+  MANUELLE
+  HORAIRE
+  TOUTES_LES_6H
+  QUOTIDIENNE
+}
+
 // ---------------------------------------------------------------------------
 // Utilisateur
 // ---------------------------------------------------------------------------
@@ -78,13 +85,19 @@ model Utilisateur {
   nom       String?
   role      Role   @default(UTILISATEUR)
   actif     Boolean @default(true)
+  modeDeveloppeur Boolean @default(false)
 
   // Connexion MonBureauNumerique
   scolengoTokenChiffre String? // token Scolengo, stocke chiffre
   fuseauHoraire        String  @default("Europe/Paris")
+  frequenceSynchronisation FrequenceSynchronisation @default(MANUELLE)
 
   // Detection automatique des controles (mots-cles configurables par utilisateur)
   motsClesControle String[] @default(["controle", "controle", "evaluation", "evaluation", "interrogation", "interro", "devoir surveille", "ds", "examen", "test", "quiz"])
+
+  // Rappels generes automatiquement pour chaque nouveau controle (section 8)
+  rappelsParDefaut TypeRappel[]        @default([J_MOINS_3, VEILLE])
+  canauxParDefaut  CanalNotification[] @default([EMAIL, MOBILE])
 
   preferencesAffichage Json?
 
@@ -95,14 +108,28 @@ model Utilisateur {
   devoirs           Devoir[]
   controles         Controle[]
   notes             Note[]
-  cours             Cours[]
   chapitres         Chapitre[]
   notifications     Notification[]
   parametresNotif   ParametreNotification[]
   synchronisations  Synchronisation[]
   journaux          Journal[]
+  documents         Document[]
 
   @@map("utilisateurs")
+}
+
+// Email pre-autorise par un administrateur : aucun formulaire d'inscription
+// n'existe, mais l'authentification ZITADEL a elle seule ne suffit pas a
+// obtenir un compte local tant que l'email n'a pas ete ajoute ici (sauf pour
+// l'admin initial). L'entree est consommee (supprimee) a la premiere connexion.
+model EmailAutorise {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  role      Role     @default(UTILISATEUR)
+  ajoutePar String?
+  createdAt DateTime @default(now())
+
+  @@map("emails_autorises")
 }
 
 // ---------------------------------------------------------------------------
@@ -130,6 +157,8 @@ model Matiere {
   @@map("matieres")
 }
 
+// Le chapitre EST la page de contenu (composee de blocs ordonnes), plutot
+// qu'un simple regroupement de "cours" separes.
 model Chapitre {
   id            String @id @default(cuid())
   utilisateurId String
@@ -143,7 +172,8 @@ model Chapitre {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  cours Cours[]
+  blocs     BlocCours[]
+  controles ControleChapitre[]
 
   @@unique([matiereId, nom])
   @@map("chapitres")
@@ -205,7 +235,7 @@ model Controle {
   type       TypeControle   @default(MANUEL)
 
   note      Note?
-  cours     ControleCours[]
+  chapitres ControleChapitre[]
   documents Document[]
   notifications Notification[]
 
@@ -261,43 +291,49 @@ model Copie {
 }
 
 // ---------------------------------------------------------------------------
-// Cours
+// Contenu des chapitres (blocs)
 // ---------------------------------------------------------------------------
 
-model Cours {
-  id            String @id @default(cuid())
-  utilisateurId String
-  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+enum TypeBloc {
+  TEXTE
+  FICHIER
+}
 
+// Un chapitre est une page composee de blocs ordonnes (texte enrichi ou
+// fichier), reorganisables par glisser-deposer cote client. L'ordre est
+// stocke via "ordre" (entiers croissants, pas necessairement contigus apres
+// suppression). contenuHtml est du HTML sanitize (gras/couleur/taille).
+model BlocCours {
+  id         String   @id @default(cuid())
   chapitreId String
   chapitre   Chapitre @relation(fields: [chapitreId], references: [id], onDelete: Cascade)
 
-  titre       String
-  description String?
-  date        DateTime @default(now())
-  tags        String[] @default([])
+  type        TypeBloc
+  ordre       Int
+  contenuHtml String?
 
-  documents Document[]
-  controles ControleCours[]
+  documentId String?   @unique
+  document   Document? @relation(fields: [documentId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("cours")
+  @@index([chapitreId, ordre])
+  @@map("blocs_cours")
 }
 
-// Liaison many-to-many Controle <-> Cours
-model ControleCours {
+// Liaison many-to-many Controle <-> Chapitre
+model ControleChapitre {
   controleId String
   controle   Controle @relation(fields: [controleId], references: [id], onDelete: Cascade)
 
-  coursId String
-  cours   Cours  @relation(fields: [coursId], references: [id], onDelete: Cascade)
+  chapitreId String
+  chapitre   Chapitre @relation(fields: [chapitreId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
 
-  @@id([controleId, coursId])
-  @@map("controle_cours")
+  @@id([controleId, chapitreId])
+  @@map("controle_chapitres")
 }
 
 // ---------------------------------------------------------------------------
@@ -306,6 +342,9 @@ model ControleCours {
 
 model Document {
   id           String @id @default(cuid())
+  utilisateurId String
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+
   nomFichier   String
   typeMime     String
   tailleOctets Int
@@ -320,8 +359,7 @@ model Document {
   copieId    String?
   copie      Copie?    @relation(fields: [copieId], references: [id], onDelete: Cascade)
 
-  coursId    String?
-  coursParent Cours?   @relation(fields: [coursId], references: [id], onDelete: Cascade)
+  blocCours BlocCours?
 
   createdAt DateTime @default(now())
 

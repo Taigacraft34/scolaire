@@ -6,6 +6,7 @@ declare module "next-auth" {
       id: string;
       role: "ADMIN" | "UTILISATEUR";
       actif: boolean;
+      modeDeveloppeur: boolean;
     } & DefaultSession["user"];
   }
 }
@@ -15,5 +16,6 @@ declare module "next-auth/jwt" {
     utilisateurId?: string;
     role?: "ADMIN" | "UTILISATEUR";
     actif?: boolean;
+    modeDeveloppeur?: boolean;
   }
 }

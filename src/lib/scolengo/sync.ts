@@ -1,0 +1,250 @@
+import { prisma } from "@/lib/prisma";
+import { trouverOuCreerMatiere } from "@/lib/matieres";
+import { genererRappelsPourControle } from "@/lib/notifications/rappels";
+import { getClientScolengo } from "./client";
+
+export interface OptionsSynchronisation {
+  dateDebut?: Date;
+  dateFin?: Date;
+}
+
+function formatDateAPI(date: Date): string {
+  return date.toISOString().split("T")[0];
+}
+
+function extraireHeure(dateIso: string | null): string | undefined {
+  if (!dateIso) return undefined;
+  return dateIso.slice(11, 16) || undefined;
+}
+
+function detecterControle(titre: string, description: string, motsCles: string[]): boolean {
+  const texte = `${titre} ${description}`.toLowerCase();
+  return motsCles.some((motCle) => motCle.trim().length > 0 && texte.includes(motCle.toLowerCase()));
+}
+
+// L'API Scolengo plafonne "limit" a 100 par page ; on pagine pour tout recuperer.
+const TAILLE_PAGE = 100;
+
+async function recupererToutesLesPages<T>(
+  recuperer: (limit: number, offset: number) => Promise<T[]>,
+): Promise<T[]> {
+  const resultats: T[] = [];
+  let offset = 0;
+  for (;;) {
+    const page = await recuperer(TAILLE_PAGE, offset);
+    resultats.push(...page);
+    if (page.length < TAILLE_PAGE) break;
+    offset += TAILLE_PAGE;
+  }
+  return resultats;
+}
+
+/**
+ * Synchronise les devoirs et les notes d'un utilisateur depuis MonBureauNumerique (Scolengo API).
+ * La plage de dates par defaut couvre la periode habituellement utile (2 semaines passees a 2 mois
+ * a venir) ; elle peut etre surchargee, notamment pour rejouer une periode passee (ex: mois de mars)
+ * lorsque l'emploi du temps courant est vide (vacances, hors periode scolaire).
+ */
+export async function synchroniserUtilisateur(utilisateurId: string, options: OptionsSynchronisation = {}) {
+  const utilisateur = await prisma.utilisateur.findUniqueOrThrow({ where: { id: utilisateurId } });
+
+  const synchronisation = await prisma.synchronisation.create({
+    data: { utilisateurId, statut: "EN_COURS" },
+  });
+
+  let elementsImportes = 0;
+  const erreurs: string[] = [];
+
+  try {
+    const client = await getClientScolengo(utilisateurId);
+    if (!client) throw new Error("Aucun token Scolengo n'est configure pour cet utilisateur.");
+
+    const maintenant = new Date();
+    const dateDebut = options.dateDebut ?? new Date(maintenant.getTime() - 14 * 24 * 3600 * 1000);
+    const dateFin = options.dateFin ?? new Date(maintenant.getTime() + 60 * 24 * 3600 * 1000);
+    const studentId = client.getTokenClaims().sub;
+
+    // --- Devoirs (+ detection automatique des controles) ---
+    const devoirs = await recupererToutesLesPages((limit, offset) =>
+      client.getHomeworkAssignments(studentId, formatDateAPI(dateDebut), formatDateAPI(dateFin), limit, offset),
+    );
+
+    for (const devoir of devoirs) {
+      try {
+        const matiere = await trouverOuCreerMatiere(
+          utilisateurId,
+          devoir.subject?.label ?? "Matiere inconnue",
+          devoir.subject?.id,
+        );
+
+        const enseignant = devoir.teacher
+          ? [devoir.teacher.firstName, devoir.teacher.lastName].filter(Boolean).join(" ") || null
+          : null;
+
+        const titre = devoir.title?.trim() || "Devoir";
+        const description = devoir.html ?? null;
+        const dateEcheance = devoir.dueDateTime ? new Date(devoir.dueDateTime) : new Date();
+
+        const donneesDevoir = {
+          utilisateurId,
+          matiereId: matiere.id,
+          enseignant,
+          date: dateEcheance,
+          heure: extraireHeure(devoir.dueDateTime),
+          titre,
+          description,
+          statut: devoir.done ? ("TERMINE" as const) : ("A_FAIRE" as const),
+          provenance: "MBN" as const,
+          externalId: devoir.id,
+        };
+
+        const devoirExistant = await prisma.devoir.findFirst({
+          where: { utilisateurId, externalId: devoir.id },
+        });
+
+        const devoirEnregistre = devoirExistant
+          ? await prisma.devoir.update({ where: { id: devoirExistant.id }, data: donneesDevoir })
+          : await prisma.devoir.create({ data: donneesDevoir });
+
+        elementsImportes++;
+
+        const estControle = detecterControle(titre, description ?? "", utilisateur.motsClesControle);
+        if (estControle) {
+          const controleExistant = await prisma.controle.findFirst({
+            where: { devoirSourceId: devoirEnregistre.id },
+          });
+
+          if (!controleExistant) {
+            const controleCree = await prisma.controle.create({
+              data: {
+                utilisateurId,
+                matiereId: matiere.id,
+                devoirSourceId: devoirEnregistre.id,
+                date: dateEcheance,
+                heure: donneesDevoir.heure,
+                type: "AUTOMATIQUE",
+              },
+            });
+
+            await genererRappelsPourControle(controleCree.id, utilisateurId);
+
+            await prisma.journal.create({
+              data: {
+                utilisateurId,
+                action: "CREATION_CONTROLE",
+                entiteType: "Controle",
+                entiteId: devoirEnregistre.id,
+                metadonnees: { source: "detection_automatique", titre },
+              },
+            });
+          }
+        }
+      } catch (e) {
+        erreurs.push(`Devoir "${devoir.title ?? devoir.id}": ${e instanceof Error ? e.message : String(e)}`);
+      }
+    }
+
+    // --- Notes (via les periodes d'evaluation) ---
+    const parametresEvaluation = await client.getEvaluationSettings(studentId);
+    const periodes = parametresEvaluation.flatMap((p) => p.periods ?? []);
+
+    for (const periode of periodes) {
+      try {
+        const services = await recupererToutesLesPages((limit, offset) =>
+          client.getEvaluation(studentId, periode.id, limit, offset),
+        );
+
+        for (const service of services) {
+          const matiere = await trouverOuCreerMatiere(
+            utilisateurId,
+            service.subject?.label ?? "Matiere inconnue",
+            service.subject?.id,
+          );
+
+          for (const evaluation of service.evaluations ?? []) {
+            const resultat = evaluation.evaluationResult;
+            if (!resultat || resultat.mark === null || resultat.mark === undefined) continue;
+
+            const donneesNote = {
+              utilisateurId,
+              matiereId: matiere.id,
+              date: evaluation.dateTime ? new Date(evaluation.dateTime) : new Date(),
+              noteObtenue: resultat.mark,
+              noteMaximale: evaluation.scale ?? evaluation.max ?? 20,
+              coefficient: evaluation.coefficient ?? service.coefficient ?? 1,
+              moyenneClasse: evaluation.average ?? service.average ?? null,
+              commentaire: resultat.comment ?? null,
+              provenance: "MBN" as const,
+              externalId: evaluation.id,
+            };
+
+            const noteExistante = await prisma.note.findFirst({
+              where: { utilisateurId, externalId: evaluation.id },
+            });
+
+            const noteEnregistree = noteExistante
+              ? await prisma.note.update({ where: { id: noteExistante.id }, data: donneesNote })
+              : await prisma.note.create({ data: donneesNote });
+
+            elementsImportes++;
+
+            // Liaison automatique note <-> controle (section 10) : meme matiere, meme jour, pas encore liee.
+            if (!noteExistante?.controleId) {
+              const debutJournee = new Date(donneesNote.date);
+              debutJournee.setHours(0, 0, 0, 0);
+              const finJournee = new Date(donneesNote.date);
+              finJournee.setHours(23, 59, 59, 999);
+
+              const controleCorrespondant = await prisma.controle.findFirst({
+                where: {
+                  utilisateurId,
+                  matiereId: matiere.id,
+                  date: { gte: debutJournee, lte: finJournee },
+                  note: null,
+                },
+              });
+
+              if (controleCorrespondant) {
+                await prisma.note.update({
+                  where: { id: noteEnregistree.id },
+                  data: { controleId: controleCorrespondant.id },
+                });
+              }
+            }
+          }
+        }
+      } catch (e) {
+        erreurs.push(`Periode "${periode.label}": ${e instanceof Error ? e.message : String(e)}`);
+      }
+    }
+
+    await prisma.synchronisation.update({
+      where: { id: synchronisation.id },
+      data: {
+        statut: erreurs.length > 0 ? "ECHEC" : "SUCCES",
+        termineeLe: new Date(),
+        elementsImportes,
+        erreurs: erreurs.length > 0 ? erreurs.join("\n") : null,
+      },
+    });
+
+    await prisma.journal.create({
+      data: {
+        utilisateurId,
+        action: "SYNCHRONISATION",
+        entiteType: "Synchronisation",
+        entiteId: synchronisation.id,
+        metadonnees: { elementsImportes, erreurs: erreurs.length },
+      },
+    });
+
+    return { elementsImportes, erreurs };
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
+    await prisma.synchronisation.update({
+      where: { id: synchronisation.id },
+      data: { statut: "ECHEC", termineeLe: new Date(), elementsImportes, erreurs: message },
+    });
+    throw e;
+  }
+}
