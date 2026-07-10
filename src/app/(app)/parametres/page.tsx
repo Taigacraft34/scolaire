@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { BoutonSoumission } from "@/components/BoutonSoumission";
+import { ConfirmationSuppression } from "@/components/ConfirmationSuppression";
 import {
   basculerModeDeveloppeur,
   enregistrerNtfy,
@@ -10,6 +11,7 @@ import {
   mettreAJourFrequenceSynchronisation,
   mettreAJourPreferences,
   mettreAJourRappels,
+  reinitialiserDonnees,
   supprimerNtfy,
 } from "./actions";
 
@@ -344,6 +346,51 @@ export default async function PageParametres({
           >
             Envoyer un test
           </BoutonSoumission>
+        </form>
+      </section>
+
+      <section className="rounded-lg border border-zinc-300 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
+        <h2 className="mb-1 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+          Exporter mes donnees
+        </h2>
+        <p className="mb-3 text-sm text-zinc-500">
+          Telecharge un fichier JSON contenant vos donnees (les fichiers joints sont inclus, encodes dans
+          le fichier).
+        </p>
+        <div className="flex flex-wrap gap-3">
+          <a
+            href="/api/export?portee=cours"
+            className="rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+          >
+            Cours uniquement
+          </a>
+          <a
+            href="/api/export?portee=sans-cours"
+            className="rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+          >
+            Tout sauf les cours
+          </a>
+          <a
+            href="/api/export?portee=tout"
+            className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background hover:bg-[#383838] dark:hover:bg-[#ccc]"
+          >
+            Tout exporter
+          </a>
+        </div>
+      </section>
+
+      <section className="rounded-lg border border-red-300 bg-white p-4 dark:border-red-900 dark:bg-zinc-950">
+        <h2 className="mb-1 text-sm font-semibold text-red-600 dark:text-red-400">Zone dangereuse</h2>
+        <p className="mb-3 text-sm text-zinc-500">
+          Supprime definitivement toutes vos matieres, chapitres de cours, devoirs, controles, notes,
+          copies et documents associes. Votre compte, la connexion MonBureauNumerique et vos preferences
+          de notification sont conserves. Cette action est irreversible : pensez a exporter vos donnees
+          avant si besoin.
+        </p>
+        <form action={reinitialiserDonnees}>
+          <ConfirmationSuppression motAttendu="SUPPRIMER">
+            Reinitialiser toutes mes donnees
+          </ConfirmationSuppression>
         </form>
       </section>
     </div>

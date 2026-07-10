@@ -19,7 +19,7 @@ export default async function LayoutApplication({
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-100 dark:bg-black">
-      <header className="border-b border-zinc-300 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+      <header className="border-b border-zinc-300 bg-white print:hidden dark:border-zinc-800 dark:bg-zinc-950">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-3">
           <nav className="flex flex-wrap items-center gap-4 text-sm font-medium text-zinc-700 dark:text-zinc-300">
             {LIENS_NAV.map((lien) => (

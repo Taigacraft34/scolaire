@@ -8,6 +8,7 @@ import { enregistrerConfigScolengo, type ConfigScolengo } from "@/lib/scolengo/c
 import { envoyerEmail } from "@/lib/notifications/email";
 import { envoyerGotify, envoyerNtfy, envoyerPushover } from "@/lib/notifications/providers";
 import { synchroniserUtilisateur } from "@/lib/scolengo/sync";
+import { supprimerFichier } from "@/lib/stockage";
 
 export async function enregistrerTokenScolengo(formData: FormData) {
   const session = await auth();
@@ -204,6 +205,51 @@ export async function mettreAJourFrequenceSynchronisation(formData: FormData) {
     data: { frequenceSynchronisation: frequence },
   });
 
+  revalidatePath("/parametres");
+  redirect("/parametres?succes=1");
+}
+
+// Reinitialise les donnees scolaires de l'utilisateur (matieres, chapitres de
+// cours, devoirs, controles, notes, copies et documents associes). Le compte,
+// la connexion MonBureauNumerique et les preferences de notification sont
+// conserves. Necessite de saisir un mot de confirmation exact (defense contre
+// un clic accidentel sur une action irreversible).
+export async function reinitialiserDonnees(formData: FormData) {
+  const session = await auth();
+  if (!session?.user) redirect("/connexion");
+
+  const confirmation = String(formData.get("confirmation") ?? "");
+  if (confirmation !== "SUPPRIMER") {
+    redirect(`/parametres?erreur=${encodeURIComponent("Confirmation invalide, rien n'a ete supprime.")}`);
+  }
+
+  const documents = await prisma.document.findMany({
+    where: { utilisateurId: session.user.id },
+    select: { cheminStockage: true },
+  });
+
+  const { count: matieresSupprimees } = await prisma.matiere.deleteMany({
+    where: { utilisateurId: session.user.id },
+  });
+
+  for (const document of documents) {
+    await supprimerFichier(document.cheminStockage);
+  }
+
+  await prisma.journal.create({
+    data: {
+      utilisateurId: session.user.id,
+      action: "REINITIALISATION_DONNEES",
+      metadonnees: { matieresSupprimees, documentsSupprimes: documents.length },
+    },
+  });
+
+  revalidatePath("/");
+  revalidatePath("/devoirs");
+  revalidatePath("/controles");
+  revalidatePath("/notes");
+  revalidatePath("/cours");
+  revalidatePath("/calendrier");
   revalidatePath("/parametres");
   redirect("/parametres?succes=1");
 }
