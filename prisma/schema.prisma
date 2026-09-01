@@ -74,6 +74,25 @@ enum FrequenceSynchronisation {
   QUOTIDIENNE
 }
 
+enum JourSemaine {
+  LUNDI
+  MARDI
+  MERCREDI
+  JEUDI
+  VENDREDI
+  SAMEDI
+  DIMANCHE
+}
+
+// Frequence d'un creneau d'emploi du temps : chaque semaine, ou en alternance
+// (semaine impaire / semaine paire / une semaine sur quatre).
+enum TypeSemaineCreneau {
+  CHAQUE_SEMAINE
+  SIP
+  SP
+  S1Q
+}
+
 // ---------------------------------------------------------------------------
 // Utilisateur
 // ---------------------------------------------------------------------------
@@ -114,6 +133,11 @@ model Utilisateur {
   synchronisations  Synchronisation[]
   journaux          Journal[]
   documents         Document[]
+
+  // Son propre emploi du temps (au plus un).
+  emploiDuTempsPropre EmploiDuTemps? @relation("EmploiDuTempsPropre")
+  // Emplois du temps de personnes sans compte, qu'il gere.
+  emploisDuTempsGeres EmploiDuTemps[] @relation("EmploiDuTempsGere")
 
   @@map("utilisateurs")
 }
@@ -437,4 +461,56 @@ model Journal {
   createdAt DateTime @default(now())
 
   @@map("journaux")
+}
+
+// ---------------------------------------------------------------------------
+// Emploi du temps
+// ---------------------------------------------------------------------------
+
+// Un emploi du temps appartient soit a un compte existant (utilisateurId, au
+// plus un par compte), soit a une personne sans compte creee manuellement
+// (nomPersonne + gerePar, le compte qui la gere). Tous les utilisateurs
+// connectes peuvent consulter n'importe quel emploi du temps ; seuls le
+// titulaire du compte ou le gestionnaire (et les administrateurs) peuvent le
+// modifier.
+model EmploiDuTemps {
+  id String @id @default(cuid())
+
+  utilisateurId String?      @unique
+  utilisateur   Utilisateur? @relation("EmploiDuTempsPropre", fields: [utilisateurId], references: [id], onDelete: Cascade)
+
+  nomPersonne String?
+  gerePar     String?
+  gestionnaire Utilisateur? @relation("EmploiDuTempsGere", fields: [gerePar], references: [id], onDelete: Cascade)
+
+  creneaux CreneauEdt[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("emplois_du_temps")
+}
+
+model CreneauEdt {
+  id              String        @id @default(cuid())
+  emploiDuTempsId String
+  emploiDuTemps   EmploiDuTemps @relation(fields: [emploiDuTempsId], references: [id], onDelete: Cascade)
+
+  jour       JourSemaine
+  heureDebut String // "08:00"
+  heureFin   String // "09:00"
+
+  matiere    String
+  enseignant String?
+  salle      String?
+  couleur    String?
+
+  typeSemaine TypeSemaineCreneau @default(CHAQUE_SEMAINE)
+  rangS1Q     Int? // 1 a 4, utilise uniquement si typeSemaine = S1Q
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([emploiDuTempsId, jour])
+  @@map("creneaux_edt")
 }

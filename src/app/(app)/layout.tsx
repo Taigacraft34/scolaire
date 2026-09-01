@@ -9,6 +9,7 @@ const LIENS_NAV = [
   { href: "/notes", label: "Notes" },
   { href: "/cours", label: "Cours" },
   { href: "/calendrier", label: "Calendrier" },
+  { href: "/emploi-du-temps", label: "Emploi du temps" },
   { href: "/recherche", label: "Recherche" },
 ];
 
