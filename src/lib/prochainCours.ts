@@ -14,7 +14,7 @@ function normaliserMatiere(nom: string): string {
     .replace(/[^a-z0-9]/g, "");
 }
 
-function memeMatiere(a: string, b: string): boolean {
+export function memeMatiere(a: string, b: string): boolean {
   const na = normaliserMatiere(a);
   const nb = normaliserMatiere(b);
   if (!na || !nb) return false;

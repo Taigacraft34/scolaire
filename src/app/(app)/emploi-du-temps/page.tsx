@@ -1,9 +1,13 @@
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { ajouterJours, debutSemaine } from "@/lib/calendrier";
 import { JOURS_ORDRE, LIBELLES_JOUR } from "@/lib/emploiDuTemps";
-import type { SeanceEmploiDuTemps } from "@/generated/prisma/client";
+import { memeMatiere } from "@/lib/prochainCours";
+import type { Devoir, Matiere, SeanceEmploiDuTemps } from "@/generated/prisma/client";
+
+type DevoirAvecMatiere = Devoir & { matiere: Matiere };
 
 const PX_PAR_HEURE = 56;
 const HEURE_MIN_DEFAUT = 8;
@@ -47,6 +51,7 @@ interface Bloc {
   labelFin: string;
   col: number;
   nbCol: number;
+  devoirs: DevoirAvecMatiere[];
 }
 
 // Repartit les seances d'une journee en colonnes : les seances qui se
@@ -86,12 +91,73 @@ function disposerJournee(seances: SeanceEmploiDuTemps[], timeZone: string): Bloc
       colonnesFin[col] = ev.finMin;
     }
 
-    groupe.push({ ...ev, col, nbCol: 1 });
+    groupe.push({ ...ev, col, nbCol: 1, devoirs: [] });
     groupeFin = Math.max(groupeFin, ev.finMin);
   }
   if (groupe.length > 0) cloturer();
 
   return resultat;
+}
+
+function BlocSeance({ bloc, heureMin }: { bloc: Bloc; heureMin: number }) {
+  const { seance, debMin, finMin, labelDeb, labelFin, col, nbCol, devoirs } = bloc;
+
+  const devoirCible = devoirs.find((d) => d.statut === "A_FAIRE") ?? devoirs[0] ?? null;
+  const aFaire = devoirs.some((d) => d.statut === "A_FAIRE");
+
+  const style: CSSProperties = {
+    top: ((debMin - heureMin * 60) / 60) * PX_PAR_HEURE,
+    height: ((finMin - debMin) / 60) * PX_PAR_HEURE - 2,
+    left: `calc(${(col / nbCol) * 100}% + 2px)`,
+    width: `calc(${100 / nbCol}% - 4px)`,
+    backgroundColor: seance.couleur && !seance.annule ? `${seance.couleur}22` : undefined,
+    borderLeftColor: seance.couleur ?? "#60a5fa",
+  };
+
+  const classe =
+    "absolute block overflow-hidden rounded border-l-2 px-1.5 py-1 text-[0.7rem] leading-tight" +
+    (devoirCible ? " hover:brightness-95 dark:hover:brightness-125" : "");
+
+  const contenu = (
+    <>
+      <p
+        className={
+          seance.annule
+            ? "font-medium text-zinc-400 line-through dark:text-zinc-500"
+            : "font-medium text-zinc-800 dark:text-zinc-100"
+        }
+      >
+        {seance.matiere}
+      </p>
+      <p className="text-zinc-500">
+        {labelDeb}–{labelFin}
+      </p>
+      {seance.salle && <p className="text-zinc-400">{seance.salle}</p>}
+      {devoirCible && (
+        <span
+          title={aFaire ? "Devoir a faire" : "Devoir fait"}
+          className={`absolute bottom-0.5 right-0.5 flex h-4 w-4 items-center justify-center rounded-full text-[0.6rem] font-bold text-white ${
+            aFaire ? "bg-red-500" : "bg-green-600"
+          }`}
+        >
+          T
+        </span>
+      )}
+    </>
+  );
+
+  if (devoirCible) {
+    return (
+      <Link href={`/devoirs?focus=${devoirCible.id}`} className={classe} style={style}>
+        {contenu}
+      </Link>
+    );
+  }
+  return (
+    <div className={classe} style={style}>
+      {contenu}
+    </div>
+  );
 }
 
 export default async function PageEmploiDuTemps({
@@ -114,10 +180,17 @@ export default async function PageEmploiDuTemps({
   const vendrediAffiche = ajouterJours(lundiAffiche, 4);
   const finSemaine = ajouterJours(lundiAffiche, 7);
 
-  const [seances, derniereSynchro] = await Promise.all([
+  const [seances, devoirsSemaine, derniereSynchro] = await Promise.all([
     prisma.seanceEmploiDuTemps.findMany({
       where: { utilisateurId, debut: { gte: lundiAffiche, lt: finSemaine } },
       orderBy: { debut: "asc" },
+    }),
+    prisma.devoir.findMany({
+      where: {
+        utilisateurId,
+        date: { gte: ajouterJours(lundiAffiche, -1), lt: ajouterJours(finSemaine, 1) },
+      },
+      include: { matiere: true },
     }),
     prisma.synchronisation.findFirst({ where: { utilisateurId }, orderBy: { demarreeLe: "desc" } }),
   ]);
@@ -135,6 +208,24 @@ export default async function PageEmploiDuTemps({
   });
 
   const tousBlocs = jours.flatMap((j) => j.blocs);
+
+  // Rattache chaque devoir a la seance de sa matiere qui a lieu le meme jour
+  // (celle dont l'heure de debut est la plus proche de l'echeance).
+  for (const devoir of devoirsSemaine) {
+    const jourDevoir = partiesFuseau(devoir.date, timeZone).cleJour;
+    let meilleur: Bloc | null = null;
+    let meilleurEcart = Infinity;
+    for (const bloc of tousBlocs) {
+      if (partiesFuseau(bloc.seance.debut, timeZone).cleJour !== jourDevoir) continue;
+      if (!memeMatiere(bloc.seance.matiere, devoir.matiere.nom)) continue;
+      const ecart = Math.abs(bloc.seance.debut.getTime() - devoir.date.getTime());
+      if (ecart < meilleurEcart) {
+        meilleur = bloc;
+        meilleurEcart = ecart;
+      }
+    }
+    if (meilleur) meilleur.devoirs.push(devoir);
+  }
   const heureMin = tousBlocs.length
     ? Math.floor(Math.min(...tousBlocs.map((b) => b.debMin)) / 60)
     : HEURE_MIN_DEFAUT;
@@ -247,34 +338,8 @@ export default async function PageEmploiDuTemps({
                     />
                   ))}
 
-                  {blocs.map(({ seance, debMin, finMin, labelDeb, labelFin, col, nbCol }) => (
-                    <div
-                      key={seance.id}
-                      className="absolute overflow-hidden rounded border-l-2 px-1.5 py-1 text-[0.7rem] leading-tight"
-                      style={{
-                        top: ((debMin - heureMin * 60) / 60) * PX_PAR_HEURE,
-                        height: ((finMin - debMin) / 60) * PX_PAR_HEURE - 2,
-                        left: `calc(${(col / nbCol) * 100}% + 2px)`,
-                        width: `calc(${100 / nbCol}% - 4px)`,
-                        backgroundColor:
-                          seance.couleur && !seance.annule ? `${seance.couleur}22` : undefined,
-                        borderLeftColor: seance.couleur ?? "#60a5fa",
-                      }}
-                    >
-                      <p
-                        className={
-                          seance.annule
-                            ? "font-medium text-zinc-400 line-through dark:text-zinc-500"
-                            : "font-medium text-zinc-800 dark:text-zinc-100"
-                        }
-                      >
-                        {seance.matiere}
-                      </p>
-                      <p className="text-zinc-500">
-                        {labelDeb}–{labelFin}
-                      </p>
-                      {seance.salle && <p className="text-zinc-400">{seance.salle}</p>}
-                    </div>
+                  {blocs.map((bloc) => (
+                    <BlocSeance key={bloc.seance.id} bloc={bloc} heureMin={heureMin} />
                   ))}
                 </div>
               ))}
