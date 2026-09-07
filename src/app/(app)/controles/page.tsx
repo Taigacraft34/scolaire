@@ -24,6 +24,11 @@ export default async function PageControles({
   const utilisateurId = session!.user.id;
   const { erreur, focus } = await searchParams;
 
+  // Pour l'association d'un devoir, on ne propose que les devoirs non passes
+  // (echeance aujourd'hui ou plus tard).
+  const debutAujourdhui = new Date();
+  debutAujourdhui.setHours(0, 0, 0, 0);
+
   const [
     utilisateur,
     controles,
@@ -48,9 +53,9 @@ export default async function PageControles({
       prisma.synchronisation.findFirst({ where: { utilisateurId }, orderBy: { demarreeLe: "desc" } }),
       prisma.matiere.findMany({ where: { utilisateurId }, orderBy: { nom: "asc" } }),
       prisma.devoir.findMany({
-        where: { utilisateurId, controleGenere: null },
+        where: { utilisateurId, controleGenere: null, date: { gte: debutAujourdhui } },
         include: { matiere: true },
-        orderBy: { date: "desc" },
+        orderBy: { date: "asc" },
         take: 200,
       }),
       prisma.chapitre.findMany({

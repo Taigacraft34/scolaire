@@ -8,6 +8,24 @@ export interface CreneauMinimal {
   rangS1Q: number | null;
 }
 
+// Reduit un nom de matiere a ses lettres/chiffres, sans accents ni casse, pour
+// comparer un libelle d'emploi du temps (saisi librement) a un nom de matiere
+// (souvent abrege ou accentue differemment).
+function normaliserMatiere(nom: string): string {
+  return nom
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .replace(/[^a-z0-9]/g, "");
+}
+
+function memeMatiere(a: string, b: string): boolean {
+  const na = normaliserMatiere(a);
+  const nb = normaliserMatiere(b);
+  if (!na || !nb) return false;
+  return na === nb || na.startsWith(nb) || nb.startsWith(na);
+}
+
 // Date (a minuit, heure locale) du prochain cours de `matiereNom` situe
 // STRICTEMENT apres `apartir` : les cours du jour meme sont ignores. On balaye
 // les 8 prochaines semaines pour couvrir les creneaux en alternance (SIP / SP /
@@ -17,10 +35,9 @@ export function prochaineDateCours(
   matiereNom: string,
   apartir: Date = new Date(),
 ): Date | null {
-  const cible = matiereNom.trim().toLowerCase();
-  if (!cible) return null;
+  if (!matiereNom.trim()) return null;
 
-  const pertinents = creneaux.filter((c) => c.matiere.trim().toLowerCase() === cible);
+  const pertinents = creneaux.filter((c) => memeMatiere(c.matiere, matiereNom));
   if (pertinents.length === 0) return null;
 
   const depart = new Date(apartir);
