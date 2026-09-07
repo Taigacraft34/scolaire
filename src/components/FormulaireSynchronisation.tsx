@@ -11,7 +11,7 @@ export function FormulaireSynchronisation({ derniereSynchro }: { derniereSynchro
       >
         <div className="flex flex-col gap-1">
           <label className="text-xs text-zinc-500" htmlFor="dateDebut">
-            Debut (test)
+            Début (test)
           </label>
           <input
             type="date"
@@ -37,17 +37,12 @@ export function FormulaireSynchronisation({ derniereSynchro }: { derniereSynchro
         >
           Synchroniser
         </BoutonSoumission>
-        <p className="w-full text-xs text-zinc-500">
-          Laissez vide pour la periode par defaut (14 jours passes a 60 jours a venir). Hors periode
-          scolaire, indiquez par exemple le mois de mars de l&apos;annee en cours pour tester avec
-          d&apos;anciennes donnees.
-        </p>
       </form>
 
       {derniereSynchro && (
         <p className="text-xs text-zinc-500">
-          Derniere synchronisation : {derniereSynchro.demarreeLe.toLocaleString("fr-FR")} —{" "}
-          {derniereSynchro.statut} ({derniereSynchro.elementsImportes} elements importes)
+          Dernière synchronisation : {derniereSynchro.demarreeLe.toLocaleString("fr-FR")} —{" "}
+          {derniereSynchro.statut} ({derniereSynchro.elementsImportes} éléments importés)
           {derniereSynchro.erreurs && (
             <span className="mt-1 block whitespace-pre-wrap text-red-500">{derniereSynchro.erreurs}</span>
           )}

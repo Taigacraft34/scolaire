@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Scolaire",
-  description: "Tableau de bord scolaire personnel connecte a MonBureauNumerique",
+  description: "Tableau de bord scolaire personnel connecté à MonBureauNumérique",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,

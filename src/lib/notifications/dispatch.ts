@@ -37,15 +37,15 @@ export async function traiterNotificationsDues() {
         await prisma.notification.delete({ where: { id: notif.id } });
         continue;
       }
-      titre = `Devoir a faire : ${devoir.matiere.nom}`;
-      message = `${devoir.matiere.nom} — ${devoir.titre}, a rendre le ${devoir.date.toLocaleDateString(
+      titre = `Devoir à faire : ${devoir.matiere.nom}`;
+      message = `${devoir.matiere.nom} — ${devoir.titre}, à rendre le ${devoir.date.toLocaleDateString(
         "fr-FR",
-      )}${devoir.heure ? " a " + devoir.heure : ""}`;
+      )}${devoir.heure ? " à " + devoir.heure : ""}`;
     } else if (controle) {
-      titre = `Controle : ${controle.matiere.nom}`;
+      titre = `Contrôle : ${controle.matiere.nom}`;
       message = `${controle.matiere.nom}${controle.chapitreLibre ? " — " + controle.chapitreLibre : ""} le ${controle.date.toLocaleDateString(
         "fr-FR",
-      )}${controle.heure ? " a " + controle.heure : ""}`;
+      )}${controle.heure ? " à " + controle.heure : ""}`;
     } else {
       // Notification orpheline (controle/devoir supprime) : on la retire.
       await prisma.notification.delete({ where: { id: notif.id } });

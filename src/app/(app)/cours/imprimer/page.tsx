@@ -42,7 +42,7 @@ export default async function PageImprimerCours() {
             <h2 className="border-b border-zinc-300 pb-1 text-xl font-semibold">{matiere.nom}</h2>
 
             {matiere.chapitres.length === 0 ? (
-              <p className="text-sm text-zinc-500">Aucun chapitre dans cette matiere.</p>
+              <p className="text-sm text-zinc-500">Aucun chapitre dans cette matière.</p>
             ) : (
               matiere.chapitres.map((chapitre) => (
                 <article key={chapitre.id} className="flex flex-col gap-2 break-inside-avoid">

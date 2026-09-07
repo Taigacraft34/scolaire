@@ -58,7 +58,7 @@ function IconeCours(props: React.SVGProps<SVGSVGElement>) {
 const ONGLETS: { cle: Onglet; titre: string; Icone: typeof IconeLoupe }[] = [
   { cle: "tous", titre: "Tous", Icone: IconeLoupe },
   { cle: "devoirs", titre: "Devoirs", Icone: IconeDevoir },
-  { cle: "controles", titre: "Controles", Icone: IconeControle },
+  { cle: "controles", titre: "Contrôles", Icone: IconeControle },
   { cle: "cours", titre: "Cours", Icone: IconeCours },
 ];
 
@@ -129,7 +129,7 @@ export function BarreRecherche() {
 
   const groupes: { cle: Exclude<Onglet, "tous">; titre: string; items: Resultat[] }[] = [
     { cle: "devoirs", titre: "Devoirs", items: donneesAffichees.devoirs },
-    { cle: "controles", titre: "Controles", items: donneesAffichees.controles },
+    { cle: "controles", titre: "Contrôles", items: donneesAffichees.controles },
     { cle: "cours", titre: "Cours", items: donneesAffichees.cours },
   ];
   const groupesAffiches = onglet === "tous" ? groupes : groupes.filter((g) => g.cle === onglet);
@@ -185,13 +185,13 @@ export function BarreRecherche() {
           <div className="max-h-80 overflow-y-auto p-2">
             {requeteVide ? (
               <p className="px-2 py-6 text-center text-xs text-zinc-500">
-                Tapez le nom d&apos;un devoir, d&apos;un controle, d&apos;un cours, d&apos;une matiere
+                Tapez le nom d&apos;un devoir, d&apos;un contrôle, d&apos;un cours, d&apos;une matière
                 ou d&apos;un enseignant.
               </p>
             ) : chargement && comptes.tous === 0 ? (
               <p className="px-2 py-6 text-center text-xs text-zinc-500">Recherche…</p>
             ) : comptes[onglet] === 0 ? (
-              <p className="px-2 py-6 text-center text-xs text-zinc-500">Aucun resultat.</p>
+              <p className="px-2 py-6 text-center text-xs text-zinc-500">Aucun résultat.</p>
             ) : (
               <div className="flex flex-col gap-3">
                 {groupesAffiches.map(

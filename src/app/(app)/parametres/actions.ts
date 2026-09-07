@@ -25,7 +25,7 @@ export async function enregistrerTokenScolengo(formData: FormData) {
 
   if (!config?.tokenSet?.access_token || !config?.school?.id) {
     redirect(
-      `/parametres?erreur=${encodeURIComponent("Configuration incomplete : tokenSet.access_token et school.id sont requis.")}`,
+      `/parametres?erreur=${encodeURIComponent("Configuration incomplète : tokenSet.access_token et school.id sont requis.")}`,
     );
   }
 
@@ -144,7 +144,7 @@ export async function envoyerNotificationTest() {
 
   const titre = "Test de notification";
   const message =
-    "Ceci est une notification de test envoyee depuis les parametres de la plateforme scolaire.";
+    "Ceci est une notification de test envoyée depuis les paramètres de la plateforme scolaire.";
 
   const reussites: string[] = [];
   const erreurs: string[] = [];
@@ -175,7 +175,7 @@ export async function envoyerNotificationTest() {
   if (erreurs.length > 0) {
     redirect(
       `/parametres?erreur=${encodeURIComponent(
-        `Echec pour ${erreurs.join(" | ")}${reussites.length > 0 ? ` (reussi : ${reussites.join(", ")})` : ""}`,
+        `Échec pour ${erreurs.join(" | ")}${reussites.length > 0 ? ` (réussi : ${reussites.join(", ")})` : ""}`,
       )}`,
     );
   }
@@ -244,7 +244,7 @@ export async function reinitialiserDonnees(formData: FormData) {
 
   const confirmation = String(formData.get("confirmation") ?? "");
   if (confirmation !== "SUPPRIMER") {
-    redirect(`/parametres?erreur=${encodeURIComponent("Confirmation invalide, rien n'a ete supprime.")}`);
+    redirect(`/parametres?erreur=${encodeURIComponent("Confirmation invalide, rien n'a été supprimé.")}`);
   }
 
   const documents = await prisma.document.findMany({

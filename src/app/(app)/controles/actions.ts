@@ -22,7 +22,7 @@ export async function creerControleManuel(formData: FormData) {
   const devoirId = String(formData.get("devoirId") ?? "").trim() || null;
 
   if (!matiereNom || !dateBrute) {
-    redirect(`/controles?erreur=${encodeURIComponent("Matiere et date sont requis.")}`);
+    redirect(`/controles?erreur=${encodeURIComponent("Matière et date sont requis.")}`);
   }
 
   let devoirSourceId: string | null = null;
@@ -31,7 +31,7 @@ export async function creerControleManuel(formData: FormData) {
       where: { id: devoirId, utilisateurId: session.user.id, controleGenere: null },
     });
     if (!devoir) {
-      redirect(`/controles?erreur=${encodeURIComponent("Le devoir choisi est introuvable ou deja lie a un controle.")}`);
+      redirect(`/controles?erreur=${encodeURIComponent("Le devoir choisi est introuvable ou déjà lié à un contrôle.")}`);
     }
     devoirSourceId = devoir.id;
   }
@@ -70,7 +70,7 @@ export async function lierDevoirAuControle(formData: FormData) {
   const devoirId = String(formData.get("devoirId") ?? "").trim();
 
   if (!controleId || !devoirId) {
-    redirect(`/controles?erreur=${encodeURIComponent("Selectionnez un devoir a lier.")}`);
+    redirect(`/controles?erreur=${encodeURIComponent("Sélectionnez un devoir à lier.")}`);
   }
 
   const [controle, devoir] = await Promise.all([
@@ -79,7 +79,7 @@ export async function lierDevoirAuControle(formData: FormData) {
   ]);
 
   if (!controle || !devoir) {
-    redirect(`/controles?erreur=${encodeURIComponent("Controle ou devoir introuvable, ou devoir deja lie.")}`);
+    redirect(`/controles?erreur=${encodeURIComponent("Contrôle ou devoir introuvable, ou devoir déjà lié.")}`);
   }
 
   await prisma.controle.update({ where: { id: controle.id }, data: { devoirSourceId: devoir.id } });
@@ -98,7 +98,7 @@ export async function lierChapitreAuControle(formData: FormData) {
   const chapitreId = String(formData.get("chapitreId") ?? "").trim();
 
   if (!controleId || !chapitreId) {
-    redirect(`/controles?erreur=${encodeURIComponent("Selectionnez un chapitre a lier.")}`);
+    redirect(`/controles?erreur=${encodeURIComponent("Sélectionnez un chapitre à lier.")}`);
   }
 
   const [controle, chapitre] = await Promise.all([
@@ -107,7 +107,7 @@ export async function lierChapitreAuControle(formData: FormData) {
   ]);
 
   if (!controle || !chapitre) {
-    redirect(`/controles?erreur=${encodeURIComponent("Controle ou chapitre introuvable.")}`);
+    redirect(`/controles?erreur=${encodeURIComponent("Contrôle ou chapitre introuvable.")}`);
   }
 
   await prisma.controleChapitre.upsert({

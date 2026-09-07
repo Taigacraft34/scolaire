@@ -5,8 +5,8 @@ import { ajouterJours, debutSemaine, memeJour } from "@/lib/calendrier";
 import { FiltresCalendrier } from "@/components/FiltresCalendrier";
 
 const NOMS_MOIS = [
-  "Janvier", "Fevrier", "Mars", "Avril", "Mai", "Juin",
-  "Juillet", "Aout", "Septembre", "Octobre", "Novembre", "Decembre",
+  "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+  "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre",
 ];
 const NOMS_JOURS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
 
@@ -80,7 +80,7 @@ export default async function PageCalendrier({
             href={construireLien(-1)}
             className="rounded-full border border-zinc-300 px-3 py-1 text-sm dark:border-zinc-700"
           >
-            ← Precedent
+← Précédent
           </Link>
           <Link
             href={construireLien(1)}

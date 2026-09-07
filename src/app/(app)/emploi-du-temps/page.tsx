@@ -219,7 +219,7 @@ export default async function PageEmploiDuTemps({
 
   const enControle = (c: ControleAvecMatiere): ControleGrille => ({
     id: c.id,
-    intitule: c.chapitreLibre || `Controle de ${c.matiere.nom}`,
+    intitule: c.chapitreLibre || `Contrôle de ${c.matiere.nom}`,
     commentaire: c.commentaire,
     aVenir: libelleStatutControle(c.date) === "À venir",
     dateLabel: c.date.toLocaleDateString("fr-FR"),
@@ -253,21 +253,16 @@ export default async function PageEmploiDuTemps({
         <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Emploi du temps</h1>
         {derniereSynchro && (
           <p className="text-xs text-zinc-500">
-            Derniere synchronisation : {derniereSynchro.demarreeLe.toLocaleString("fr-FR")}
+            Dernière synchronisation : {derniereSynchro.demarreeLe.toLocaleString("fr-FR")}
           </p>
         )}
       </div>
 
-      <p className="-mt-3 text-sm text-zinc-500">
-        L&apos;emploi du temps est importe automatiquement depuis MonBureauNumerique lors des
-        synchronisations. Il n&apos;y a pas de saisie manuelle.
-      </p>
-
       {!utilisateur.scolengoTokenChiffre && (
         <p className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-700 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300">
-          Aucun token MonBureauNumerique configure. Ajoutez-le dans les{" "}
+          Aucun token MonBureauNumérique configuré. Ajoutez-le dans les{" "}
           <Link href="/parametres" className="underline">
-            parametres
+            paramètres
           </Link>{" "}
           puis lancez une synchronisation pour voir votre emploi du temps.
         </p>
@@ -283,7 +278,7 @@ export default async function PageEmploiDuTemps({
             href={lienSemaine(-1)}
             className="rounded-full border border-zinc-300 px-3 py-1 text-sm dark:border-zinc-700"
           >
-            ← Semaine precedente
+← Semaine précédente
           </Link>
           <Link
             href="/emploi-du-temps"

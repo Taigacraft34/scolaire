@@ -28,7 +28,7 @@ export default async function PageChapitresMatiere({
     <div className="flex flex-col gap-6">
       <div>
         <Link href="/cours" className="text-xs text-zinc-500 underline">
-          ← Toutes les matieres
+          ← Toutes les matières
         </Link>
         <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">{matiere.nom}</h1>
       </div>

@@ -47,10 +47,10 @@ export default async function PageTableauDeBord() {
       <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Tableau de bord</h1>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <CarteStat titre="Moyenne generale" valeur={moyenneGenerale} />
+        <CarteStat titre="Moyenne générale" valeur={moyenneGenerale} />
         <CarteStat titre="Prochains devoirs" valeur={String(prochainsDevoirs.length)} />
-        <CarteStat titre="Prochains controles" valeur={String(prochainsControles.length)} />
-        <CarteStat titre="Dernieres notes" valeur={String(dernieresNotes.length)} />
+        <CarteStat titre="Prochains contrôles" valeur={String(prochainsControles.length)} />
+        <CarteStat titre="Dernières notes" valeur={String(dernieresNotes.length)} />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -59,7 +59,7 @@ export default async function PageTableauDeBord() {
             Prochains devoirs
           </h2>
           {prochainsDevoirs.length === 0 ? (
-            <p className="text-sm text-zinc-500">Aucun devoir a venir.</p>
+            <p className="text-sm text-zinc-500">Aucun devoir à venir.</p>
           ) : (
             <ul className="flex flex-col gap-2">
               {prochainsDevoirs.map((d) => (
@@ -76,10 +76,10 @@ export default async function PageTableauDeBord() {
 
         <section className="rounded-lg border border-zinc-300 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
           <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-            Prochains controles
+            Prochains contrôles
           </h2>
           {prochainsControles.length === 0 ? (
-            <p className="text-sm text-zinc-500">Aucun controle a venir.</p>
+            <p className="text-sm text-zinc-500">Aucun contrôle à venir.</p>
           ) : (
             <ul className="flex flex-col gap-2">
               {prochainsControles.map((c) => (
@@ -96,10 +96,10 @@ export default async function PageTableauDeBord() {
 
         <section className="rounded-lg border border-zinc-300 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950 lg:col-span-2">
           <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-            Dernieres notes
+            Dernières notes
           </h2>
           {dernieresNotes.length === 0 ? (
-            <p className="text-sm text-zinc-500">Aucune note enregistree.</p>
+            <p className="text-sm text-zinc-500">Aucune note enregistrée.</p>
           ) : (
             <ul className="flex flex-col gap-2">
               {dernieresNotes.map((n) => (

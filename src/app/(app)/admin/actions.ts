@@ -54,7 +54,7 @@ export async function autoriserEmail(formData: FormData) {
 
   const compteExistant = await prisma.utilisateur.findUnique({ where: { email } });
   if (compteExistant) {
-    redirect(`/admin?erreur=${encodeURIComponent("Cet email a deja un compte sur la plateforme.")}`);
+    redirect(`/admin?erreur=${encodeURIComponent("Cet email a déjà un compte sur la plateforme.")}`);
   }
 
   await prisma.emailAutorise.upsert({

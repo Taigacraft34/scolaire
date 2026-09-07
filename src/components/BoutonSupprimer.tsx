@@ -2,7 +2,7 @@
 
 export function BoutonSupprimer({
   libelle = "Supprimer",
-  confirmation = "Supprimer definitivement cet element ?",
+  confirmation = "Supprimer définitivement cet élément ?",
 }: {
   libelle?: string;
   confirmation?: string;

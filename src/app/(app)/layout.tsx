@@ -6,7 +6,7 @@ import { BarreRecherche } from "@/components/BarreRecherche";
 const LIENS_NAV = [
   { href: "/", label: "Tableau de bord" },
   { href: "/devoirs", label: "Devoirs" },
-  { href: "/controles", label: "Controles" },
+  { href: "/controles", label: "Contrôles" },
   { href: "/notes", label: "Notes" },
   { href: "/cours", label: "Cours" },
   { href: "/calendrier", label: "Calendrier" },
@@ -51,7 +51,7 @@ export default async function LayoutApplication({
               }}
             >
               <button type="submit" className="hover:text-zinc-950 dark:hover:text-zinc-50">
-                Deconnexion
+                Déconnexion
               </button>
             </form>
           </div>

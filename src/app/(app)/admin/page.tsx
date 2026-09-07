@@ -43,10 +43,6 @@ export default async function PageAdmin({
         <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
           Autoriser un nouvel utilisateur
         </h2>
-        <p className="mb-3 text-sm text-zinc-500">
-          Aucun compte n&apos;est cree directement : l&apos;email est mis en liste blanche, et un compte
-          local est provisionne automatiquement a la premiere connexion ZITADEL de cette personne.
-        </p>
         <form action={autoriserEmail} className="flex flex-wrap items-end gap-3">
           <div className="flex flex-1 min-w-40 flex-col gap-1">
             <label className="text-xs text-zinc-500" htmlFor="email">
@@ -62,7 +58,7 @@ export default async function PageAdmin({
           </div>
           <div className="flex flex-col gap-1">
             <label className="text-xs text-zinc-500" htmlFor="role">
-              Role
+              Rôle
             </label>
             <select
               id="role"
@@ -84,7 +80,7 @@ export default async function PageAdmin({
 
         {emailsAutorises.length > 0 && (
           <div className="mt-4">
-            <h3 className="mb-2 text-xs font-medium text-zinc-500">En attente de premiere connexion</h3>
+            <h3 className="mb-2 text-xs font-medium text-zinc-500">En attente de première connexion</h3>
             <ul className="flex flex-col gap-1">
               {emailsAutorises.map((e) => (
                 <li key={e.id} className="flex items-center justify-between text-sm">
@@ -94,7 +90,7 @@ export default async function PageAdmin({
                   <form action={revoquerAutorisation}>
                     <input type="hidden" name="id" value={e.id} />
                     <button type="submit" className="text-xs text-red-500 hover:underline">
-                      Revoquer
+                      Révoquer
                     </button>
                   </form>
                 </li>
@@ -110,9 +106,9 @@ export default async function PageAdmin({
           <thead>
             <tr className="border-b border-zinc-300 text-zinc-500 dark:border-zinc-800">
               <th className="py-2 font-medium">Email</th>
-              <th className="py-2 font-medium">Role</th>
+              <th className="py-2 font-medium">Rôle</th>
               <th className="py-2 font-medium">Statut</th>
-              <th className="py-2 font-medium">Cree le</th>
+              <th className="py-2 font-medium">Créé le</th>
               <th className="py-2 font-medium">Actions</th>
             </tr>
           </thead>
@@ -125,7 +121,7 @@ export default async function PageAdmin({
                   {u.actif ? (
                     <span className="text-green-600 dark:text-green-400">Actif</span>
                   ) : (
-                    <span className="text-amber-600 dark:text-amber-400">Desactive</span>
+                    <span className="text-amber-600 dark:text-amber-400">Désactivé</span>
                   )}
                 </td>
                 <td className="py-2">{u.createdAt.toLocaleDateString("fr-FR")}</td>
@@ -137,13 +133,13 @@ export default async function PageAdmin({
                       <form action={basculerActivationUtilisateur}>
                         <input type="hidden" name="utilisateurId" value={u.id} />
                         <button type="submit" className="text-xs text-zinc-600 underline dark:text-zinc-400">
-                          {u.actif ? "Desactiver" : "Activer"}
+                          {u.actif ? "Désactiver" : "Activer"}
                         </button>
                       </form>
                       <form action={supprimerUtilisateur}>
                         <input type="hidden" name="utilisateurId" value={u.id} />
                         <BoutonSupprimer
-                          confirmation={`Supprimer definitivement le compte ${u.email} et toutes ses donnees ?`}
+                          confirmation={`Supprimer définitivement le compte ${u.email} et toutes ses données ?`}
                         />
                       </form>
                     </div>
@@ -157,19 +153,19 @@ export default async function PageAdmin({
 
       <section className="rounded-lg border border-zinc-300 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
         <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-          Etat des synchronisations
+          État des synchronisations
         </h2>
         {synchronisations.length === 0 ? (
-          <p className="text-sm text-zinc-500">Aucune synchronisation enregistree.</p>
+          <p className="text-sm text-zinc-500">Aucune synchronisation enregistrée.</p>
         ) : (
           <ul className="flex flex-col gap-1">
             {synchronisations.map((s) => (
               <li key={s.id} className="flex justify-between text-xs text-zinc-600 dark:text-zinc-400">
                 <span>
-                  {s.utilisateur?.email ?? "Utilisateur supprime"} — {s.demarreeLe.toLocaleString("fr-FR")}
+                  {s.utilisateur?.email ?? "Utilisateur supprimé"} — {s.demarreeLe.toLocaleString("fr-FR")}
                 </span>
                 <span>
-                  {LIBELLES_STATUT_SYNCHRONISATION[s.statut]} · {s.elementsImportes} elements
+                  {LIBELLES_STATUT_SYNCHRONISATION[s.statut]} · {s.elementsImportes} éléments
                 </span>
               </li>
             ))}
@@ -179,16 +175,16 @@ export default async function PageAdmin({
 
       <section className="rounded-lg border border-zinc-300 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
         <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-          Journal des evenements
+          Journal des événements
         </h2>
         {journaux.length === 0 ? (
-          <p className="text-sm text-zinc-500">Aucun evenement enregistre.</p>
+          <p className="text-sm text-zinc-500">Aucun événement enregistré.</p>
         ) : (
           <ul className="flex flex-col gap-1">
             {journaux.map((j) => (
               <li key={j.id} className="flex justify-between text-xs text-zinc-600 dark:text-zinc-400">
                 <span>
-                  {j.utilisateur?.email ?? "Utilisateur supprime"} — {j.action}
+                  {j.utilisateur?.email ?? "Utilisateur supprimé"} — {j.action}
                   {j.entiteType ? ` (${j.entiteType})` : ""}
                 </span>
                 <span>{j.createdAt.toLocaleString("fr-FR")}</span>

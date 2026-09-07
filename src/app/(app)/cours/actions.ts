@@ -14,7 +14,7 @@ export async function creerMatiere(formData: FormData) {
   if (!session?.user) redirect("/connexion");
 
   const nom = String(formData.get("nom") ?? "").trim();
-  if (!nom) redirect(`/cours?erreur=${encodeURIComponent("Le nom de la matiere est requis.")}`);
+  if (!nom) redirect(`/cours?erreur=${encodeURIComponent("Le nom de la matière est requis.")}`);
 
   const matiere = await trouverOuCreerMatiere(session.user.id, nom);
   redirect(`/cours/${matiere.id}`);

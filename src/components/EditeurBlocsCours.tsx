@@ -30,7 +30,7 @@ function idLocal() {
 }
 
 const COULEURS = [
-  { nom: "Par defaut", valeur: "inherit" },
+  { nom: "Par défaut", valeur: "inherit" },
   { nom: "Rouge", valeur: "#dc2626" },
   { nom: "Bleu", valeur: "#2563eb" },
   { nom: "Vert", valeur: "#16a34a" },
@@ -192,7 +192,7 @@ export function EditeurBlocsCours({ blocsInitiaux }: { blocsInitiaux?: BlocIniti
               onDragStart={() => {
                 idGlisse.current = bloc.id;
               }}
-              title="Glisser pour reordonner"
+              title="Glisser pour réordonner"
               className="cursor-grab select-none px-1 py-1 text-zinc-400"
             >
               ⠿

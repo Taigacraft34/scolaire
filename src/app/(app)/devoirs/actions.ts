@@ -42,7 +42,7 @@ export async function creerDevoirManuel(formData: FormData) {
   const description = String(formData.get("description") ?? "").trim() || null;
 
   if (!matiereNom || !titre || !dateBrute) {
-    redirect(`/devoirs?erreur=${encodeURIComponent("Matiere, titre et date sont requis.")}`);
+    redirect(`/devoirs?erreur=${encodeURIComponent("Matière, titre et date sont requis.")}`);
   }
 
   const matiere = await trouverOuCreerMatiere(session.user.id, matiereNom);

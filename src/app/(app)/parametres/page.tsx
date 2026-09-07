@@ -40,16 +40,10 @@ const OPTIONS_RAPPELS = [
   { valeur: "J_MOINS_3", libelle: "3 jours avant" },
   { valeur: "J_MOINS_2", libelle: "2 jours avant" },
   { valeur: "VEILLE", libelle: "La veille (18h)" },
-  { valeur: "MATIN_MEME", libelle: "Le matin meme (6h30)" },
+  { valeur: "MATIN_MEME", libelle: "Le matin même (6h30)" },
 ];
 
-const OPTIONS_RAPPELS_DEVOIR = [
-  { valeur: "J_MOINS_7", libelle: "7 jours avant" },
-  { valeur: "J_MOINS_3", libelle: "3 jours avant" },
-  { valeur: "J_MOINS_2", libelle: "2 jours avant" },
-  { valeur: "VEILLE", libelle: "La veille (18h)" },
-  { valeur: "MATIN_MEME", libelle: "Le matin meme (6h30)" },
-];
+const OPTIONS_RAPPELS_DEVOIR = OPTIONS_RAPPELS;
 
 const OPTIONS_CANAUX = [
   { valeur: "EMAIL", libelle: "Email" },
@@ -77,7 +71,7 @@ export default async function PageParametres({
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Parametres</h1>
+        <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Paramètres</h1>
         <form action={lancerSynchronisationGenerale}>
           <BoutonSoumission
             texteChargement="Synchronisation…"
@@ -90,20 +84,15 @@ export default async function PageParametres({
 
       {derniereSynchro && (
         <p className="-mt-4 text-xs text-zinc-500">
-          Derniere synchronisation : {derniereSynchro.demarreeLe.toLocaleString("fr-FR")} —{" "}
-          {derniereSynchro.statut} ({derniereSynchro.elementsImportes} elements importes)
+          Dernière synchronisation : {derniereSynchro.demarreeLe.toLocaleString("fr-FR")} —{" "}
+          {derniereSynchro.statut} ({derniereSynchro.elementsImportes} éléments importés)
         </p>
       )}
 
       <section className="rounded-lg border border-zinc-300 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="mb-1 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+        <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
           Synchronisation automatique
         </h2>
-        <p className="mb-3 text-sm text-zinc-500">
-          A quelle frequence recuperer automatiquement vos donnees depuis MonBureauNumerique. Necessite
-          qu&apos;une tache planifiee soit configuree sur le serveur (crontab appelant
-          /api/synchronisation/verifier).
-        </p>
         <form action={mettreAJourFrequenceSynchronisation} className="flex flex-wrap items-end gap-3">
           <select
             name="frequence"
@@ -123,37 +112,33 @@ export default async function PageParametres({
       </section>
 
       <section className="rounded-lg border border-zinc-300 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="mb-1 text-sm font-semibold text-zinc-700 dark:text-zinc-300">Compte ZITADEL</h2>
-        <p className="mb-3 text-sm text-zinc-500">
-          Le mot de passe, l&apos;identifiant et les autres informations de connexion sont geres
-          directement par ZITADEL, pas par cette application.
-        </p>
+        <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">Compte ZITADEL</h2>
         <a
           href={`${process.env.ZITADEL_ISSUER}/ui/console/users/me`}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-block rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
         >
-          Gerer mon compte ZITADEL ↗
+          Gérer mon compte ZITADEL ↗
         </a>
       </section>
 
       <section className="rounded-lg border border-zinc-300 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
         <h2 className="mb-1 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-          Connexion MonBureauNumerique
+          Connexion MonBureauNumérique
         </h2>
         <p className="mb-3 text-sm text-zinc-500">
           Statut :{" "}
           {utilisateur.scolengoTokenChiffre ? (
-            <span className="text-green-600 dark:text-green-400">token configure</span>
+            <span className="text-green-600 dark:text-green-400">token configuré</span>
           ) : (
-            <span className="text-amber-600 dark:text-amber-400">aucun token configure</span>
+            <span className="text-amber-600 dark:text-amber-400">aucun token configuré</span>
           )}
         </p>
 
         {erreur && <p className="mb-3 text-sm text-red-500">{erreur}</p>}
         {succes && !testOk && (
-          <p className="mb-3 text-sm text-green-600 dark:text-green-400">Configuration enregistree.</p>
+          <p className="mb-3 text-sm text-green-600 dark:text-green-400">Configuration enregistrée.</p>
         )}
 
         <form action={enregistrerTokenScolengo} className="flex flex-col gap-2">
@@ -183,25 +168,21 @@ export default async function PageParametres({
       </section>
 
       <section className="rounded-lg border border-zinc-300 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="mb-1 text-sm font-semibold text-zinc-700 dark:text-zinc-300">Mode developpeur</h2>
-        <p className="mb-3 text-sm text-zinc-500">
-          Affiche le bloc de synchronisation avec des dates precises sur les pages Devoirs, Controles et
-          Notes (pratique pour tester avec d&apos;anciennes periodes). Masque par defaut.
-        </p>
+        <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">Mode développeur</h2>
         <form action={basculerModeDeveloppeur}>
           <input type="hidden" name="actif" value={utilisateur.modeDeveloppeur ? "0" : "1"} />
           <BoutonSoumission className="rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900">
-            {utilisateur.modeDeveloppeur ? "Desactiver le mode developpeur" : "Activer le mode developpeur"}
+            {utilisateur.modeDeveloppeur ? "Désactiver le mode développeur" : "Activer le mode développeur"}
           </BoutonSoumission>
         </form>
       </section>
 
       <section className="rounded-lg border border-zinc-300 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">Preferences</h2>
+        <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">Préférences</h2>
         <form action={mettreAJourPreferences} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
             <label className="text-xs text-zinc-500" htmlFor="motsCles">
-              Mots-cles de detection des controles (separes par des virgules)
+              Mots-clés de détection des contrôles (séparés par des virgules)
             </label>
             <textarea
               id="motsCles"
@@ -238,12 +219,9 @@ export default async function PageParametres({
       </section>
 
       <section className="rounded-lg border border-zinc-300 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">Rappels de controles</h2>
+        <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">Rappels de contrôles</h2>
         <form action={mettreAJourRappels} className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <p className="text-xs text-zinc-500">
-              Rappels ajoutes automatiquement a chaque nouveau controle (manuel ou detecte)
-            </p>
             <div className="flex flex-wrap gap-3">
               {OPTIONS_RAPPELS.map((option) => (
                 <label key={option.valeur} className="flex items-center gap-1 text-sm text-zinc-700 dark:text-zinc-300">
@@ -261,7 +239,7 @@ export default async function PageParametres({
             </div>
           </div>
           <div className="flex flex-col gap-2">
-            <p className="text-xs text-zinc-500">Canaux utilises pour ces rappels</p>
+            <p className="text-xs text-zinc-500">Canaux utilisés pour ces rappels</p>
             <div className="flex flex-wrap gap-3">
               {OPTIONS_CANAUX.map((option) => (
                 <label key={option.valeur} className="flex items-center gap-1 text-sm text-zinc-700 dark:text-zinc-300">
@@ -288,10 +266,6 @@ export default async function PageParametres({
         <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">Rappels de devoirs</h2>
         <form action={mettreAJourRappelsDevoir} className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <p className="text-xs text-zinc-500">
-              Rappels envoyes pour chaque devoir tant qu&apos;il n&apos;est pas marque comme
-              &laquo;&nbsp;Termine&nbsp;&raquo;. Aucun rappel n&apos;est envoye une fois le devoir fait.
-            </p>
             <div className="flex flex-wrap gap-3">
               {OPTIONS_RAPPELS_DEVOIR.map((option) => (
                 <label key={option.valeur} className="flex items-center gap-1 text-sm text-zinc-700 dark:text-zinc-300">
@@ -309,7 +283,7 @@ export default async function PageParametres({
             </div>
           </div>
           <div className="flex flex-col gap-2">
-            <p className="text-xs text-zinc-500">Canaux utilises pour ces rappels</p>
+            <p className="text-xs text-zinc-500">Canaux utilisés pour ces rappels</p>
             <div className="flex flex-wrap gap-3">
               {OPTIONS_CANAUX.map((option) => (
                 <label key={option.valeur} className="flex items-center gap-1 text-sm text-zinc-700 dark:text-zinc-300">
@@ -337,12 +311,11 @@ export default async function PageParametres({
           Notifications mobiles (ntfy)
         </h2>
         <p className="mb-3 text-sm text-zinc-500">
-          Installez l&apos;app{" "}
+          Abonnez-vous à ce topic dans l&apos;app{" "}
           <a href="https://ntfy.sh" target="_blank" rel="noopener noreferrer" className="underline">
             ntfy
           </a>{" "}
-          et abonnez-vous au topic ci-dessous pour recevoir les rappels sur votre telephone, meme site
-          ferme.
+          pour recevoir les rappels sur votre téléphone.
         </p>
         <form action={enregistrerNtfy} className="flex flex-wrap items-end gap-3">
           <div className="flex flex-1 min-w-40 flex-col gap-1">
@@ -360,7 +333,7 @@ export default async function PageParametres({
           </div>
           <div className="flex flex-1 min-w-40 flex-col gap-1">
             <label className="text-xs text-zinc-500" htmlFor="serveur">
-              Serveur (optionnel, ntfy.sh par defaut)
+              Serveur (optionnel, ntfy.sh par défaut)
             </label>
             <input
               id="serveur"
@@ -377,23 +350,19 @@ export default async function PageParametres({
         {parametreNtfy && (
           <form action={supprimerNtfy} className="mt-2">
             <button type="submit" className="text-xs text-red-500 hover:underline">
-              Desactiver les notifications ntfy
+              Désactiver les notifications ntfy
             </button>
           </form>
         )}
       </section>
 
       <section className="rounded-lg border border-zinc-300 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="mb-1 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+        <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
           Tester les notifications
         </h2>
-        <p className="mb-3 text-sm text-zinc-500">
-          Envoie immediatement un message de test par email et vers chaque canal mobile actif
-          (ntfy/Pushover/Gotify), sans attendre un vrai rappel de controle.
-        </p>
         {testOk && (
           <p className="mb-3 text-sm text-green-600 dark:text-green-400">
-            Test envoye avec succes : {testOk || "email"}.
+            Test envoyé avec succès : {testOk || "email"}.
           </p>
         )}
         <form action={envoyerNotificationTest}>
@@ -407,13 +376,9 @@ export default async function PageParametres({
       </section>
 
       <section className="rounded-lg border border-zinc-300 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="mb-1 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
-          Exporter mes donnees
+        <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+          Exporter mes données
         </h2>
-        <p className="mb-3 text-sm text-zinc-500">
-          Telecharge un fichier JSON contenant vos donnees (les fichiers joints sont inclus, encodes dans
-          le fichier).
-        </p>
         <div className="flex flex-wrap gap-3">
           <a
             href="/api/export?portee=cours"
@@ -439,14 +404,12 @@ export default async function PageParametres({
       <section className="rounded-lg border border-red-300 bg-white p-4 dark:border-red-900 dark:bg-zinc-950">
         <h2 className="mb-1 text-sm font-semibold text-red-600 dark:text-red-400">Zone dangereuse</h2>
         <p className="mb-3 text-sm text-zinc-500">
-          Supprime definitivement toutes vos matieres, chapitres de cours, devoirs, controles, notes,
-          copies et documents associes. Votre compte, la connexion MonBureauNumerique et vos preferences
-          de notification sont conserves. Cette action est irreversible : pensez a exporter vos donnees
-          avant si besoin.
+          Supprime définitivement vos matières, cours, devoirs, contrôles, notes et documents. Le compte
+          et la connexion MonBureauNumérique sont conservés. Action irréversible.
         </p>
         <form action={reinitialiserDonnees}>
           <ConfirmationSuppression motAttendu="SUPPRIMER">
-            Reinitialiser toutes mes donnees
+            Réinitialiser toutes mes données
           </ConfirmationSuppression>
         </form>
       </section>

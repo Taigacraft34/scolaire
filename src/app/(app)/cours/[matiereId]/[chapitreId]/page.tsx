@@ -44,7 +44,7 @@ export default async function PageChapitre({
           <form action={supprimerChapitre}>
             <input type="hidden" name="chapitreId" value={chapitre.id} />
             <input type="hidden" name="matiereId" value={matiereId} />
-            <BoutonSupprimer confirmation={`Supprimer definitivement le chapitre "${chapitre.nom}" ?`} />
+            <BoutonSupprimer confirmation={`Supprimer définitivement le chapitre "${chapitre.nom}" ?`} />
           </form>
         </div>
       </div>
@@ -52,7 +52,7 @@ export default async function PageChapitre({
       <div className="flex flex-col gap-4 rounded-lg border border-zinc-300 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
         {chapitre.blocs.length === 0 ? (
           <p className="text-sm text-zinc-500">
-            Ce chapitre est vide. Cliquez sur &quot;Modifier&quot; pour ajouter du contenu.
+            Ce chapitre est vide.
           </p>
         ) : (
           chapitre.blocs.map((bloc) =>

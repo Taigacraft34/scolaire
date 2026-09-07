@@ -19,7 +19,7 @@ export function chiffrer(texteClair: string): string {
 
 export function dechiffrer(valeurChiffree: string): string {
   const [ivB64, tagB64, chiffreB64] = valeurChiffree.split(".");
-  if (!ivB64 || !tagB64 || !chiffreB64) throw new Error("Format de valeur chiffree invalide.");
+  if (!ivB64 || !tagB64 || !chiffreB64) throw new Error("Format de valeur chiffrée invalide.");
 
   const dechiffreur = createDecipheriv("aes-256-gcm", cle(), Buffer.from(ivB64, "base64"));
   dechiffreur.setAuthTag(Buffer.from(tagB64, "base64"));

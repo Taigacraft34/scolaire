@@ -76,14 +76,14 @@ export default async function PageControles({
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Controles</h1>
+      <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Contrôles</h1>
 
       <MiseEnAvantRecherche focusId={focus} />
 
       {modeDeveloppeur && <FormulaireSynchronisation derniereSynchro={derniereSynchro} />}
 
       <section className="rounded-lg border border-zinc-300 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">Ajouter un controle</h2>
+        <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">Ajouter un contrôle</h2>
         {erreur && <p className="mb-3 text-sm text-red-500">{erreur}</p>}
         <form action={creerControleManuel} className="flex flex-col gap-3">
           <div className="flex flex-wrap gap-3">
@@ -142,8 +142,8 @@ export default async function PageControles({
       <div className="rounded-lg border border-zinc-300 bg-white dark:border-zinc-800 dark:bg-zinc-950">
         {controles.length === 0 ? (
           <p className="p-4 text-sm text-zinc-500">
-            Aucun controle. Les controles sont detectes automatiquement lors de la synchronisation des
-            devoirs, ou peuvent etre ajoutes manuellement ci-dessus.
+            Aucun contrôle. Les contrôles sont détectés automatiquement lors de la synchronisation des
+            devoirs, ou peuvent être ajoutés manuellement ci-dessus.
           </p>
         ) : (
           <ul className="divide-y divide-zinc-100 dark:divide-zinc-900">
@@ -176,7 +176,7 @@ export default async function PageControles({
                     </span>
                     <form action={supprimerControle}>
                       <input type="hidden" name="controleId" value={controle.id} />
-                      <BoutonSupprimer confirmation="Supprimer definitivement ce controle ?" />
+                      <BoutonSupprimer confirmation="Supprimer définitivement ce contrôle ?" />
                     </form>
                   </div>
                 </div>
@@ -202,7 +202,7 @@ export default async function PageControles({
                           className="rounded border border-zinc-300 px-2 py-1 text-xs dark:border-zinc-700 dark:bg-zinc-900"
                         >
                           <option value="" disabled>
-                            Lier a un devoir de {controle.matiere.nom}…
+                            Lier à un devoir de {controle.matiere.nom}…
                           </option>
                           {devoirsMemeMatiere.map((devoir) => (
                             <option key={devoir.id} value={devoir.id}>
@@ -237,7 +237,7 @@ export default async function PageControles({
                         <form action={delierChapitreDuControle}>
                           <input type="hidden" name="controleId" value={controle.id} />
                           <input type="hidden" name="chapitreId" value={liaison.chapitreId} />
-                          <button type="submit" className="text-red-500 hover:underline" aria-label="Delier">
+                          <button type="submit" className="text-red-500 hover:underline" aria-label="Délier">
                             ×
                           </button>
                         </form>
@@ -260,7 +260,7 @@ export default async function PageControles({
                         className="rounded border border-zinc-300 px-2 py-1 text-xs dark:border-zinc-700 dark:bg-zinc-900"
                       >
                         <option value="" disabled>
-                          Lier a un chapitre…
+                          Lier à un chapitre…
                         </option>
                         {chapitresNonLies.map((c) => (
                           <option key={c.id} value={c.id}>

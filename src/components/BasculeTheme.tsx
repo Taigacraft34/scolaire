@@ -33,7 +33,7 @@ export function BasculeTheme() {
     <button
       type="button"
       onClick={basculer}
-      title={sombre ? "Passer au theme clair" : "Passer au theme sombre"}
+      title={sombre ? "Passer au thème clair" : "Passer au thème sombre"}
       className="text-sm hover:text-zinc-950 dark:hover:text-zinc-50"
     >
       {sombre ? "☀️" : "🌙"}

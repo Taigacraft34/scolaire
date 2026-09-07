@@ -45,7 +45,7 @@ export default async function PageNotes({
 
       {parMatiere.size > 0 && (
         <section className="rounded-lg border border-zinc-300 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-          <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">Moyennes par matiere</h2>
+          <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">Moyennes par matière</h2>
           <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {[...parMatiere.entries()].map(([nom, { total, poids }]) => (
               <li key={nom} className="flex justify-between text-sm">
@@ -62,7 +62,7 @@ export default async function PageNotes({
       <div className="flex flex-col gap-4">
         {notes.length === 0 ? (
           <p className="rounded-lg border border-zinc-300 bg-white p-4 text-sm text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950">
-            Aucune note enregistree.
+            Aucune note enregistrée.
           </p>
         ) : (
           notes.map((note) => (
@@ -96,7 +96,7 @@ export default async function PageNotes({
                         )}
                         <form action={supprimerCopie} className="ml-auto">
                           <input type="hidden" name="copieId" value={copie.id} />
-                          <BoutonSupprimer confirmation="Supprimer definitivement cette copie ?" />
+                          <BoutonSupprimer confirmation="Supprimer définitivement cette copie ?" />
                         </form>
                       </div>
                       <div className="flex flex-wrap gap-2">

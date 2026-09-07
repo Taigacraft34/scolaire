@@ -6,7 +6,7 @@ const CLASSE_CHAMP =
   "rounded border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-900";
 
 // Champ "Matiere" controle (select parmi les matieres existantes ou saisie
-// libre d'une nouvelle). Sur certains mobiles, une option "Nouvelle matiere"
+// libre d'une nouvelle). Sur certains mobiles, une option "Nouvelle matière"
 // placee dans le <select> peut etre pre-selectionnee sans declencher d'evenement
 // de changement : on utilise donc un bouton separe pour basculer.
 export function SelecteurMatiereChamp({
@@ -29,11 +29,11 @@ export function SelecteurMatiereChamp({
     <div className="flex flex-1 min-w-40 flex-col gap-1">
       <div className="flex items-center justify-between">
         <label className="text-xs text-zinc-500" htmlFor="matiere">
-          Matiere
+          Matière
         </label>
         {matieres.length > 0 && (
           <button type="button" onClick={basculer} className="text-xs text-zinc-500 underline">
-            {nouvelle ? "Choisir dans la liste" : "+ Nouvelle matiere"}
+            {nouvelle ? "Choisir dans la liste" : "+ Nouvelle matière"}
           </button>
         )}
       </div>
@@ -63,7 +63,7 @@ export function SelecteurMatiereChamp({
           autoFocus={matieres.length > 0}
           value={valeur}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="Nom de la matiere"
+          placeholder="Nom de la matière"
           className={CLASSE_CHAMP}
         />
       )}

@@ -47,12 +47,12 @@ function LigneDevoir({ devoir }: { devoir: DevoirAvecMatiere }) {
                   : "rounded-full bg-blue-600 px-3 py-1 text-xs text-white hover:bg-blue-700"
               }
             >
-              {devoir.statut === "TERMINE" ? "Marquer non fait" : "Marquer termine"}
+              {devoir.statut === "TERMINE" ? "Marquer non fait" : "Marquer terminé"}
             </BoutonSoumission>
           </form>
           <form action={supprimerDevoir}>
             <input type="hidden" name="devoirId" value={devoir.id} />
-            <BoutonSupprimer confirmation="Supprimer definitivement ce devoir ?" />
+            <BoutonSupprimer confirmation="Supprimer définitivement ce devoir ?" />
           </form>
         </div>
       </div>
@@ -187,7 +187,7 @@ export default async function PageDevoirs({
           <p className="p-4 text-sm text-zinc-500">
             Aucun devoir. Configurez votre token Scolengo dans les{" "}
             <a href="/parametres" className="underline">
-              parametres
+              paramètres
             </a>{" "}
             puis lancez une synchronisation, ou ajoutez-en un manuellement ci-dessus.
           </p>
@@ -195,7 +195,7 @@ export default async function PageDevoirs({
       ) : (
         <div className="flex flex-col gap-4">
           {aucunAVenir ? (
-            <p className="text-sm text-zinc-500">Aucun devoir a venir.</p>
+            <p className="text-sm text-zinc-500">Aucun devoir à venir.</p>
           ) : (
             <>
               <GroupeDevoirs titre="Pour aujourd'hui" devoirs={pourAujourdhui} />
@@ -205,7 +205,7 @@ export default async function PageDevoirs({
           )}
 
           {afficherPasses && (
-            <GroupeDevoirs titre="Devoirs passes" devoirs={devoirsPasses} />
+            <GroupeDevoirs titre="Devoirs passés" devoirs={devoirsPasses} />
           )}
 
           {devoirsPassesCount > 0 && (
@@ -214,8 +214,8 @@ export default async function PageDevoirs({
               className="self-center rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
             >
               {afficherPasses
-                ? "Masquer les devoirs passes"
-                : `Voir les devoirs passes (${devoirsPassesCount})`}
+                ? "Masquer les devoirs passés"
+                : `Voir les devoirs passés (${devoirsPassesCount})`}
             </Link>
           )}
         </div>
