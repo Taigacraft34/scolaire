@@ -2,9 +2,10 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { libelleStatutControle } from "@/lib/libelles";
 import { FormulaireSynchronisation } from "@/components/FormulaireSynchronisation";
-import { SelecteurMatiereDevoir } from "@/components/SelecteurMatiereDevoir";
+import { ChampsControle } from "@/components/ChampsControle";
 import { BoutonSupprimer } from "@/components/BoutonSupprimer";
 import { MiseEnAvantRecherche } from "@/components/MiseEnAvantRecherche";
+import { formatDateInput } from "@/lib/prochainCours";
 import Link from "next/link";
 import {
   creerControleManuel,
@@ -23,8 +24,15 @@ export default async function PageControles({
   const utilisateurId = session!.user.id;
   const { erreur, focus } = await searchParams;
 
-  const [utilisateur, controles, derniereSynchro, matieres, devoirsDisponibles, chapitresDisponibles] =
-    await Promise.all([
+  const [
+    utilisateur,
+    controles,
+    derniereSynchro,
+    matieres,
+    devoirsDisponibles,
+    chapitresDisponibles,
+    creneaux,
+  ] = await Promise.all([
       prisma.utilisateur.findUnique({ where: { id: utilisateurId }, select: { modeDeveloppeur: true } }),
       prisma.controle.findMany({
         where: { utilisateurId },
@@ -51,6 +59,10 @@ export default async function PageControles({
         orderBy: { nom: "asc" },
         take: 300,
       }),
+      prisma.creneauEdt.findMany({
+        where: { emploiDuTemps: { utilisateurId } },
+        select: { jour: true, matiere: true, typeSemaine: true, rangS1Q: true },
+      }),
     ]);
 
   const modeDeveloppeur = utilisateur?.modeDeveloppeur ?? false;
@@ -68,26 +80,16 @@ export default async function PageControles({
         {erreur && <p className="mb-3 text-sm text-red-500">{erreur}</p>}
         <form action={creerControleManuel} className="flex flex-col gap-3">
           <div className="flex flex-wrap gap-3">
-            <SelecteurMatiereDevoir
+            <ChampsControle
               matieres={matieres.map((m) => m.nom)}
+              creneaux={creneaux}
               devoirs={devoirsDisponibles.map((devoir) => ({
                 id: devoir.id,
                 matiereNom: devoir.matiere.nom,
                 libelle: `${devoir.titre} (${devoir.date.toLocaleDateString("fr-FR")})`,
+                date: formatDateInput(devoir.date),
               }))}
             />
-            <div className="flex flex-col gap-1">
-              <label className="text-xs text-zinc-500" htmlFor="date">
-                Date
-              </label>
-              <input
-                type="date"
-                id="date"
-                name="date"
-                required
-                className="rounded border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-              />
-            </div>
             <div className="flex flex-col gap-1">
               <label className="text-xs text-zinc-500" htmlFor="heure">
                 Heure

@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { LIBELLES_STATUT_DEVOIR } from "@/lib/libelles";
 import { nettoyerHtml } from "@/lib/html";
 import { FormulaireSynchronisation } from "@/components/FormulaireSynchronisation";
-import { SelecteurMatiere } from "@/components/SelecteurMatiere";
+import { ChampsDevoir } from "@/components/ChampsDevoir";
 import { BoutonSupprimer } from "@/components/BoutonSupprimer";
 import { BoutonSoumission } from "@/components/BoutonSoumission";
 import { MiseEnAvantRecherche } from "@/components/MiseEnAvantRecherche";
@@ -105,8 +105,15 @@ export default async function PageDevoirs({
     : null;
   const afficherPasses = passes === "1" || (devoirFocus ? devoirFocus.date < debutAujourdhui : false);
 
-  const [utilisateur, devoirsAVenir, devoirsPassesCount, devoirsPasses, derniereSynchro, matieres] =
-    await Promise.all([
+  const [
+    utilisateur,
+    devoirsAVenir,
+    devoirsPassesCount,
+    devoirsPasses,
+    derniereSynchro,
+    matieres,
+    creneaux,
+  ] = await Promise.all([
       prisma.utilisateur.findUnique({ where: { id: utilisateurId }, select: { modeDeveloppeur: true } }),
       prisma.devoir.findMany({
         where: { utilisateurId, date: { gte: debutAujourdhui } },
@@ -125,6 +132,10 @@ export default async function PageDevoirs({
         : Promise.resolve([] as DevoirAvecMatiere[]),
       prisma.synchronisation.findFirst({ where: { utilisateurId }, orderBy: { demarreeLe: "desc" } }),
       prisma.matiere.findMany({ where: { utilisateurId }, orderBy: { nom: "asc" } }),
+      prisma.creneauEdt.findMany({
+        where: { emploiDuTemps: { utilisateurId } },
+        select: { jour: true, matiere: true, typeSemaine: true, rangS1Q: true },
+      }),
     ]);
 
   const modeDeveloppeur = utilisateur?.modeDeveloppeur ?? false;
@@ -148,32 +159,7 @@ export default async function PageDevoirs({
         <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">Ajouter un devoir</h2>
         {erreur && <p className="mb-3 text-sm text-red-500">{erreur}</p>}
         <form action={creerDevoirManuel} className="flex flex-col gap-3">
-          <div className="flex flex-wrap gap-3">
-            <SelecteurMatiere matieres={matieres.map((m) => m.nom)} />
-            <div className="flex flex-1 min-w-40 flex-col gap-1">
-              <label className="text-xs text-zinc-500" htmlFor="titre">
-                Titre
-              </label>
-              <input
-                id="titre"
-                name="titre"
-                required
-                className="rounded border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-xs text-zinc-500" htmlFor="date">
-                Date
-              </label>
-              <input
-                type="date"
-                id="date"
-                name="date"
-                required
-                className="rounded border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-              />
-            </div>
-          </div>
+          <ChampsDevoir matieres={matieres.map((m) => m.nom)} creneaux={creneaux} />
           <div className="flex flex-col gap-1">
             <label className="text-xs text-zinc-500" htmlFor="description">
               Description

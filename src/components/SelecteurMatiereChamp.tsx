@@ -2,12 +2,28 @@
 
 import { useState } from "react";
 
-// Sur certains mobiles, une option "Nouvelle matiere" placee dans le <select>
-// peut etre pre-selectionnee automatiquement (ex: liste vide) sans qu'un
-// evenement de changement ne se declenche, ce qui empeche de jamais basculer
-// vers le champ texte. On utilise donc un bouton separe, plus fiable.
-export function SelecteurMatiere({ matieres }: { matieres: string[] }) {
+const CLASSE_CHAMP =
+  "rounded border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-900";
+
+// Champ "Matiere" controle (select parmi les matieres existantes ou saisie
+// libre d'une nouvelle). Sur certains mobiles, une option "Nouvelle matiere"
+// placee dans le <select> peut etre pre-selectionnee sans declencher d'evenement
+// de changement : on utilise donc un bouton separe pour basculer.
+export function SelecteurMatiereChamp({
+  matieres,
+  valeur,
+  onChange,
+}: {
+  matieres: string[];
+  valeur: string;
+  onChange: (valeur: string) => void;
+}) {
   const [nouvelle, setNouvelle] = useState(matieres.length === 0);
+
+  function basculer() {
+    setNouvelle((v) => !v);
+    onChange("");
+  }
 
   return (
     <div className="flex flex-1 min-w-40 flex-col gap-1">
@@ -16,11 +32,7 @@ export function SelecteurMatiere({ matieres }: { matieres: string[] }) {
           Matiere
         </label>
         {matieres.length > 0 && (
-          <button
-            type="button"
-            onClick={() => setNouvelle((v) => !v)}
-            className="text-xs text-zinc-500 underline"
-          >
+          <button type="button" onClick={basculer} className="text-xs text-zinc-500 underline">
             {nouvelle ? "Choisir dans la liste" : "+ Nouvelle matiere"}
           </button>
         )}
@@ -30,8 +42,9 @@ export function SelecteurMatiere({ matieres }: { matieres: string[] }) {
           id="matiere"
           name="matiere"
           required
-          defaultValue=""
-          className="rounded border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          value={valeur}
+          onChange={(e) => onChange(e.target.value)}
+          className={CLASSE_CHAMP}
         >
           <option value="" disabled>
             Choisir…
@@ -48,8 +61,10 @@ export function SelecteurMatiere({ matieres }: { matieres: string[] }) {
           name="matiere"
           required
           autoFocus={matieres.length > 0}
+          value={valeur}
+          onChange={(e) => onChange(e.target.value)}
           placeholder="Nom de la matiere"
-          className="rounded border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+          className={CLASSE_CHAMP}
         />
       )}
     </div>
