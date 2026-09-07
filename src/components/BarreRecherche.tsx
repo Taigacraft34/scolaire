@@ -208,15 +208,16 @@ export function BarreRecherche() {
                             key={item.id}
                             href={item.href}
                             onClick={fermer}
-                            className="flex items-center justify-between gap-2 rounded px-2 py-1.5 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-900"
+                            className="flex items-start justify-between gap-2 rounded px-2 py-1.5 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-900"
                           >
-                            <span className="min-w-0 truncate text-zinc-800 dark:text-zinc-200">
-                              <span className="text-zinc-500">{item.matiere}</span>
-                              {" — "}
-                              {item.titre}
+                            <span className="flex min-w-0 flex-col">
+                              <span className="text-xs text-zinc-500">{item.matiere}</span>
+                              <span className="truncate text-zinc-800 dark:text-zinc-200">
+                                {item.titre}
+                              </span>
                             </span>
                             {item.date && (
-                              <span className="shrink-0 text-xs text-zinc-500">
+                              <span className="shrink-0 pt-0.5 text-xs text-zinc-500">
                                 {new Date(item.date).toLocaleDateString("fr-FR")}
                               </span>
                             )}
