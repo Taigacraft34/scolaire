@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { SelecteurMatiereChamp } from "./SelecteurMatiereChamp";
-import { formatDateInput, prochaineDateCours, type CreneauMinimal } from "@/lib/prochainCours";
+import { formatDateInput, prochaineDateCours, type SeanceMinimale } from "@/lib/prochainCours";
 
 interface DevoirOption {
   id: string;
@@ -22,11 +22,11 @@ const CLASSE_CHAMP =
 export function ChampsControle({
   matieres,
   devoirs,
-  creneaux,
+  seances,
 }: {
   matieres: string[];
   devoirs: DevoirOption[];
-  creneaux: CreneauMinimal[];
+  seances: SeanceMinimale[];
 }) {
   const [matiere, setMatiere] = useState("");
   const [devoirId, setDevoirId] = useState("");
@@ -48,7 +48,7 @@ export function ChampsControle({
         return;
       }
     }
-    const prochaine = prochaineDateCours(creneaux, matiereCourante);
+    const prochaine = prochaineDateCours(seances, matiereCourante);
     setDate(prochaine ? formatDateInput(prochaine) : "");
   }
 

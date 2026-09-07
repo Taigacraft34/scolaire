@@ -36,7 +36,7 @@ export default async function PageControles({
     matieres,
     devoirsDisponibles,
     chapitresDisponibles,
-    creneaux,
+    seances,
   ] = await Promise.all([
       prisma.utilisateur.findUnique({ where: { id: utilisateurId }, select: { modeDeveloppeur: true } }),
       prisma.controle.findMany({
@@ -64,9 +64,11 @@ export default async function PageControles({
         orderBy: { nom: "asc" },
         take: 300,
       }),
-      prisma.creneauEdt.findMany({
-        where: { emploiDuTemps: { utilisateurId } },
-        select: { jour: true, matiere: true, typeSemaine: true, rangS1Q: true },
+      prisma.seanceEmploiDuTemps.findMany({
+        where: { utilisateurId, annule: false, debut: { gte: debutAujourdhui } },
+        select: { debut: true, matiere: true },
+        orderBy: { debut: "asc" },
+        take: 500,
       }),
     ]);
 
@@ -87,7 +89,7 @@ export default async function PageControles({
           <div className="flex flex-wrap gap-3">
             <ChampsControle
               matieres={matieres.map((m) => m.nom)}
-              creneaux={creneaux}
+              seances={seances}
               devoirs={devoirsDisponibles.map((devoir) => ({
                 id: devoir.id,
                 matiereNom: devoir.matiere.nom,

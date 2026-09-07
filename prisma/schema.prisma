@@ -74,25 +74,6 @@ enum FrequenceSynchronisation {
   QUOTIDIENNE
 }
 
-enum JourSemaine {
-  LUNDI
-  MARDI
-  MERCREDI
-  JEUDI
-  VENDREDI
-  SAMEDI
-  DIMANCHE
-}
-
-// Frequence d'un creneau d'emploi du temps : chaque semaine, ou en alternance
-// (semaine impaire / semaine paire / une semaine sur quatre).
-enum TypeSemaineCreneau {
-  CHAQUE_SEMAINE
-  SIP
-  SP
-  S1Q
-}
-
 // ---------------------------------------------------------------------------
 // Utilisateur
 // ---------------------------------------------------------------------------
@@ -139,10 +120,8 @@ model Utilisateur {
   journaux          Journal[]
   documents         Document[]
 
-  // Son propre emploi du temps (au plus un).
-  emploiDuTempsPropre EmploiDuTemps? @relation("EmploiDuTempsPropre")
-  // Emplois du temps de personnes sans compte, qu'il gere.
-  emploisDuTempsGeres EmploiDuTemps[] @relation("EmploiDuTempsGere")
+  // Emploi du temps synchronise depuis MonBureauNumerique (seances datees).
+  seancesEmploiDuTemps SeanceEmploiDuTemps[]
 
   @@map("utilisateurs")
 }
@@ -478,50 +457,29 @@ model Journal {
 // Emploi du temps
 // ---------------------------------------------------------------------------
 
-// Un emploi du temps appartient soit a un compte existant (utilisateurId, au
-// plus un par compte), soit a une personne sans compte creee manuellement
-// (nomPersonne + gerePar, le compte qui la gere). Tous les utilisateurs
-// connectes peuvent consulter n'importe quel emploi du temps ; seuls le
-// titulaire du compte ou le gestionnaire (et les administrateurs) peuvent le
-// modifier.
-model EmploiDuTemps {
-  id String @id @default(cuid())
+// Seance de cours datee, importee automatiquement depuis MonBureauNumerique
+// (agenda Scolengo). Il n'y a pas de saisie manuelle : le contenu est
+// entierement remplace a chaque synchronisation.
+model SeanceEmploiDuTemps {
+  id            String @id @default(cuid())
+  utilisateurId String
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
 
-  utilisateurId String?      @unique
-  utilisateur   Utilisateur? @relation("EmploiDuTempsPropre", fields: [utilisateurId], references: [id], onDelete: Cascade)
+  externalId String // identifiant Scolengo de la seance
 
-  nomPersonne String?
-  gerePar     String?
-  gestionnaire Utilisateur? @relation("EmploiDuTempsGere", fields: [gerePar], references: [id], onDelete: Cascade)
-
-  creneaux CreneauEdt[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@map("emplois_du_temps")
-}
-
-model CreneauEdt {
-  id              String        @id @default(cuid())
-  emploiDuTempsId String
-  emploiDuTemps   EmploiDuTemps @relation(fields: [emploiDuTempsId], references: [id], onDelete: Cascade)
-
-  jour       JourSemaine
-  heureDebut String // "08:00"
-  heureFin   String // "09:00"
-
+  debut  DateTime
+  fin    DateTime
   matiere    String
-  enseignant String?
+  titre      String?
   salle      String?
+  enseignant String?
   couleur    String?
-
-  typeSemaine TypeSemaineCreneau @default(CHAQUE_SEMAINE)
-  rangS1Q     Int? // 1 a 4, utilise uniquement si typeSemaine = S1Q
+  annule     Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([emploiDuTempsId, jour])
-  @@map("creneaux_edt")
+  @@unique([utilisateurId, externalId])
+  @@index([utilisateurId, debut])
+  @@map("seances_emploi_du_temps")
 }

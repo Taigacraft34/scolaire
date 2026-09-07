@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { SelecteurMatiereChamp } from "./SelecteurMatiereChamp";
-import { formatDateInput, prochaineDateCours, type CreneauMinimal } from "@/lib/prochainCours";
+import { formatDateInput, prochaineDateCours, type SeanceMinimale } from "@/lib/prochainCours";
 
 const CLASSE_CHAMP =
   "rounded border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-900";
@@ -12,10 +12,10 @@ const CLASSE_CHAMP =
 // (les cours du jour meme sont ignores) ; la date reste modifiable.
 export function ChampsDevoir({
   matieres,
-  creneaux,
+  seances,
 }: {
   matieres: string[];
-  creneaux: CreneauMinimal[];
+  seances: SeanceMinimale[];
 }) {
   const [matiere, setMatiere] = useState("");
   const [date, setDate] = useState("");
@@ -24,7 +24,7 @@ export function ChampsDevoir({
   function changerMatiere(nom: string) {
     setMatiere(nom);
     if (dateModifiee) return;
-    const prochaine = prochaineDateCours(creneaux, nom);
+    const prochaine = prochaineDateCours(seances, nom);
     setDate(prochaine ? formatDateInput(prochaine) : "");
   }
 

@@ -231,6 +231,58 @@ export async function synchroniserUtilisateur(utilisateurId: string, options: Op
       }
     }
 
+    // --- Emploi du temps (agenda : seances datees) ---
+    try {
+      const agenda = await recupererToutesLesPages((limit, offset) =>
+        client.getAgenda(studentId, formatDateAPI(dateDebut), formatDateAPI(dateFin), limit, offset),
+      );
+
+      const seancesVues: string[] = [];
+
+      for (const jour of agenda) {
+        for (const seance of jour.lessons ?? []) {
+          const enseignant =
+            seance.teachers
+              ?.map((t) => [t.firstName, t.lastName].filter(Boolean).join(" "))
+              .filter(Boolean)
+              .join(", ") || null;
+
+          const donneesSeance = {
+            utilisateurId,
+            externalId: seance.id,
+            debut: new Date(seance.startDateTime),
+            fin: new Date(seance.endDateTime),
+            matiere: seance.subject?.label ?? seance.title ?? "Cours",
+            titre: seance.title ?? null,
+            salle: [seance.location, seance.locationComplement].filter(Boolean).join(" ") || null,
+            enseignant,
+            couleur: seance.subject?.color ?? null,
+            annule: seance.canceled ?? false,
+          };
+
+          await prisma.seanceEmploiDuTemps.upsert({
+            where: { utilisateurId_externalId: { utilisateurId, externalId: seance.id } },
+            update: donneesSeance,
+            create: donneesSeance,
+          });
+          seancesVues.push(seance.id);
+          elementsImportes++;
+        }
+      }
+
+      // L'agenda fait foi : on retire les seances de la periode qui n'existent
+      // plus cote MonBureauNumerique (cours deplaces, annules et purges…).
+      await prisma.seanceEmploiDuTemps.deleteMany({
+        where: {
+          utilisateurId,
+          debut: { gte: dateDebut, lte: dateFin },
+          externalId: { notIn: seancesVues.length > 0 ? seancesVues : ["__aucune__"] },
+        },
+      });
+    } catch (e) {
+      erreurs.push(`Emploi du temps : ${e instanceof Error ? e.message : String(e)}`);
+    }
+
     await prisma.synchronisation.update({
       where: { id: synchronisation.id },
       data: {

@@ -112,7 +112,7 @@ export default async function PageDevoirs({
     devoirsPasses,
     derniereSynchro,
     matieres,
-    creneaux,
+    seances,
   ] = await Promise.all([
       prisma.utilisateur.findUnique({ where: { id: utilisateurId }, select: { modeDeveloppeur: true } }),
       prisma.devoir.findMany({
@@ -132,9 +132,11 @@ export default async function PageDevoirs({
         : Promise.resolve([] as DevoirAvecMatiere[]),
       prisma.synchronisation.findFirst({ where: { utilisateurId }, orderBy: { demarreeLe: "desc" } }),
       prisma.matiere.findMany({ where: { utilisateurId }, orderBy: { nom: "asc" } }),
-      prisma.creneauEdt.findMany({
-        where: { emploiDuTemps: { utilisateurId } },
-        select: { jour: true, matiere: true, typeSemaine: true, rangS1Q: true },
+      prisma.seanceEmploiDuTemps.findMany({
+        where: { utilisateurId, annule: false, debut: { gte: debutAujourdhui } },
+        select: { debut: true, matiere: true },
+        orderBy: { debut: "asc" },
+        take: 500,
       }),
     ]);
 
@@ -159,7 +161,7 @@ export default async function PageDevoirs({
         <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">Ajouter un devoir</h2>
         {erreur && <p className="mb-3 text-sm text-red-500">{erreur}</p>}
         <form action={creerDevoirManuel} className="flex flex-col gap-3">
-          <ChampsDevoir matieres={matieres.map((m) => m.nom)} creneaux={creneaux} />
+          <ChampsDevoir matieres={matieres.map((m) => m.nom)} seances={seances} />
           <div className="flex flex-col gap-1">
             <label className="text-xs text-zinc-500" htmlFor="description">
               Description

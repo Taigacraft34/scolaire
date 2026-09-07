@@ -1,16 +1,11 @@
-import type { JourSemaine, TypeSemaineCreneau } from "@/generated/prisma/client";
-import { JOURS_ORDRE, creneauVisiblePourSemaine } from "./emploiDuTemps";
-
-export interface CreneauMinimal {
-  jour: JourSemaine;
+export interface SeanceMinimale {
+  debut: string | Date; // DateTime Prisma (transmis tel quel ou serialise)
   matiere: string;
-  typeSemaine: TypeSemaineCreneau;
-  rangS1Q: number | null;
 }
 
 // Reduit un nom de matiere a ses lettres/chiffres, sans accents ni casse, pour
-// comparer un libelle d'emploi du temps (saisi librement) a un nom de matiere
-// (souvent abrege ou accentue differemment).
+// comparer un libelle d'emploi du temps a un nom de matiere (souvent abrege ou
+// accentue differemment d'une source a l'autre).
 function normaliserMatiere(nom: string): string {
   return nom
     .toLowerCase()
@@ -26,33 +21,31 @@ function memeMatiere(a: string, b: string): boolean {
   return na === nb || na.startsWith(nb) || nb.startsWith(na);
 }
 
-// Date (a minuit, heure locale) du prochain cours de `matiereNom` situe
-// STRICTEMENT apres `apartir` : les cours du jour meme sont ignores. On balaye
-// les 8 prochaines semaines pour couvrir les creneaux en alternance (SIP / SP /
-// S1Q). Renvoie null si aucun creneau ne correspond a la matiere.
+// Date (a minuit, heure locale) du prochain cours de `matiereNom` : la premiere
+// seance de cette matiere qui commence a partir de demain (les cours du jour
+// meme sont ignores). Renvoie null si aucune seance ne correspond.
 export function prochaineDateCours(
-  creneaux: CreneauMinimal[],
+  seances: SeanceMinimale[],
   matiereNom: string,
   apartir: Date = new Date(),
 ): Date | null {
   if (!matiereNom.trim()) return null;
 
-  const pertinents = creneaux.filter((c) => memeMatiere(c.matiere, matiereNom));
-  if (pertinents.length === 0) return null;
+  const demain = new Date(apartir);
+  demain.setHours(0, 0, 0, 0);
+  demain.setDate(demain.getDate() + 1);
 
-  const depart = new Date(apartir);
-  depart.setHours(0, 0, 0, 0);
-
-  for (let delta = 1; delta <= 56; delta++) {
-    const jour = new Date(depart);
-    jour.setDate(jour.getDate() + delta);
-    const nomJour = JOURS_ORDRE[(jour.getDay() + 6) % 7]; // 0 = lundi
-    const correspond = pertinents.some(
-      (c) => c.jour === nomJour && creneauVisiblePourSemaine(c.typeSemaine, c.rangS1Q, jour),
-    );
-    if (correspond) return jour;
+  let meilleure: Date | null = null;
+  for (const seance of seances) {
+    if (!memeMatiere(seance.matiere, matiereNom)) continue;
+    const debut = new Date(seance.debut);
+    if (debut < demain) continue;
+    if (!meilleure || debut < meilleure) meilleure = debut;
   }
-  return null;
+  if (!meilleure) return null;
+
+  meilleure.setHours(0, 0, 0, 0);
+  return meilleure;
 }
 
 // Format "YYYY-MM-DD" en heure locale, pour un <input type="date">.
