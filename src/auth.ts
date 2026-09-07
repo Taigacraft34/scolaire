@@ -65,7 +65,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return true;
     },
     async jwt({ token, profile }) {
-      const sub = (profile?.sub as string | undefined) ?? token.sub;
+      // A la premiere connexion on memorise le "sub" ZITADEL dans le token ;
+      // ensuite on relit l'utilisateur en base a chaque requete pour que les
+      // changements (role, mode developpeur, desactivation) soient pris en
+      // compte sans attendre une reconnexion.
+      if (profile?.sub) token.zitadelSub = profile.sub as string;
+
+      const sub = (token.zitadelSub as string | undefined) ?? token.sub;
       if (sub) {
         const utilisateur = await prisma.utilisateur.findUnique({
           where: { zitadelSub: sub },

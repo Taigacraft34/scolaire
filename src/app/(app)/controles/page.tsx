@@ -22,39 +22,43 @@ export default async function PageControles({
   const utilisateurId = session!.user.id;
   const { erreur } = await searchParams;
 
-  const [controles, derniereSynchro, matieres, devoirsDisponibles, chapitresDisponibles] = await Promise.all([
-    prisma.controle.findMany({
-      where: { utilisateurId },
-      include: {
-        matiere: true,
-        note: true,
-        devoirSource: { include: { matiere: true } },
-        chapitres: { include: { chapitre: { include: { matiere: true } } } },
-      },
-      orderBy: { date: "desc" },
-      take: 100,
-    }),
-    prisma.synchronisation.findFirst({ where: { utilisateurId }, orderBy: { demarreeLe: "desc" } }),
-    prisma.matiere.findMany({ where: { utilisateurId }, orderBy: { nom: "asc" } }),
-    prisma.devoir.findMany({
-      where: { utilisateurId, controleGenere: null },
-      include: { matiere: true },
-      orderBy: { date: "desc" },
-      take: 200,
-    }),
-    prisma.chapitre.findMany({
-      where: { utilisateurId },
-      include: { matiere: true },
-      orderBy: { nom: "asc" },
-      take: 300,
-    }),
-  ]);
+  const [utilisateur, controles, derniereSynchro, matieres, devoirsDisponibles, chapitresDisponibles] =
+    await Promise.all([
+      prisma.utilisateur.findUnique({ where: { id: utilisateurId }, select: { modeDeveloppeur: true } }),
+      prisma.controle.findMany({
+        where: { utilisateurId },
+        include: {
+          matiere: true,
+          note: true,
+          devoirSource: { include: { matiere: true } },
+          chapitres: { include: { chapitre: { include: { matiere: true } } } },
+        },
+        orderBy: { date: "desc" },
+        take: 100,
+      }),
+      prisma.synchronisation.findFirst({ where: { utilisateurId }, orderBy: { demarreeLe: "desc" } }),
+      prisma.matiere.findMany({ where: { utilisateurId }, orderBy: { nom: "asc" } }),
+      prisma.devoir.findMany({
+        where: { utilisateurId, controleGenere: null },
+        include: { matiere: true },
+        orderBy: { date: "desc" },
+        take: 200,
+      }),
+      prisma.chapitre.findMany({
+        where: { utilisateurId },
+        include: { matiere: true },
+        orderBy: { nom: "asc" },
+        take: 300,
+      }),
+    ]);
+
+  const modeDeveloppeur = utilisateur?.modeDeveloppeur ?? false;
 
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Controles</h1>
 
-      {session?.user?.modeDeveloppeur && <FormulaireSynchronisation derniereSynchro={derniereSynchro} />}
+      {modeDeveloppeur && <FormulaireSynchronisation derniereSynchro={derniereSynchro} />}
 
       <section className="rounded-lg border border-zinc-300 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
         <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">Ajouter un controle</h2>

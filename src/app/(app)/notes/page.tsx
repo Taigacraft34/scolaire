@@ -13,7 +13,8 @@ export default async function PageNotes({
   const utilisateurId = session!.user.id;
   const { erreur } = await searchParams;
 
-  const [notes, derniereSynchro] = await Promise.all([
+  const [utilisateur, notes, derniereSynchro] = await Promise.all([
+    prisma.utilisateur.findUnique({ where: { id: utilisateurId }, select: { modeDeveloppeur: true } }),
     prisma.note.findMany({
       where: { utilisateurId },
       include: { matiere: true, copies: { include: { documents: true } } },
@@ -22,6 +23,8 @@ export default async function PageNotes({
     }),
     prisma.synchronisation.findFirst({ where: { utilisateurId }, orderBy: { demarreeLe: "desc" } }),
   ]);
+
+  const modeDeveloppeur = utilisateur?.modeDeveloppeur ?? false;
 
   const parMatiere = new Map<string, { total: number; poids: number }>();
   for (const note of notes) {
@@ -36,7 +39,7 @@ export default async function PageNotes({
     <div className="flex flex-col gap-6">
       <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Notes</h1>
 
-      {session?.user?.modeDeveloppeur && <FormulaireSynchronisation derniereSynchro={derniereSynchro} />}
+      {modeDeveloppeur && <FormulaireSynchronisation derniereSynchro={derniereSynchro} />}
 
       {erreur && <p className="text-sm text-red-500">{erreur}</p>}
 

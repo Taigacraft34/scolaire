@@ -17,7 +17,8 @@ export default async function PageDevoirs({
   const utilisateurId = session!.user.id;
   const { erreur } = await searchParams;
 
-  const [devoirs, derniereSynchro, matieres] = await Promise.all([
+  const [utilisateur, devoirs, derniereSynchro, matieres] = await Promise.all([
+    prisma.utilisateur.findUnique({ where: { id: utilisateurId }, select: { modeDeveloppeur: true } }),
     prisma.devoir.findMany({
       where: { utilisateurId },
       include: { matiere: true },
@@ -28,11 +29,13 @@ export default async function PageDevoirs({
     prisma.matiere.findMany({ where: { utilisateurId }, orderBy: { nom: "asc" } }),
   ]);
 
+  const modeDeveloppeur = utilisateur?.modeDeveloppeur ?? false;
+
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Devoirs</h1>
 
-      {session?.user?.modeDeveloppeur && <FormulaireSynchronisation derniereSynchro={derniereSynchro} />}
+      {modeDeveloppeur && <FormulaireSynchronisation derniereSynchro={derniereSynchro} />}
 
       <section className="rounded-lg border border-zinc-300 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
         <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">Ajouter un devoir</h2>
