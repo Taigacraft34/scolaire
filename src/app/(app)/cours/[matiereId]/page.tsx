@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { IconeChevronDroite, IconeFlecheGauche } from "@/components/Icone";
+import { boutonPrincipal, champ, encart, titrePage, titreSection } from "@/lib/ui";
 import { creerChapitre } from "../actions";
 
 export default async function PageChapitresMatiere({
@@ -25,53 +27,48 @@ export default async function PageChapitresMatiere({
   if (!matiere) notFound();
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-[var(--carreau)]">
       <div>
-        <Link href="/cours" className="text-xs text-zinc-500 underline">
-          ← Toutes les matières
+        <Link
+          href="/cours"
+          className="inline-flex items-center gap-1 font-body text-xs font-bold text-ink-soft hover:text-ink-blue"
+        >
+          <IconeFlecheGauche /> Toutes les matières
         </Link>
-        <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">{matiere.nom}</h1>
+        <h1 className={titrePage}>{matiere.nom}</h1>
       </div>
 
-      <section className="rounded-lg border border-zinc-300 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">Nouveau chapitre</h2>
-        {erreur && <p className="mb-3 text-sm text-red-500">{erreur}</p>}
-        <form action={creerChapitre} className="flex gap-2">
+      <section className={encart}>
+        <h2 className={titreSection + " mb-2"}>Nouveau chapitre</h2>
+        {erreur && <p className="mb-2 font-body text-sm text-bic-red">{erreur}</p>}
+        <form action={creerChapitre} className="flex flex-wrap gap-2">
           <input type="hidden" name="matiereId" value={matiere.id} />
-          <input
-            name="nom"
-            required
-            placeholder="Nom du chapitre"
-            className="flex-1 rounded border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-          />
-          <button
-            type="submit"
-            className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background hover:bg-[#383838] dark:hover:bg-[#ccc]"
-          >
+          <input name="nom" required placeholder="Nom du chapitre" className={champ + " flex-1 min-w-40"} />
+          <button type="submit" className={boutonPrincipal}>
             Ajouter
           </button>
         </form>
       </section>
 
       {matiere.chapitres.length === 0 ? (
-        <p className="rounded-lg border border-zinc-300 bg-white p-4 text-sm text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950">
-          Aucun chapitre pour le moment.
-        </p>
+        <p className="font-body leading-[var(--carreau)] text-ink-soft">Aucun chapitre pour le moment.</p>
       ) : (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
+        <ul className="flex flex-col">
           {matiere.chapitres.map((chapitre) => (
-            <Link
-              key={chapitre.id}
-              href={`/cours/${matiere.id}/${chapitre.id}`}
-              className="rounded-lg border border-zinc-300 bg-white p-4 hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-950 dark:hover:bg-zinc-900"
-            >
-              <p className="font-medium text-zinc-800 dark:text-zinc-200">{chapitre.nom}</p>
-              <p className="text-xs text-zinc-500">
-                {chapitre._count.blocs} bloc{chapitre._count.blocs > 1 ? "s" : ""}
-              </p>
-            </Link>
+            <li key={chapitre.id}>
+              <Link
+                href={`/cours/${matiere.id}/${chapitre.id}`}
+                className="flex min-h-[var(--carreau)] items-baseline gap-2 leading-[var(--carreau)] hover:bg-ink-blue/5"
+              >
+                <span className="flex-1 text-ink">{chapitre.nom}</span>
+                <span className="tabulaire font-mono text-xs text-ink-soft">
+                  {chapitre._count.blocs} bloc{chapitre._count.blocs > 1 ? "s" : ""}
+                </span>
+                <IconeChevronDroite className="text-ink-soft" />
+              </Link>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
     </div>
   );

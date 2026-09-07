@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { IconeSoleil, IconeLune } from "@/components/Icone";
 
 function sinscrire(callback: () => void) {
   const observateur = new MutationObserver(callback);
@@ -33,10 +34,10 @@ export function BasculeTheme() {
     <button
       type="button"
       onClick={basculer}
-      title={sombre ? "Passer au thème clair" : "Passer au thème sombre"}
-      className="text-sm hover:text-zinc-950 dark:hover:text-zinc-50"
+      title={sombre ? "Passer au jour" : "Passer à la nuit"}
+      className="text-base text-ink-soft transition-colors hover:text-ink-blue"
     >
-      {sombre ? "☀️" : "🌙"}
+      {sombre ? <IconeSoleil /> : <IconeLune />}
     </button>
   );
 }

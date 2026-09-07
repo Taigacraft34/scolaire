@@ -14,6 +14,8 @@ import {
   type JourGrille,
 } from "@/components/GrilleEmploiDuTemps";
 import type { Controle, Devoir, Matiere, SeanceEmploiDuTemps } from "@/generated/prisma/client";
+import { IconeFlecheGauche, IconeFlecheDroite } from "@/components/Icone";
+import { boutonEncadre, titrePage } from "@/lib/ui";
 
 type DevoirAvecMatiere = Devoir & { matiere: Matiere };
 type ControleAvecMatiere = Controle & { matiere: Matiere };
@@ -248,55 +250,47 @@ export default async function PageEmploiDuTemps({
   }));
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Emploi du temps</h1>
+    <div className="flex flex-col gap-[var(--carreau)]">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
+        <h1 className={titrePage}>Emploi du temps</h1>
         {derniereSynchro && (
-          <p className="text-xs text-zinc-500">
-            Dernière synchronisation : {derniereSynchro.demarreeLe.toLocaleString("fr-FR")}
+          <p className="tabulaire font-mono text-xs text-ink-soft">
+            sync. {derniereSynchro.demarreeLe.toLocaleString("fr-FR")}
           </p>
         )}
       </div>
 
       {!utilisateur.scolengoTokenChiffre && (
-        <p className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-700 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300">
-          Aucun token MonBureauNumérique configuré. Ajoutez-le dans les{" "}
-          <Link href="/parametres" className="underline">
+        <p className="border border-bic-red/40 bg-bic-red/5 p-3 font-body text-sm text-bic-red">
+          Aucun token MonBureauNumérique configuré. Ajoute-le dans les{" "}
+          <Link href="/parametres" className="underline underline-offset-2">
             paramètres
           </Link>{" "}
-          puis lancez une synchronisation pour voir votre emploi du temps.
+          puis lance une synchronisation.
         </p>
       )}
 
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-          Semaine du {lundiAffiche.toLocaleDateString("fr-FR")} au{" "}
-          {vendrediAffiche.toLocaleDateString("fr-FR")}
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 className="font-display text-lg text-ink">
+          Semaine du{" "}
+          <span className="tabulaire">{lundiAffiche.toLocaleDateString("fr-FR")}</span> au{" "}
+          <span className="tabulaire">{vendrediAffiche.toLocaleDateString("fr-FR")}</span>
         </h2>
-        <div className="flex gap-2">
-          <Link
-            href={lienSemaine(-1)}
-            className="rounded-full border border-zinc-300 px-3 py-1 text-sm dark:border-zinc-700"
-          >
-← Semaine précédente
+        <div className="flex gap-1.5">
+          <Link href={lienSemaine(-1)} className={boutonEncadre} aria-label="Semaine précédente">
+            <IconeFlecheGauche />
           </Link>
-          <Link
-            href="/emploi-du-temps"
-            className="rounded-full border border-zinc-300 px-3 py-1 text-sm dark:border-zinc-700"
-          >
+          <Link href="/emploi-du-temps" className={boutonEncadre}>
             Cette semaine
           </Link>
-          <Link
-            href={lienSemaine(1)}
-            className="rounded-full border border-zinc-300 px-3 py-1 text-sm dark:border-zinc-700"
-          >
-            Semaine suivante →
+          <Link href={lienSemaine(1)} className={boutonEncadre} aria-label="Semaine suivante">
+            <IconeFlecheDroite />
           </Link>
         </div>
       </div>
 
       {seances.length === 0 ? (
-        <p className="rounded-lg border border-zinc-300 bg-white p-4 text-sm text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950">
+        <p className="font-body leading-[var(--carreau)] text-ink-soft">
           Aucun cours pour cette semaine.
         </p>
       ) : (

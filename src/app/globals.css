@@ -1,39 +1,235 @@
 @import "tailwindcss";
 
-/* Dark mode pilote par la classe .dark sur <html> (voir layout.tsx et
-   BasculeTheme) plutot que par la seule preference systeme, pour permettre
-   un choix manuel qui prend le dessus. */
+/* ---------------------------------------------------------------------------
+   Le Cahier Seyès
+   Toute l'app est une page réglée : sol Clairefontaine, une marge à l'encre
+   bleue, la réglure derrière le contenu, la sémantique Bic (bleu = structure,
+   graphite = corps, rouge = à faire / important / annotation, vert = fait).
+   L'unité de mise en page unique est le carreau (--carreau).
+   --------------------------------------------------------------------------- */
+
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Carreau : le pas de la réglure ET l'interligne du corps de texte. Toute
+     mesure de l'app est un multiple de cette valeur. */
+  --carreau: 1.75rem; /* 28px */
+  --marge: calc(var(--carreau) * 4); /* la marge, à 4 carreaux du bord */
+
+  --paper: #fdfdfb;
+  --paper-2: #f4f4ee; /* repli d'une page posée sur la page (intercalaire, encart) */
+  --ink: #2c2c34;
+  --ink-soft: #63636f;
+  --ink-blue: #2540c8;
+  --ink-blue-strong: #1a2f9c;
+  --ruling: #c6cef0;
+  --bic-red: #cf1f2e;
+  --bic-green: #1c7a45;
+  --tache: 55 46 190; /* teinte de la mise en avant (surligneur), en RGB */
 }
 
 .dark {
-  --background: #0a0a0a;
-  --foreground: #ededed;
+  --paper: #151b2e;
+  --paper-2: #1c2440;
+  --ink: #e9e7dc;
+  --ink-soft: #9aa0b8;
+  --ink-blue: #97a9ff;
+  --ink-blue-strong: #c2ccff;
+  --ruling: #2c3660;
+  --bic-red: #ff6b73;
+  --bic-green: #62c98a;
+  --tache: 151 169 255;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-paper: var(--paper);
+  --color-paper-2: var(--paper-2);
+  --color-ink: var(--ink);
+  --color-ink-blue-strong: var(--ink-blue-strong);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-blue: var(--ink-blue);
+  --color-ruling: var(--ruling);
+  --color-bic-red: var(--bic-red);
+  --color-bic-green: var(--bic-green);
+
+  --font-display: var(--police-titre), Georgia, "Times New Roman", serif;
+  --font-body: var(--police-corps), system-ui, sans-serif;
+  --font-mono: var(--police-mono), ui-monospace, monospace;
+
+  --radius-sm: 2px;
+  --radius: 2px;
+  --radius-lg: 2px;
+
+  --spacing-carreau: var(--carreau);
+}
+
+* {
+  min-width: 0;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  line-height: var(--carreau);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-synthesis: none;
 }
 
-/* Mise en avant d'un element ouvert depuis la barre de recherche (parametre
-   ?focus=). Le cadre reste tant que ce parametre est present dans l'URL. */
+/* La page réglée : réglure horizontale au pas du carreau, calée pour que les
+   lignes de base du texte s'y posent. Portée par la classe .regle. */
+.regle {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent calc(var(--carreau) - 1px),
+    var(--ruling) calc(var(--carreau) - 1px),
+    var(--ruling) var(--carreau)
+  );
+  background-position: 0 calc(var(--carreau) * -0.28);
+}
+
+/* Cahier à carreaux : réglure horizontale + verticale (emploi du temps,
+   calendrier). */
+.carreaux {
+  background-image:
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent calc(var(--carreau) - 1px),
+      var(--ruling) calc(var(--carreau) - 1px),
+      var(--ruling) var(--carreau)
+    ),
+    repeating-linear-gradient(
+      to right,
+      transparent 0,
+      transparent calc(var(--carreau) - 1px),
+      var(--ruling) calc(var(--carreau) - 1px),
+      var(--ruling) var(--carreau)
+    );
+}
+
+/* La marge : un trait vertical à l'encre bleue, légèrement irrégulier, calé à
+   --marge du bord. Portée par .cahier-marge (position: relative requis). */
+.cahier-marge::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--marge);
+  width: 2px;
+  background: var(--ink-blue);
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+@media (max-width: 640px) {
+  :root {
+    --marge: calc(var(--carreau) * 2);
+  }
+}
+
+/* Mise en avant depuis la recherche (?focus=) : un coup de surligneur derrière
+   la ligne + un crochet à l'encre dans la marge. Reste tant que ?focus= est là. */
 .mise-en-avant {
-  border-radius: 0.5rem;
-  outline: 2px solid rgb(59 130 246);
-  outline-offset: -2px;
-  background-color: rgba(59, 130, 246, 0.09);
-  scroll-margin-top: 5rem;
+  position: relative;
+  background-color: rgb(var(--tache) / 0.16);
+  box-shadow: -0.35rem 0 0 rgb(var(--tache) / 0.16), 0.35rem 0 0 rgb(var(--tache) / 0.16);
+  scroll-margin-top: calc(var(--carreau) * 3);
+}
+.mise-en-avant::before {
+  content: "";
+  position: absolute;
+  left: -1.1rem;
+  top: 0.15rem;
+  bottom: 0.15rem;
+  width: 0.5rem;
+  border: 2px solid var(--ink-blue);
+  border-right: 0;
+}
+
+/* Le geste signature : le trait de stylo vert qui se dessine à la coche. */
+@keyframes trace-coche {
+  from {
+    stroke-dashoffset: var(--long-trait, 24);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes barre-ligne {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* --- Surfaces du navigateur : teintées depuis la palette --- */
+::selection {
+  background: var(--ink-blue);
+  color: var(--paper);
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink-blue);
+  outline-offset: 2px;
+  border-radius: 1px;
+}
+
+input,
+textarea,
+select {
+  caret-color: var(--ink-blue);
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--ink-blue);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--ruling) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--ruling);
+  border: 3px solid var(--paper);
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Chiffres alignés partout où c'est de la donnée (heures, notes, comptes). */
+.tabulaire {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+@media print {
+  .regle,
+  .carreaux,
+  .cahier-marge::before {
+    background-image: none;
+  }
+  .cahier-marge::before {
+    display: none;
+  }
 }

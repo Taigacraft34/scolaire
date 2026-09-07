@@ -2,74 +2,89 @@ import Link from "next/link";
 import type { Devoir, Matiere } from "@/generated/prisma/client";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { LIBELLES_STATUT_DEVOIR } from "@/lib/libelles";
 import { nettoyerHtml } from "@/lib/html";
 import { FormulaireSynchronisation } from "@/components/FormulaireSynchronisation";
 import { ChampsDevoir } from "@/components/ChampsDevoir";
 import { BoutonSupprimer } from "@/components/BoutonSupprimer";
-import { BoutonSoumission } from "@/components/BoutonSoumission";
+import { CaseCoche } from "@/components/CaseCoche";
 import { MiseEnAvantRecherche } from "@/components/MiseEnAvantRecherche";
-import { basculerStatutDevoir, creerDevoirManuel, supprimerDevoir } from "./actions";
+import { IconeChevronBas } from "@/components/Icone";
+import { boutonPrincipal, boutonSecondaire, champ, encart, label, titrePage, titreSection } from "@/lib/ui";
+import { creerDevoirManuel, supprimerDevoir } from "./actions";
 
 type DevoirAvecMatiere = Devoir & { matiere: Matiere };
 
-function LigneDevoir({ devoir }: { devoir: DevoirAvecMatiere }) {
+function LigneDevoir({ devoir, urgent }: { devoir: DevoirAvecMatiere; urgent?: boolean }) {
+  const fait = devoir.statut === "TERMINE";
   return (
-    <li id={`element-${devoir.id}`} className="flex flex-col gap-2 p-3 text-sm">
-      <details>
-        <summary className="cursor-pointer list-none marker:hidden">
-          <p className="font-medium text-zinc-800 dark:text-zinc-200">
-            {devoir.matiere.nom} — {devoir.titre}
-          </p>
-          <p className="text-xs text-zinc-500">{LIBELLES_STATUT_DEVOIR[devoir.statut]}</p>
-        </summary>
-        {devoir.description ? (
-          <div
-            className="mt-2 whitespace-pre-wrap text-xs text-zinc-600 dark:text-zinc-400"
-            dangerouslySetInnerHTML={{ __html: nettoyerHtml(devoir.description) }}
-          />
-        ) : (
-          <p className="mt-2 text-xs text-zinc-500">Aucune description.</p>
-        )}
-      </details>
-      <div className="flex items-center justify-between">
-        <span className="whitespace-nowrap text-xs text-zinc-500">
-          {devoir.date.toLocaleDateString("fr-FR")}
-        </span>
-        <div className="flex items-center gap-3">
-          <form action={basculerStatutDevoir}>
-            <input type="hidden" name="devoirId" value={devoir.id} />
-            <BoutonSoumission
-              texteChargement="…"
+    <li id={`element-${devoir.id}`} className="relative">
+      <details className="group">
+        <summary className="flex min-h-[var(--carreau)] cursor-pointer list-none items-baseline gap-2 leading-[var(--carreau)] marker:hidden">
+          <span className="absolute right-full top-[0.15rem] mr-2.5">
+            <CaseCoche coche={fait} devoirId={devoir.id} retour="/devoirs" />
+          </span>
+          <span
+            className={
+              "min-w-0 flex-1 truncate " +
+              (fait
+                ? "text-ink-soft line-through decoration-bic-green"
+                : urgent
+                  ? "font-bold text-bic-red"
+                  : "text-ink")
+            }
+          >
+            <span
               className={
-                devoir.statut === "TERMINE"
-                  ? "rounded-full border border-zinc-300 px-3 py-1 text-xs text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
-                  : "rounded-full bg-blue-600 px-3 py-1 text-xs text-white hover:bg-blue-700"
+                "mr-2 font-body text-[0.72rem] font-bold uppercase tracking-wide " +
+                (urgent && !fait ? "text-bic-red" : "text-ink-blue")
               }
             >
-              {devoir.statut === "TERMINE" ? "Marquer non fait" : "Marquer terminé"}
-            </BoutonSoumission>
-          </form>
-          <form action={supprimerDevoir}>
+              {devoir.matiere.nom}
+            </span>
+            {devoir.titre}
+          </span>
+          <span className="tabulaire shrink-0 font-mono text-xs text-ink-soft">
+            {devoir.date.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" })}
+          </span>
+          <IconeChevronBas className="shrink-0 text-ink-soft transition-transform group-open:rotate-180" />
+        </summary>
+        <div className="pb-[calc(var(--carreau)*0.5)] pl-1 pt-1">
+          {devoir.description ? (
+            <div
+              className="whitespace-pre-wrap font-body text-sm leading-[var(--carreau)] text-ink-soft [&_a]:text-ink-blue [&_a]:underline"
+              dangerouslySetInnerHTML={{ __html: nettoyerHtml(devoir.description) }}
+            />
+          ) : (
+            <p className="font-body text-sm leading-[var(--carreau)] text-ink-soft">Aucune description.</p>
+          )}
+          <form action={supprimerDevoir} className="mt-1">
             <input type="hidden" name="devoirId" value={devoir.id} />
             <BoutonSupprimer confirmation="Supprimer définitivement ce devoir ?" />
           </form>
         </div>
-      </div>
+      </details>
     </li>
   );
 }
 
-function GroupeDevoirs({ titre, devoirs }: { titre: string; devoirs: DevoirAvecMatiere[] }) {
+function GroupeDevoirs({
+  titre,
+  devoirs,
+  idUrgent,
+}: {
+  titre: string;
+  devoirs: DevoirAvecMatiere[];
+  idUrgent?: string;
+}) {
   if (devoirs.length === 0) return null;
   return (
-    <section className="rounded-lg border border-zinc-300 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-      <h2 className="border-b border-zinc-100 px-4 py-2 text-sm font-semibold text-zinc-700 dark:border-zinc-900 dark:text-zinc-300">
-        {titre} ({devoirs.length})
+    <section className="flex flex-col">
+      <h2 className={titreSection + " mb-1"}>
+        {titre} <span className="tabulaire text-ink-soft/70">· {devoirs.length}</span>
       </h2>
-      <ul className="divide-y divide-zinc-100 dark:divide-zinc-900">
+      <ul className="flex flex-col">
         {devoirs.map((devoir) => (
-          <LigneDevoir key={devoir.id} devoir={devoir} />
+          <LigneDevoir key={devoir.id} devoir={devoir} urgent={devoir.id === idUrgent} />
         ))}
       </ul>
     </section>
@@ -85,9 +100,6 @@ export default async function PageDevoirs({
   const utilisateurId = session!.user.id;
   const { erreur, passes, focus } = await searchParams;
 
-  // Bornes de dates (heure locale du serveur). Un devoir "passe" est un devoir
-  // dont la date de rendu est anterieure a aujourd'hui : ceux du jour meme
-  // restent visibles.
   const debutAujourdhui = new Date();
   debutAujourdhui.setHours(0, 0, 0, 0);
   const finAujourdhui = new Date(debutAujourdhui);
@@ -95,25 +107,13 @@ export default async function PageDevoirs({
   const finDemain = new Date(debutAujourdhui);
   finDemain.setDate(finDemain.getDate() + 2);
 
-  // Si on arrive sur un devoir passe depuis la recherche, on deplie
-  // automatiquement la liste des devoirs passes pour qu'il soit visible.
   const devoirFocus = focus
-    ? await prisma.devoir.findFirst({
-        where: { id: focus, utilisateurId },
-        select: { date: true },
-      })
+    ? await prisma.devoir.findFirst({ where: { id: focus, utilisateurId }, select: { date: true } })
     : null;
   const afficherPasses = passes === "1" || (devoirFocus ? devoirFocus.date < debutAujourdhui : false);
 
-  const [
-    utilisateur,
-    devoirsAVenir,
-    devoirsPassesCount,
-    devoirsPasses,
-    derniereSynchro,
-    matieres,
-    seances,
-  ] = await Promise.all([
+  const [utilisateur, devoirsAVenir, devoirsPassesCount, devoirsPasses, derniereSynchro, matieres, seances] =
+    await Promise.all([
       prisma.utilisateur.findUnique({ where: { id: utilisateurId }, select: { modeDeveloppeur: true } }),
       prisma.devoir.findMany({
         where: { utilisateurId, date: { gte: debutAujourdhui } },
@@ -145,73 +145,62 @@ export default async function PageDevoirs({
   const pourAujourdhui = devoirsAVenir.filter((d) => d.date < finAujourdhui);
   const pourDemain = devoirsAVenir.filter((d) => d.date >= finAujourdhui && d.date < finDemain);
   const pourPlusTard = devoirsAVenir.filter((d) => d.date >= finDemain);
+  const idUrgent = (pourAujourdhui[0] ?? pourDemain[0])?.id;
 
   const aucunAVenir = devoirsAVenir.length === 0;
   const aucunDevoir = aucunAVenir && devoirsPassesCount === 0;
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Devoirs</h1>
+    <div className="flex flex-col gap-[var(--carreau)]">
+      <h1 className={titrePage}>Devoirs</h1>
 
       <MiseEnAvantRecherche focusId={focus} />
 
       {modeDeveloppeur && <FormulaireSynchronisation derniereSynchro={derniereSynchro} />}
 
-      <section className="rounded-lg border border-zinc-300 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">Ajouter un devoir</h2>
-        {erreur && <p className="mb-3 text-sm text-red-500">{erreur}</p>}
+      <section className={encart}>
+        <h2 className={titreSection + " mb-2"}>Ajouter un devoir</h2>
+        {erreur && <p className="mb-2 font-body text-sm text-bic-red">{erreur}</p>}
         <form action={creerDevoirManuel} className="flex flex-col gap-3">
           <ChampsDevoir matieres={matieres.map((m) => m.nom)} seances={seances} />
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-zinc-500" htmlFor="description">
+            <label className={label} htmlFor="description">
               Description
             </label>
-            <textarea
-              id="description"
-              name="description"
-              rows={2}
-              className="rounded border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-            />
+            <textarea id="description" name="description" rows={2} className={champ} />
           </div>
-          <button
-            type="submit"
-            className="self-start rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background hover:bg-[#383838] dark:hover:bg-[#ccc]"
-          >
+          <button type="submit" className={boutonPrincipal + " self-start"}>
             Ajouter
           </button>
         </form>
       </section>
 
       {aucunDevoir ? (
-        <div className="rounded-lg border border-zinc-300 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-          <p className="p-4 text-sm text-zinc-500">
-            Aucun devoir. Configurez votre token Scolengo dans les{" "}
-            <a href="/parametres" className="underline">
-              paramètres
-            </a>{" "}
-            puis lancez une synchronisation, ou ajoutez-en un manuellement ci-dessus.
-          </p>
-        </div>
+        <p className="font-body leading-[var(--carreau)] text-ink-soft">
+          Aucun devoir. Configure ton token Scolengo dans les{" "}
+          <Link href="/parametres" className="text-ink-blue underline underline-offset-2">
+            paramètres
+          </Link>{" "}
+          puis lance une synchronisation, ou ajoutes-en un ci-dessus.
+        </p>
       ) : (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-[var(--carreau)]">
           {aucunAVenir ? (
-            <p className="text-sm text-zinc-500">Aucun devoir à venir.</p>
+            <p className="font-body leading-[var(--carreau)] text-ink-soft">Aucun devoir à venir.</p>
           ) : (
             <>
-              <GroupeDevoirs titre="Pour aujourd'hui" devoirs={pourAujourdhui} />
-              <GroupeDevoirs titre="Pour demain" devoirs={pourDemain} />
+              <GroupeDevoirs titre="Pour aujourd'hui" devoirs={pourAujourdhui} idUrgent={idUrgent} />
+              <GroupeDevoirs titre="Pour demain" devoirs={pourDemain} idUrgent={idUrgent} />
               <GroupeDevoirs titre="Pour plus tard" devoirs={pourPlusTard} />
             </>
           )}
 
-          {afficherPasses && (
-            <GroupeDevoirs titre="Devoirs passés" devoirs={devoirsPasses} />
-          )}
+          {afficherPasses && <GroupeDevoirs titre="Devoirs passés" devoirs={devoirsPasses} />}
 
           {devoirsPassesCount > 0 && (
             <Link
               href={afficherPasses ? "/devoirs" : "/devoirs?passes=1"}
-              className="self-center rounded-full border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+              className={boutonSecondaire + " self-start"}
             >
               {afficherPasses
                 ? "Masquer les devoirs passés"

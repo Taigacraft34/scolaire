@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { LIBELLES_STATUT_SYNCHRONISATION } from "@/lib/libelles";
 import { BoutonSupprimer } from "@/components/BoutonSupprimer";
+import { boutonPrincipal, champ, encart, label, titrePage, titreSection } from "@/lib/ui";
 import {
   autoriserEmail,
   basculerActivationUtilisateur,
@@ -35,17 +36,17 @@ export default async function PageAdmin({
   ]);
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Administration</h1>
-      {erreur && <p className="text-sm text-red-500">{erreur}</p>}
+    <div className="flex flex-col gap-[var(--carreau)]">
+      <h1 className={titrePage}>Administration</h1>
+      {erreur && <p className="font-body text-sm text-bic-red">{erreur}</p>}
 
-      <section className="rounded-lg border border-zinc-300 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+      <section className={encart}>
+        <h2 className={titreSection + " mb-2 block"}>
           Autoriser un nouvel utilisateur
         </h2>
         <form action={autoriserEmail} className="flex flex-wrap items-end gap-3">
           <div className="flex flex-1 min-w-40 flex-col gap-1">
-            <label className="text-xs text-zinc-500" htmlFor="email">
+            <label className={label} htmlFor="email">
               Email
             </label>
             <input
@@ -53,43 +54,40 @@ export default async function PageAdmin({
               id="email"
               name="email"
               required
-              className="rounded border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+              className={champ}
             />
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-zinc-500" htmlFor="role">
+            <label className={label} htmlFor="role">
               Rôle
             </label>
             <select
               id="role"
               name="role"
               defaultValue="UTILISATEUR"
-              className="rounded border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+              className={champ}
             >
               <option value="UTILISATEUR">Utilisateur</option>
               <option value="ADMIN">Administrateur</option>
             </select>
           </div>
-          <button
-            type="submit"
-            className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background hover:bg-[#383838] dark:hover:bg-[#ccc]"
-          >
+          <button type="submit" className={boutonPrincipal}>
             Autoriser
           </button>
         </form>
 
         {emailsAutorises.length > 0 && (
           <div className="mt-4">
-            <h3 className="mb-2 text-xs font-medium text-zinc-500">En attente de première connexion</h3>
+            <h3 className={label + " mb-2 block"}>En attente de première connexion</h3>
             <ul className="flex flex-col gap-1">
               {emailsAutorises.map((e) => (
-                <li key={e.id} className="flex items-center justify-between text-sm">
-                  <span className="text-zinc-700 dark:text-zinc-300">
-                    {e.email} <span className="text-xs text-zinc-500">({e.role})</span>
+                <li key={e.id} className="flex items-center justify-between border-b border-ruling/60 py-0.5 font-body text-sm">
+                  <span className="font-body text-sm text-ink">
+                    {e.email} <span className="font-body text-xs text-ink-soft">({e.role})</span>
                   </span>
                   <form action={revoquerAutorisation}>
                     <input type="hidden" name="id" value={e.id} />
-                    <button type="submit" className="text-xs text-red-500 hover:underline">
+                    <button type="submit" className="font-body text-xs font-bold text-bic-red underline decoration-1 underline-offset-4">
                       Révoquer
                     </button>
                   </form>
@@ -100,39 +98,39 @@ export default async function PageAdmin({
         )}
       </section>
 
-      <section className="rounded-lg border border-zinc-300 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">Utilisateurs</h2>
+      <section className={encart}>
+        <h2 className={titreSection + " mb-2 block"}>Utilisateurs</h2>
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-zinc-300 text-zinc-500 dark:border-zinc-800">
-              <th className="py-2 font-medium">Email</th>
-              <th className="py-2 font-medium">Rôle</th>
-              <th className="py-2 font-medium">Statut</th>
-              <th className="py-2 font-medium">Créé le</th>
-              <th className="py-2 font-medium">Actions</th>
+            <tr className="border-b border-ink-blue/40 text-left">
+              <th className={label + " py-1.5"}>Email</th>
+              <th className={label + " py-1.5"}>Rôle</th>
+              <th className={label + " py-1.5"}>Statut</th>
+              <th className={label + " py-1.5"}>Créé le</th>
+              <th className={label + " py-1.5"}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {utilisateurs.map((u) => (
-              <tr key={u.id} className="border-b border-zinc-100 dark:border-zinc-900">
-                <td className="py-2">{u.email}</td>
-                <td className="py-2">{u.role}</td>
-                <td className="py-2">
+              <tr key={u.id} className="border-b border-ruling/60">
+                <td className="py-1.5 font-body text-sm text-ink">{u.email}</td>
+                <td className="py-1.5 font-body text-sm text-ink">{u.role}</td>
+                <td className="py-1.5 font-body text-sm text-ink">
                   {u.actif ? (
-                    <span className="text-green-600 dark:text-green-400">Actif</span>
+                    <span className="text-bic-green">Actif</span>
                   ) : (
-                    <span className="text-amber-600 dark:text-amber-400">Désactivé</span>
+                    <span className="text-bic-red">Désactivé</span>
                   )}
                 </td>
-                <td className="py-2">{u.createdAt.toLocaleDateString("fr-FR")}</td>
-                <td className="py-2">
+                <td className="py-1.5 font-body text-sm text-ink">{u.createdAt.toLocaleDateString("fr-FR")}</td>
+                <td className="py-1.5 font-body text-sm text-ink">
                   {u.id === session.user.id ? (
-                    <span className="text-xs text-zinc-400">Vous</span>
+                    <span className="font-body text-xs text-ink-soft">Vous</span>
                   ) : (
                     <div className="flex items-center gap-3">
                       <form action={basculerActivationUtilisateur}>
                         <input type="hidden" name="utilisateurId" value={u.id} />
-                        <button type="submit" className="text-xs text-zinc-600 underline dark:text-zinc-400">
+                        <button type="submit" className="font-body text-xs font-bold text-ink-blue underline decoration-1 underline-offset-4">
                           {u.actif ? "Désactiver" : "Activer"}
                         </button>
                       </form>
@@ -151,16 +149,16 @@ export default async function PageAdmin({
         </table>
       </section>
 
-      <section className="rounded-lg border border-zinc-300 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+      <section className={encart}>
+        <h2 className={titreSection + " mb-2 block"}>
           État des synchronisations
         </h2>
         {synchronisations.length === 0 ? (
-          <p className="text-sm text-zinc-500">Aucune synchronisation enregistrée.</p>
+          <p className="font-body text-sm text-ink-soft">Aucune synchronisation enregistrée.</p>
         ) : (
           <ul className="flex flex-col gap-1">
             {synchronisations.map((s) => (
-              <li key={s.id} className="flex justify-between text-xs text-zinc-600 dark:text-zinc-400">
+              <li key={s.id} className="flex justify-between gap-3 border-b border-ruling/50 py-0.5 font-mono text-xs text-ink-soft">
                 <span>
                   {s.utilisateur?.email ?? "Utilisateur supprimé"} — {s.demarreeLe.toLocaleString("fr-FR")}
                 </span>
@@ -173,16 +171,16 @@ export default async function PageAdmin({
         )}
       </section>
 
-      <section className="rounded-lg border border-zinc-300 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+      <section className={encart}>
+        <h2 className={titreSection + " mb-2 block"}>
           Journal des événements
         </h2>
         {journaux.length === 0 ? (
-          <p className="text-sm text-zinc-500">Aucun événement enregistré.</p>
+          <p className="font-body text-sm text-ink-soft">Aucun événement enregistré.</p>
         ) : (
           <ul className="flex flex-col gap-1">
             {journaux.map((j) => (
-              <li key={j.id} className="flex justify-between text-xs text-zinc-600 dark:text-zinc-400">
+              <li key={j.id} className="flex justify-between gap-3 border-b border-ruling/50 py-0.5 font-mono text-xs text-ink-soft">
                 <span>
                   {j.utilisateur?.email ?? "Utilisateur supprimé"} — {j.action}
                   {j.entiteType ? ` (${j.entiteType})` : ""}

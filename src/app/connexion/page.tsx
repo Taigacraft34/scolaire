@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth, signIn } from "@/auth";
+import { boutonPrincipal } from "@/lib/ui";
 
 export default async function PageConnexion({
   searchParams,
@@ -12,29 +13,29 @@ export default async function PageConnexion({
   if (session) redirect(callbackUrl ?? "/");
 
   return (
-    <main className="flex flex-1 flex-col items-center justify-center gap-6 bg-zinc-100 px-6 dark:bg-black">
-      <div className="flex flex-col items-center gap-2 text-center">
-        <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
-          Plateforme scolaire
+    <main className="regle cahier-marge relative flex flex-1 flex-col justify-center bg-paper px-[calc(var(--marge)+var(--carreau))] pr-[var(--carreau)]">
+      <div className="flex max-w-sm flex-col gap-[var(--carreau)]">
+        <h1 className="font-display text-4xl font-semibold leading-tight text-ink">
+          Scolaire
+          <span className="mt-1 block font-body text-sm font-normal text-ink-soft">
+            ton cahier de bord, connecté à MonBureauNumérique
+          </span>
         </h1>
-        <p className="max-w-sm text-sm text-zinc-600 dark:text-zinc-400">
-          La connexion se fait exclusivement via votre compte ZITADEL. Aucune
-          inscription n&apos;est possible depuis cette page.
+        <p className="font-body text-sm leading-[var(--carreau)] text-ink-soft">
+          La connexion se fait via ton compte ZITADEL. Aucune inscription depuis cette page — un
+          administrateur doit d&apos;abord autoriser ton adresse.
         </p>
-      </div>
-      <form
-        action={async () => {
-          "use server";
-          await signIn("zitadel", { redirectTo: callbackUrl ?? "/" });
-        }}
-      >
-        <button
-          type="submit"
-          className="rounded-full bg-foreground px-6 py-3 text-sm font-medium text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc]"
+        <form
+          action={async () => {
+            "use server";
+            await signIn("zitadel", { redirectTo: callbackUrl ?? "/" });
+          }}
         >
-          Se connecter avec ZITADEL
-        </button>
-      </form>
+          <button type="submit" className={boutonPrincipal + " px-6 py-2.5"}>
+            Se connecter avec ZITADEL
+          </button>
+        </form>
+      </div>
     </main>
   );
 }

@@ -26,7 +26,7 @@ export function FiltresCalendrier({
       <select
         value={matiereActuelle}
         onChange={(e) => mettreAJour("matiere", e.target.value)}
-        className="rounded border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+        className="rounded-sm border border-ink-soft/55 bg-paper px-2.5 py-1 font-body text-sm text-ink outline-none focus:border-ink-blue"
       >
         <option value="">Toutes les matières</option>
         {matieres.map((m) => (
@@ -38,7 +38,7 @@ export function FiltresCalendrier({
       <select
         value={typeActuel}
         onChange={(e) => mettreAJour("type", e.target.value)}
-        className="rounded border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-900"
+        className="rounded-sm border border-ink-soft/55 bg-paper px-2.5 py-1 font-body text-sm text-ink outline-none focus:border-ink-blue"
       >
         <option value="">Devoirs et contrôles</option>
         <option value="devoir">Devoirs uniquement</option>

@@ -1,20 +1,37 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Spectral, Atkinson_Hyperlegible, Fragment_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Spectral : sérif d'écran de la fonderie parisienne Prod.Type — la voix des
+// titres, registre « livre scolaire ».
+const spectral = Spectral({
+  variable: "--police-titre",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+// Atkinson Hyperlegible (Braille Institute) : conçue pour la lisibilité pure —
+// le texte qu'un élève lit dix fois par jour, posé sur la réglure.
+const atkinson = Atkinson_Hyperlegible({
+  variable: "--police-corps",
   subsets: ["latin"],
+  weight: ["400", "700"],
+  display: "swap",
+});
+
+// Fragment Mono : chiffres et codes (heures, abréviations Scolengo, dates) —
+// alignés à la ligne comme des colonnes écrites.
+const fragmentMono = Fragment_Mono({
+  variable: "--police-mono",
+  subsets: ["latin"],
+  weight: "400",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
   title: "Scolaire",
-  description: "Tableau de bord scolaire personnel connecté à MonBureauNumérique",
+  description: "Ton cahier de bord scolaire, connecté à MonBureauNumérique",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -24,7 +41,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0f172a",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#fdfdfb" },
+    { media: "(prefers-color-scheme: dark)", color: "#141a2e" },
+  ],
 };
 
 export default function RootLayout({
@@ -36,10 +56,10 @@ export default function RootLayout({
     <html
       lang="fr"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${spectral.variable} ${atkinson.variable} ${fragmentMono.variable} h-full`}
     >
       <head>
-        {/* Applique le theme avant le premier rendu pour eviter un flash du mauvais theme. */}
+        {/* Applique le thème avant le premier rendu pour éviter un flash. */}
         <script
           dangerouslySetInnerHTML={{
             __html: `try {

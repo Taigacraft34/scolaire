@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
-const CLASSE_CHAMP =
-  "rounded border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-900";
+import { champ as CLASSE_CHAMP, label as CLASSE_LABEL } from "@/lib/ui";
 
 // Champ "Matiere" controle (select parmi les matieres existantes ou saisie
 // libre d'une nouvelle). Sur certains mobiles, une option "Nouvelle matière"
@@ -28,11 +26,15 @@ export function SelecteurMatiereChamp({
   return (
     <div className="flex flex-1 min-w-40 flex-col gap-1">
       <div className="flex items-center justify-between">
-        <label className="text-xs text-zinc-500" htmlFor="matiere">
+        <label className={CLASSE_LABEL} htmlFor="matiere">
           Matière
         </label>
         {matieres.length > 0 && (
-          <button type="button" onClick={basculer} className="text-xs text-zinc-500 underline">
+          <button
+            type="button"
+            onClick={basculer}
+            className="font-body text-[0.72rem] font-bold text-ink-blue underline decoration-1 underline-offset-2 hover:decoration-2"
+          >
             {nouvelle ? "Choisir dans la liste" : "+ Nouvelle matière"}
           </button>
         )}

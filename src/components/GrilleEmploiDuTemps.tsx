@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { basculerStatutDevoir } from "@/app/(app)/devoirs/actions";
 import { BoutonSoumission } from "@/components/BoutonSoumission";
+import { IconeCroix } from "@/components/Icone";
+import { boutonEncadre, boutonPrincipal, boutonSecondaire } from "@/lib/ui";
 
 export interface DevoirGrille {
   id: string;
@@ -45,22 +47,23 @@ export interface JourGrille {
   blocs: BlocGrille[];
 }
 
-function badgeDevoir(devoirs: DevoirGrille[]): "rouge" | "vert" | null {
+function marqueDevoir(devoirs: DevoirGrille[]): "rouge" | "vert" | null {
   if (devoirs.length === 0) return null;
   return devoirs.some((d) => d.statut === "A_FAIRE") ? "rouge" : "vert";
 }
 
-function badgeControle(controles: ControleGrille[]): "rouge" | "vert" | null {
+function marqueControle(controles: ControleGrille[]): "rouge" | "vert" | null {
   if (controles.length === 0) return null;
   return controles.some((c) => c.aVenir) ? "rouge" : "vert";
 }
 
-function Pastille({ lettre, couleur }: { lettre: string; couleur: "rouge" | "vert" }) {
+function Marque({ lettre, couleur }: { lettre: string; couleur: "rouge" | "vert" }) {
   return (
     <span
-      className={`flex h-4 w-4 items-center justify-center rounded-full text-[0.6rem] font-bold text-white ${
-        couleur === "rouge" ? "bg-red-500" : "bg-green-600"
-      }`}
+      className={
+        "grid h-[0.95rem] w-[0.95rem] place-items-center rounded-full border border-current font-mono text-[0.6rem] font-bold " +
+        (couleur === "rouge" ? "text-bic-red" : "text-bic-green")
+      }
     >
       {lettre}
     </span>
@@ -81,11 +84,7 @@ export function GrilleEmploiDuTemps({
   const [blocActifId, setBlocActifId] = useState<string | null>(null);
 
   const tousBlocs = useMemo(() => jours.flatMap((j) => j.blocs), [jours]);
-  // On derive le bloc affiche des donnees a jour : apres avoir marque un devoir
-  // fait/non fait, la modale reflete le nouvel etat sans etre rouverte.
-  const blocActif = blocActifId
-    ? (tousBlocs.find((b) => b.id === blocActifId) ?? null)
-    : null;
+  const blocActif = blocActifId ? (tousBlocs.find((b) => b.id === blocActifId) ?? null) : null;
 
   useEffect(() => {
     if (!blocActif) return;
@@ -98,26 +97,26 @@ export function GrilleEmploiDuTemps({
 
   return (
     <>
-      <div className="overflow-x-auto rounded-lg border border-zinc-300 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+      <div className="overflow-x-auto border border-ink-blue bg-paper">
         <div className="min-w-[720px]">
-          <div className="flex border-b border-zinc-200 dark:border-zinc-800">
+          <div className="flex border-b border-ink-blue">
             <div className="w-12 shrink-0" />
             {jours.map((j) => (
               <div
                 key={j.cle}
-                className="flex-1 border-l border-zinc-200 px-2 py-2 text-center text-xs font-medium text-zinc-600 dark:border-zinc-800 dark:text-zinc-300"
+                className="flex-1 border-l border-ruling px-2 py-1.5 text-center font-body text-[0.72rem] font-bold uppercase tracking-wide text-ink-blue"
               >
                 {j.libelle}
               </div>
             ))}
           </div>
 
-          <div className="flex" style={{ height: hauteur }}>
-            <div className="relative w-12 shrink-0">
+          <div className="carreaux flex" style={{ height: hauteur }}>
+            <div className="relative w-12 shrink-0 border-r border-ruling">
               {lignes.map((l) => (
                 <div
                   key={l.top}
-                  className="absolute right-1 -translate-y-1/2 text-[0.7rem] text-zinc-400"
+                  className="tabulaire absolute right-1 -translate-y-1/2 font-mono text-[0.72rem] text-ink-soft"
                   style={{ top: l.top }}
                 >
                   {l.label}
@@ -126,55 +125,59 @@ export function GrilleEmploiDuTemps({
             </div>
 
             {jours.map((j) => (
-              <div key={j.cle} className="relative flex-1 border-l border-zinc-200 dark:border-zinc-800">
+              <div key={j.cle} className="relative flex-1 border-l border-ruling">
                 {lignes.slice(1).map((l) => (
                   <div
                     key={l.top}
-                    className="absolute inset-x-0 border-t border-zinc-100 dark:border-zinc-900"
+                    className="absolute inset-x-0 border-t border-ruling"
                     style={{ top: l.top }}
                   />
                 ))}
 
                 {j.blocs.map((bloc) => {
-                  const bd = badgeDevoir(bloc.devoirs);
-                  const bc = badgeControle(bloc.controles);
+                  const md = marqueDevoir(bloc.devoirs);
+                  const mc = marqueControle(bloc.controles);
                   const cliquable = bloc.devoirs.length > 0 || bloc.controles.length > 0;
+                  const teinte = bloc.couleur ?? "var(--ink-blue)";
                   return (
                     <button
                       key={bloc.id}
                       type="button"
                       disabled={!cliquable}
                       onClick={() => cliquable && setBlocActifId(bloc.id)}
-                      className={`absolute block overflow-hidden rounded border-l-2 px-1.5 py-1 text-left text-[0.7rem] leading-tight ${
-                        cliquable ? "cursor-pointer hover:brightness-95 dark:hover:brightness-125" : "cursor-default"
-                      }`}
+                      className={
+                        "absolute block overflow-hidden px-1.5 pt-1 pb-0.5 text-left font-body text-[0.72rem] leading-tight transition-[filter] " +
+                        (cliquable ? "cursor-pointer hover:brightness-[0.97] dark:hover:brightness-110" : "cursor-default")
+                      }
                       style={{
                         top: bloc.top,
                         height: bloc.height,
-                        left: `calc(${bloc.leftPct}% + 2px)`,
-                        width: `calc(${bloc.widthPct}% - 4px)`,
-                        backgroundColor:
-                          bloc.couleur && !bloc.annule ? `${bloc.couleur}22` : undefined,
-                        borderLeftColor: bloc.couleur ?? "#60a5fa",
+                        left: `calc(${bloc.leftPct}% + 1px)`,
+                        width: `calc(${bloc.widthPct}% - 2px)`,
+                        border: `1px solid color-mix(in srgb, ${teinte} 55%, transparent)`,
+                        backgroundColor: bloc.annule
+                          ? "transparent"
+                          : `color-mix(in srgb, ${teinte} 12%, var(--paper))`,
                       }}
                     >
                       <p
                         className={
                           bloc.annule
-                            ? "font-medium text-zinc-400 line-through dark:text-zinc-500"
-                            : "font-medium text-zinc-800 dark:text-zinc-100"
+                            ? "font-bold uppercase tracking-wide text-ink-soft line-through"
+                            : "font-bold uppercase tracking-wide"
                         }
+                        style={bloc.annule ? undefined : { color: `color-mix(in srgb, ${teinte} 78%, var(--ink))` }}
                       >
                         {bloc.matiere}
                       </p>
-                      <p className="text-zinc-500">
+                      <p className="tabulaire font-mono text-[0.62rem] text-ink-soft">
                         {bloc.labelDeb}–{bloc.labelFin}
                       </p>
-                      {bloc.salle && <p className="text-zinc-400">{bloc.salle}</p>}
-                      {(bd || bc) && (
+                      {bloc.salle && <p className="text-ink-soft">{bloc.salle}</p>}
+                      {(md || mc) && (
                         <span className="absolute bottom-0.5 right-0.5 flex gap-0.5">
-                          {bc && <Pastille lettre="C" couleur={bc} />}
-                          {bd && <Pastille lettre="T" couleur={bd} />}
+                          {mc && <Marque lettre="C" couleur={mc} />}
+                          {md && <Marque lettre="T" couleur={md} />}
                         </span>
                       )}
                     </button>
@@ -188,19 +191,18 @@ export function GrilleEmploiDuTemps({
 
       {blocActif && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgb(12 14 26 / 0.55)" }}
           onClick={() => setBlocActifId(null)}
         >
           <div
-            className="max-h-[85vh] w-full max-w-md overflow-y-auto rounded-lg border border-zinc-300 bg-white p-4 shadow-xl dark:border-zinc-700 dark:bg-zinc-950"
+            className="max-h-[85vh] w-full max-w-md overflow-y-auto border border-ink-blue bg-paper p-4"
+            style={{ boxShadow: "0.25rem 0.5rem 1.6rem rgb(20 20 40 / 0.2)" }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="mb-3 flex items-start justify-between gap-3">
+            <div className="mb-3 flex items-start justify-between gap-3 border-b border-ruling pb-2">
               <div>
-                <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-                  {blocActif.matiere}
-                </h3>
-                <p className="text-xs text-zinc-500">
+                <h3 className="font-display text-lg leading-tight text-ink">{blocActif.matiere}</h3>
+                <p className="tabulaire font-mono text-xs text-ink-soft">
                   {blocActif.labelDeb}–{blocActif.labelFin}
                   {blocActif.salle ? ` · ${blocActif.salle}` : ""}
                   {blocActif.enseignant ? ` · ${blocActif.enseignant}` : ""}
@@ -209,67 +211,66 @@ export function GrilleEmploiDuTemps({
               <button
                 type="button"
                 onClick={() => setBlocActifId(null)}
-                className="text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
+                className="text-ink-soft hover:text-bic-red"
                 aria-label="Fermer"
               >
-                ✕
+                <IconeCroix />
               </button>
             </div>
 
             {blocActif.controles.map((controle) => (
-              <div
-                key={controle.id}
-                className="mb-2 rounded border border-zinc-200 p-2 dark:border-zinc-800"
-              >
-                <div className="mb-1 flex items-center gap-2">
-                  <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[0.7rem] font-medium text-amber-700 dark:bg-amber-950 dark:text-amber-300">
+              <div key={controle.id} className="mb-2 border border-ruling p-2">
+                <div className="mb-1 flex flex-wrap items-baseline gap-2">
+                  <span
+                    className={
+                      "inline-flex rounded-sm px-1.5 py-0.5 font-body text-[0.72rem] font-bold uppercase tracking-wide " +
+                      (controle.aVenir ? "bg-bic-red/12 text-bic-red" : "bg-ink-soft/15 text-ink-soft")
+                    }
+                  >
                     Contrôle {controle.aVenir ? "à venir" : "passé"}
                   </span>
-                  <span className="text-xs text-zinc-500">
+                  <span className="tabulaire font-mono text-xs text-ink-soft">
                     {controle.dateLabel}
                     {controle.heure ? ` à ${controle.heure}` : ""}
                   </span>
                 </div>
-                <p className="text-sm text-zinc-800 dark:text-zinc-200">{controle.intitule}</p>
+                <p className="font-body text-sm text-ink">{controle.intitule}</p>
                 {controle.commentaire && (
-                  <p className="mt-1 whitespace-pre-wrap text-xs text-zinc-600 dark:text-zinc-400">
+                  <p className="mt-1 whitespace-pre-wrap font-body text-xs text-ink-soft">
                     {controle.commentaire}
                   </p>
                 )}
-                <Link
-                  href={`/controles?focus=${controle.id}`}
-                  className="mt-1 inline-block text-xs text-blue-600 hover:underline dark:text-blue-400"
-                >
-                  Ouvrir dans Contrôles →
+                <Link href={`/controles?focus=${controle.id}`} className={boutonSecondaire + " mt-1.5 text-xs"}>
+                  Ouvrir dans Contrôles
                 </Link>
               </div>
             ))}
 
             {blocActif.devoirs.map((devoir) => (
-              <div
-                key={devoir.id}
-                className="mb-2 rounded border border-zinc-200 p-2 dark:border-zinc-800"
-              >
-                <div className="mb-1 flex items-center gap-2">
+              <div key={devoir.id} className="mb-2 border border-ruling p-2">
+                <div className="mb-1 flex flex-wrap items-baseline gap-2">
                   <span
-                    className={`rounded-full px-2 py-0.5 text-[0.7rem] font-medium ${
-                      devoir.statut === "A_FAIRE"
-                        ? "bg-red-100 text-red-700 dark:bg-red-950 dark:text-red-300"
-                        : "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-300"
-                    }`}
+                    className={
+                      "inline-flex rounded-sm px-1.5 py-0.5 font-body text-[0.72rem] font-bold uppercase tracking-wide " +
+                      (devoir.statut === "A_FAIRE"
+                        ? "bg-bic-red/12 text-bic-red"
+                        : "bg-bic-green/12 text-bic-green")
+                    }
                   >
                     {devoir.statut === "A_FAIRE" ? "À faire" : "Terminé"}
                   </span>
-                  <span className="text-xs text-zinc-500">Pour le {devoir.dateLabel}</span>
+                  <span className="tabulaire font-mono text-xs text-ink-soft">
+                    Pour le {devoir.dateLabel}
+                  </span>
                 </div>
-                <p className="text-sm font-medium text-zinc-800 dark:text-zinc-200">{devoir.titre}</p>
+                <p className="font-body text-sm font-bold text-ink">{devoir.titre}</p>
                 {devoir.descriptionHtml ? (
                   <div
-                    className="mt-1 whitespace-pre-wrap text-xs text-zinc-600 dark:text-zinc-400"
+                    className="mt-1 whitespace-pre-wrap font-body text-xs text-ink-soft [&_a]:text-ink-blue [&_a]:underline"
                     dangerouslySetInnerHTML={{ __html: devoir.descriptionHtml }}
                   />
                 ) : (
-                  <p className="mt-1 text-xs text-zinc-500">Aucune description.</p>
+                  <p className="mt-1 font-body text-xs text-ink-soft">Aucune description.</p>
                 )}
                 <div className="mt-2 flex flex-wrap items-center gap-3">
                   <form action={basculerStatutDevoir}>
@@ -277,20 +278,13 @@ export function GrilleEmploiDuTemps({
                     <input type="hidden" name="retour" value={retour} />
                     <BoutonSoumission
                       texteChargement="…"
-                      className={
-                        devoir.statut === "TERMINE"
-                          ? "rounded-full border border-zinc-300 px-3 py-1 text-xs text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
-                          : "rounded-full bg-blue-600 px-3 py-1 text-xs text-white hover:bg-blue-700"
-                      }
+                      className={devoir.statut === "TERMINE" ? boutonEncadre + " text-xs" : boutonPrincipal + " text-xs"}
                     >
                       {devoir.statut === "TERMINE" ? "Marquer non fait" : "Marquer terminé"}
                     </BoutonSoumission>
                   </form>
-                  <Link
-                    href={`/devoirs?focus=${devoir.id}`}
-                    className="text-xs text-blue-600 hover:underline dark:text-blue-400"
-                  >
-                    Ouvrir dans Devoirs →
+                  <Link href={`/devoirs?focus=${devoir.id}`} className={boutonSecondaire + " text-xs"}>
+                    Ouvrir dans Devoirs
                   </Link>
                 </div>
               </div>

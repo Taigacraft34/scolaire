@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { SelecteurMatiereChamp } from "./SelecteurMatiereChamp";
 import { formatDateInput, prochaineDateCours, type SeanceMinimale } from "@/lib/prochainCours";
+import { champ as CLASSE_CHAMP, label as CLASSE_LABEL } from "@/lib/ui";
 
 interface DevoirOption {
   id: string;
@@ -10,9 +11,6 @@ interface DevoirOption {
   libelle: string;
   date: string; // "YYYY-MM-DD"
 }
-
-const CLASSE_CHAMP =
-  "rounded border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-900";
 
 // Champs "Matiere / Devoir associe / Date" du formulaire d'ajout de controle.
 // - choisir une matiere pre-remplit la date avec celle du prochain cours de
@@ -72,7 +70,7 @@ export function ChampsControle({
       <SelecteurMatiereChamp matieres={matieres} valeur={matiere} onChange={changerMatiere} />
 
       <div className="flex flex-1 min-w-40 flex-col gap-1">
-        <label className="text-xs text-zinc-500" htmlFor="devoirId">
+        <label className={CLASSE_LABEL} htmlFor="devoirId">
           Devoir associe (optionnel)
         </label>
         <select
@@ -93,7 +91,7 @@ export function ChampsControle({
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-xs text-zinc-500" htmlFor="date">
+        <label className={CLASSE_LABEL} htmlFor="date">
           Date
         </label>
         <input

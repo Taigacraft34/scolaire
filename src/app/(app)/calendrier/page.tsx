@@ -3,6 +3,8 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { ajouterJours, debutSemaine, memeJour } from "@/lib/calendrier";
 import { FiltresCalendrier } from "@/components/FiltresCalendrier";
+import { IconeFlecheGauche, IconeFlecheDroite } from "@/components/Icone";
+import { boutonEncadre, titrePage } from "@/lib/ui";
 
 const NOMS_MOIS = [
   "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
@@ -70,23 +72,17 @@ export default async function PageCalendrier({
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">
-          {NOMS_MOIS[moisCourant]} {anneeCourante}
+    <div className="flex flex-col gap-[var(--carreau)]">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h1 className={titrePage + " first-letter:uppercase"}>
+          {NOMS_MOIS[moisCourant]} <span className="tabulaire text-ink-soft">{anneeCourante}</span>
         </h1>
-        <div className="flex gap-2">
-          <Link
-            href={construireLien(-1)}
-            className="rounded-full border border-zinc-300 px-3 py-1 text-sm dark:border-zinc-700"
-          >
-← Précédent
+        <div className="flex gap-1.5">
+          <Link href={construireLien(-1)} className={boutonEncadre} aria-label="Mois précédent">
+            <IconeFlecheGauche />
           </Link>
-          <Link
-            href={construireLien(1)}
-            className="rounded-full border border-zinc-300 px-3 py-1 text-sm dark:border-zinc-700"
-          >
-            Suivant →
+          <Link href={construireLien(1)} className={boutonEncadre} aria-label="Mois suivant">
+            <IconeFlecheDroite />
           </Link>
         </div>
       </div>
@@ -97,11 +93,11 @@ export default async function PageCalendrier({
         typeActuel={type ?? ""}
       />
 
-      <div className="grid grid-cols-7 gap-px overflow-hidden rounded-lg border border-zinc-300 bg-zinc-200 dark:border-zinc-800 dark:bg-zinc-800">
+      <div className="carreaux grid grid-cols-7 overflow-hidden border border-ink-blue bg-paper">
         {NOMS_JOURS.map((nom) => (
           <div
             key={nom}
-            className="bg-zinc-100 p-2 text-center text-xs font-medium text-zinc-500 dark:bg-zinc-900"
+            className="border-b border-l border-ink-blue/40 py-1 text-center font-body text-[0.72rem] font-bold uppercase tracking-wide text-ink-blue first:border-l-0"
           >
             {nom}
           </div>
@@ -115,33 +111,39 @@ export default async function PageCalendrier({
           return (
             <div
               key={jour.toISOString()}
-              className={`min-h-24 bg-white p-1 dark:bg-zinc-950 ${horsMois ? "opacity-40" : ""}`}
+              className={
+                "min-h-[calc(var(--carreau)*3.5)] border-b border-l border-ruling p-1 [&:nth-child(7n+1)]:border-l-0 " +
+                (horsMois ? "opacity-35" : "")
+              }
             >
               <p
-                className={`text-xs ${
-                  estAujourdhui ? "font-bold text-blue-600 dark:text-blue-400" : "text-zinc-500"
-                }`}
+                className={
+                  "tabulaire font-mono text-xs " +
+                  (estAujourdhui
+                    ? "inline-flex h-4 w-4 items-center justify-center rounded-full bg-bic-red font-bold text-paper"
+                    : "text-ink-soft")
+                }
               >
                 {jour.getDate()}
               </p>
-              <div className="flex flex-col gap-0.5">
+              <div className="mt-0.5 flex flex-col gap-0.5">
                 {devoirsJour.map((d) => (
                   <p
                     key={d.id}
                     title={`${d.matiere.nom} — ${d.titre}`}
-                    className="truncate rounded bg-zinc-100 px-1 text-[10px] text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
+                    className="truncate font-body text-[0.62rem] leading-tight text-ink"
                   >
-                    {d.matiere.nom}: {d.titre}
+                    <span className="font-bold text-ink-blue">{d.matiere.nom}</span> {d.titre}
                   </p>
                 ))}
                 {controlesJour.map((c) => (
                   <p
                     key={c.id}
                     title={`${c.matiere.nom}${c.chapitreLibre ? " — " + c.chapitreLibre : ""}`}
-                    className="truncate rounded bg-blue-100 px-1 text-[10px] text-blue-800 dark:bg-blue-950 dark:text-blue-300"
+                    className="truncate bg-bic-red/10 px-1 font-body text-[0.62rem] font-bold leading-tight text-bic-red"
                   >
                     {c.matiere.nom}
-                    {c.chapitreLibre ? `: ${c.chapitreLibre}` : ""}
+                    {c.chapitreLibre ? ` · ${c.chapitreLibre}` : ""}
                   </p>
                 ))}
               </div>

@@ -1,5 +1,8 @@
 "use client";
 
+import { IconeCorbeille } from "@/components/Icone";
+import { boutonRouge } from "@/lib/ui";
+
 export function BoutonSupprimer({
   libelle = "Supprimer",
   confirmation = "Supprimer définitivement cet élément ?",
@@ -13,8 +16,9 @@ export function BoutonSupprimer({
       onClick={(e) => {
         if (!confirm(confirmation)) e.preventDefault();
       }}
-      className="text-xs text-red-500 hover:underline"
+      className={boutonRouge}
     >
+      <IconeCorbeille />
       {libelle}
     </button>
   );

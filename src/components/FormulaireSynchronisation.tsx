@@ -1,50 +1,38 @@
 import type { Synchronisation } from "@/generated/prisma/client";
 import { lancerSynchronisation } from "@/app/(app)/devoirs/actions";
 import { BoutonSoumission } from "@/components/BoutonSoumission";
+import { boutonPrincipal, champ, encart, label } from "@/lib/ui";
 
 export function FormulaireSynchronisation({ derniereSynchro }: { derniereSynchro: Synchronisation | null }) {
   return (
     <div className="flex flex-col gap-2">
-      <form
-        action={lancerSynchronisation}
-        className="flex flex-wrap items-end gap-3 rounded-lg border border-zinc-300 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950"
-      >
+      <form action={lancerSynchronisation} className={encart + " flex flex-wrap items-end gap-3"}>
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-zinc-500" htmlFor="dateDebut">
+          <label className={label} htmlFor="dateDebut">
             Début (test)
           </label>
-          <input
-            type="date"
-            id="dateDebut"
-            name="dateDebut"
-            className="rounded border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-          />
+          <input type="date" id="dateDebut" name="dateDebut" className={champ} />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-xs text-zinc-500" htmlFor="dateFin">
+          <label className={label} htmlFor="dateFin">
             Fin (test)
           </label>
-          <input
-            type="date"
-            id="dateFin"
-            name="dateFin"
-            className="rounded border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-          />
+          <input type="date" id="dateFin" name="dateFin" className={champ} />
         </div>
-        <BoutonSoumission
-          texteChargement="Synchronisation…"
-          className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background hover:bg-[#383838] dark:hover:bg-[#ccc]"
-        >
+        <BoutonSoumission texteChargement="Synchronisation…" className={boutonPrincipal}>
           Synchroniser
         </BoutonSoumission>
       </form>
 
       {derniereSynchro && (
-        <p className="text-xs text-zinc-500">
-          Dernière synchronisation : {derniereSynchro.demarreeLe.toLocaleString("fr-FR")} —{" "}
-          {derniereSynchro.statut} ({derniereSynchro.elementsImportes} éléments importés)
+        <p className="font-body text-xs text-ink-soft">
+          Dernière synchronisation :{" "}
+          <span className="tabulaire font-mono">
+            {derniereSynchro.demarreeLe.toLocaleString("fr-FR")}
+          </span>{" "}
+          — {derniereSynchro.statut} ({derniereSynchro.elementsImportes} éléments importés)
           {derniereSynchro.erreurs && (
-            <span className="mt-1 block whitespace-pre-wrap text-red-500">{derniereSynchro.erreurs}</span>
+            <span className="mt-1 block whitespace-pre-wrap text-bic-red">{derniereSynchro.erreurs}</span>
           )}
         </p>
       )}

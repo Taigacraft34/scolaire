@@ -15,12 +15,12 @@ export function ApercuDocument({ document }: { document: DocumentApercu }) {
       <img
         src={url}
         alt={document.nomFichier}
-        className="h-auto w-auto max-h-80 max-w-full rounded object-contain"
+        className="h-auto w-auto max-h-80 max-w-full border border-ink-soft/25 object-contain"
       />
     );
   }
   if (document.typeMime.startsWith("video/")) {
-    return <video src={url} controls className="max-h-80 w-full rounded" />;
+    return <video src={url} controls className="max-h-80 w-full border border-ink-soft/25" />;
   }
   if (document.typeMime.startsWith("audio/")) {
     return <audio src={url} controls className="w-full" />;
@@ -30,7 +30,7 @@ export function ApercuDocument({ document }: { document: DocumentApercu }) {
       <iframe
         src={url}
         title={document.nomFichier}
-        className="h-96 w-full rounded border border-zinc-300 dark:border-zinc-700"
+        className="h-96 w-full border border-ink-soft/30"
       />
     );
   }
@@ -39,7 +39,7 @@ export function ApercuDocument({ document }: { document: DocumentApercu }) {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-block rounded border border-zinc-300 px-3 py-1 text-sm text-zinc-700 underline dark:border-zinc-700 dark:text-zinc-300"
+      className="inline-flex items-center rounded-sm border border-ink-soft/50 px-3 py-1 font-body text-sm font-bold text-ink-blue underline decoration-1 underline-offset-2"
     >
       {document.nomFichier}
     </a>

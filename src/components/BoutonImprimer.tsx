@@ -1,12 +1,14 @@
 "use client";
 
+import { IconeImprimante } from "@/components/Icone";
+
 export function BoutonImprimer() {
   return (
     <button
       onClick={() => window.print()}
-      className="rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background hover:bg-[#383838] print:hidden dark:hover:bg-[#ccc]"
+      className="inline-flex items-center gap-1.5 rounded-sm bg-[#2540c8] px-4 py-1.5 font-body text-sm font-bold uppercase tracking-wide text-white print:hidden"
     >
-      Imprimer / Enregistrer en PDF
+      <IconeImprimante /> Imprimer / PDF
     </button>
   );
 }

@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "appRoot": "C:\\Users\\Taiga\\Desktop\\web",
+  "repoRoot": "C:\\Users\\Taiga\\Desktop\\web",
+  "contextRoot": "C:\\Users\\Taiga\\Desktop\\web",
+  "sessionRoot": "C:\\Users\\Taiga\\Desktop\\web\\.impeccable\\live",
+  "productPath": "C:\\Users\\Taiga\\Desktop\\web\\PRODUCT.md",
+  "designPath": "C:\\Users\\Taiga\\Desktop\\web\\DESIGN.md",
+  "resolvedFrom": "cwd"
+}

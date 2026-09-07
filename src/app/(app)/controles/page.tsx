@@ -6,6 +6,8 @@ import { ChampsControle } from "@/components/ChampsControle";
 import { BoutonSupprimer } from "@/components/BoutonSupprimer";
 import { MiseEnAvantRecherche } from "@/components/MiseEnAvantRecherche";
 import { formatDateInput } from "@/lib/prochainCours";
+import { IconeCroix } from "@/components/Icone";
+import { boutonEncadre, boutonPrincipal, champ, encart, etiquette, label, titrePage, titreSection } from "@/lib/ui";
 import Link from "next/link";
 import {
   creerControleManuel,
@@ -24,20 +26,11 @@ export default async function PageControles({
   const utilisateurId = session!.user.id;
   const { erreur, focus } = await searchParams;
 
-  // Pour l'association d'un devoir, on ne propose que les devoirs non passes
-  // (echeance aujourd'hui ou plus tard).
   const debutAujourdhui = new Date();
   debutAujourdhui.setHours(0, 0, 0, 0);
 
-  const [
-    utilisateur,
-    controles,
-    derniereSynchro,
-    matieres,
-    devoirsDisponibles,
-    chapitresDisponibles,
-    seances,
-  ] = await Promise.all([
+  const [utilisateur, controles, derniereSynchro, matieres, devoirsDisponibles, chapitresDisponibles, seances] =
+    await Promise.all([
       prisma.utilisateur.findUnique({ where: { id: utilisateurId }, select: { modeDeveloppeur: true } }),
       prisma.controle.findMany({
         where: { utilisateurId },
@@ -75,16 +68,16 @@ export default async function PageControles({
   const modeDeveloppeur = utilisateur?.modeDeveloppeur ?? false;
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Contrôles</h1>
+    <div className="flex flex-col gap-[var(--carreau)]">
+      <h1 className={titrePage}>Contrôles</h1>
 
       <MiseEnAvantRecherche focusId={focus} />
 
       {modeDeveloppeur && <FormulaireSynchronisation derniereSynchro={derniereSynchro} />}
 
-      <section className="rounded-lg border border-zinc-300 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-        <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">Ajouter un contrôle</h2>
-        {erreur && <p className="mb-3 text-sm text-red-500">{erreur}</p>}
+      <section className={encart}>
+        <h2 className={titreSection + " mb-2"}>Ajouter un contrôle</h2>
+        {erreur && <p className="mb-2 font-body text-sm text-bic-red">{erreur}</p>}
         <form action={creerControleManuel} className="flex flex-col gap-3">
           <div className="flex flex-wrap gap-3">
             <ChampsControle
@@ -98,80 +91,53 @@ export default async function PageControles({
               }))}
             />
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-zinc-500" htmlFor="heure">
+              <label className={label} htmlFor="heure">
                 Heure
               </label>
-              <input
-                type="time"
-                id="heure"
-                name="heure"
-                className="rounded border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-              />
+              <input type="time" id="heure" name="heure" className={champ} />
             </div>
             <div className="flex flex-1 min-w-40 flex-col gap-1">
-              <label className="text-xs text-zinc-500" htmlFor="chapitre">
+              <label className={label} htmlFor="chapitre">
                 Chapitre
               </label>
-              <input
-                id="chapitre"
-                name="chapitre"
-                className="rounded border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-              />
+              <input id="chapitre" name="chapitre" className={champ} />
             </div>
           </div>
           <div className="flex flex-col gap-1">
-            <label className="text-xs text-zinc-500" htmlFor="commentaire">
+            <label className={label} htmlFor="commentaire">
               Commentaire
             </label>
-            <textarea
-              id="commentaire"
-              name="commentaire"
-              rows={2}
-              className="rounded border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-            />
+            <textarea id="commentaire" name="commentaire" rows={2} className={champ} />
           </div>
-          <button
-            type="submit"
-            className="self-start rounded-full bg-foreground px-4 py-2 text-sm font-medium text-background hover:bg-[#383838] dark:hover:bg-[#ccc]"
-          >
+          <button type="submit" className={boutonPrincipal + " self-start"}>
             Ajouter
           </button>
         </form>
       </section>
 
-      <div className="rounded-lg border border-zinc-300 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-        {controles.length === 0 ? (
-          <p className="p-4 text-sm text-zinc-500">
-            Aucun contrôle. Les contrôles sont détectés automatiquement lors de la synchronisation des
-            devoirs, ou peuvent être ajoutés manuellement ci-dessus.
-          </p>
-        ) : (
-          <ul className="divide-y divide-zinc-100 dark:divide-zinc-900">
-            {controles.map((controle) => (
-              <li
-                key={controle.id}
-                id={`element-${controle.id}`}
-                className="flex flex-col gap-2 p-3 text-sm"
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div>
-                      <p className="font-medium text-zinc-800 dark:text-zinc-200">
-                        {controle.matiere.nom} {controle.chapitreLibre ? `— ${controle.chapitreLibre}` : ""}
-                      </p>
-                      <p className="text-xs text-zinc-500">
-                        {libelleStatutControle(controle.date)}
-                        {controle.note ? ` · note : ${controle.note.noteObtenue}/${controle.note.noteMaximale}` : ""}
-                      </p>
-                    </div>
-                    {controle.type === "AUTOMATIQUE" && (
-                      <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-700 dark:bg-blue-950 dark:text-blue-300">
-                        Ajouté automatiquement
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="whitespace-nowrap text-zinc-500">
+      {controles.length === 0 ? (
+        <p className="font-body leading-[var(--carreau)] text-ink-soft">
+          Aucun contrôle. Ils sont détectés automatiquement à la synchronisation des devoirs, ou
+          ajoute-les ci-dessus.
+        </p>
+      ) : (
+        <ul className="flex flex-col gap-[var(--carreau)]">
+          {controles.map((controle) => {
+            const devoirsMemeMatiere = controle.devoirSource
+              ? []
+              : devoirsDisponibles.filter((d) => d.matiereId === controle.matiereId);
+            const idsLies = new Set(controle.chapitres.map((l) => l.chapitreId));
+            const chapitresNonLies = chapitresDisponibles.filter((c) => !idsLies.has(c.id));
+
+            return (
+              <li key={controle.id} id={`element-${controle.id}`} className="flex flex-col">
+                <div className="flex items-baseline justify-between gap-3">
+                  <p className="min-w-0 font-display text-lg leading-[var(--carreau)] text-ink">
+                    <span className="text-ink-blue">{controle.matiere.nom}</span>
+                    {controle.chapitreLibre ? ` — ${controle.chapitreLibre}` : ""}
+                  </p>
+                  <div className="flex shrink-0 items-baseline gap-3">
+                    <span className="tabulaire font-mono text-xs text-ink-soft">
                       {controle.date.toLocaleDateString("fr-FR")}
                     </span>
                     <form action={supprimerControle}>
@@ -181,64 +147,57 @@ export default async function PageControles({
                   </div>
                 </div>
 
+                <p className="flex flex-wrap items-baseline gap-x-2 font-body text-xs text-ink-soft">
+                  <span className="uppercase tracking-wide">{libelleStatutControle(controle.date)}</span>
+                  {controle.note && (
+                    <span className="tabulaire font-mono text-sm font-bold text-bic-red">
+                      {String(controle.note.noteObtenue).replace(".", ",")}
+                      <span className="text-ink-soft">/{controle.note.noteMaximale}</span>
+                    </span>
+                  )}
+                  {controle.type === "AUTOMATIQUE" && (
+                    <span className={etiquette}>Auto</span>
+                  )}
+                </p>
+
                 {controle.devoirSource ? (
-                  <p className="text-xs text-zinc-500">
-                    Devoir associé : {controle.devoirSource.matiere.nom} — {controle.devoirSource.titre} (
-                    {controle.devoirSource.date.toLocaleDateString("fr-FR")})
+                  <p className="font-body text-xs text-ink-soft">
+                    Devoir associé — {controle.devoirSource.matiere.nom} · {controle.devoirSource.titre}
                   </p>
-                ) : (
-                  (() => {
-                    const devoirsMemeMatiere = devoirsDisponibles.filter(
-                      (devoir) => devoir.matiereId === controle.matiereId,
-                    );
-                    if (devoirsMemeMatiere.length === 0) return null;
-                    return (
-                      <form action={lierDevoirAuControle} className="flex items-center gap-2">
-                        <input type="hidden" name="controleId" value={controle.id} />
-                        <select
-                          name="devoirId"
-                          required
-                          defaultValue=""
-                          className="rounded border border-zinc-300 px-2 py-1 text-xs dark:border-zinc-700 dark:bg-zinc-900"
-                        >
-                          <option value="" disabled>
-                            Lier à un devoir de {controle.matiere.nom}…
-                          </option>
-                          {devoirsMemeMatiere.map((devoir) => (
-                            <option key={devoir.id} value={devoir.id}>
-                              {devoir.titre} ({devoir.date.toLocaleDateString("fr-FR")})
-                            </option>
-                          ))}
-                        </select>
-                        <button
-                          type="submit"
-                          className="rounded-full border border-zinc-300 px-3 py-1 text-xs text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
-                        >
-                          Lier
-                        </button>
-                      </form>
-                    );
-                  })()
-                )}
+                ) : devoirsMemeMatiere.length > 0 ? (
+                  <form action={lierDevoirAuControle} className="mt-1 flex flex-wrap items-center gap-2">
+                    <input type="hidden" name="controleId" value={controle.id} />
+                    <select name="devoirId" required defaultValue="" className={champ + " max-w-xs text-xs"}>
+                      <option value="" disabled>
+                        Lier à un devoir de {controle.matiere.nom}…
+                      </option>
+                      {devoirsMemeMatiere.map((devoir) => (
+                        <option key={devoir.id} value={devoir.id}>
+                          {devoir.titre} ({devoir.date.toLocaleDateString("fr-FR")})
+                        </option>
+                      ))}
+                    </select>
+                    <button type="submit" className={boutonEncadre + " text-xs"}>
+                      Lier
+                    </button>
+                  </form>
+                ) : null}
 
                 {controle.chapitres.length > 0 && (
-                  <ul className="flex flex-wrap gap-2">
+                  <ul className="mt-1 flex flex-wrap gap-1.5">
                     {controle.chapitres.map((liaison) => (
-                      <li
-                        key={liaison.chapitreId}
-                        className="flex items-center gap-1 rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
-                      >
+                      <li key={liaison.chapitreId} className={etiquette + " gap-1 pr-1"}>
                         <Link
                           href={`/cours/${liaison.chapitre.matiereId}/${liaison.chapitreId}`}
                           className="hover:underline"
                         >
-                          {liaison.chapitre.matiere.nom} — {liaison.chapitre.nom}
+                          {liaison.chapitre.matiere.nom} · {liaison.chapitre.nom}
                         </Link>
                         <form action={delierChapitreDuControle}>
                           <input type="hidden" name="controleId" value={controle.id} />
                           <input type="hidden" name="chapitreId" value={liaison.chapitreId} />
-                          <button type="submit" className="text-red-500 hover:underline" aria-label="Délier">
-                            ×
+                          <button type="submit" className="text-bic-red" aria-label="Délier">
+                            <IconeCroix className="text-[0.7em]" />
                           </button>
                         </form>
                       </li>
@@ -246,42 +205,29 @@ export default async function PageControles({
                   </ul>
                 )}
 
-                {(() => {
-                  const idsDejaLies = new Set(controle.chapitres.map((l) => l.chapitreId));
-                  const chapitresNonLies = chapitresDisponibles.filter((c) => !idsDejaLies.has(c.id));
-                  if (chapitresNonLies.length === 0) return null;
-                  return (
-                    <form action={lierChapitreAuControle} className="flex items-center gap-2">
-                      <input type="hidden" name="controleId" value={controle.id} />
-                      <select
-                        name="chapitreId"
-                        required
-                        defaultValue=""
-                        className="rounded border border-zinc-300 px-2 py-1 text-xs dark:border-zinc-700 dark:bg-zinc-900"
-                      >
-                        <option value="" disabled>
-                          Lier à un chapitre…
+                {chapitresNonLies.length > 0 && (
+                  <form action={lierChapitreAuControle} className="mt-1 flex flex-wrap items-center gap-2">
+                    <input type="hidden" name="controleId" value={controle.id} />
+                    <select name="chapitreId" required defaultValue="" className={champ + " max-w-xs text-xs"}>
+                      <option value="" disabled>
+                        Lier à un chapitre…
+                      </option>
+                      {chapitresNonLies.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.matiere.nom} — {c.nom}
                         </option>
-                        {chapitresNonLies.map((c) => (
-                          <option key={c.id} value={c.id}>
-                            {c.matiere.nom} — {c.nom}
-                          </option>
-                        ))}
-                      </select>
-                      <button
-                        type="submit"
-                        className="rounded-full border border-zinc-300 px-3 py-1 text-xs text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
-                      >
-                        Lier
-                      </button>
-                    </form>
-                  );
-                })()}
+                      ))}
+                    </select>
+                    <button type="submit" className={boutonEncadre + " text-xs"}>
+                      Lier
+                    </button>
+                  </form>
+                )}
               </li>
-            ))}
-          </ul>
-        )}
-      </div>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
 }

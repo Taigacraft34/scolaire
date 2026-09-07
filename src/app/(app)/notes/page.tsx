@@ -2,7 +2,12 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { FormulaireSynchronisation } from "@/components/FormulaireSynchronisation";
 import { BoutonSupprimer } from "@/components/BoutonSupprimer";
+import { boutonEncadre, champ, etiquette, label, titrePage, titreSection } from "@/lib/ui";
 import { ajouterCopie, supprimerCopie } from "./actions";
+
+function fmtNote(n: number): string {
+  return String(Number.isInteger(n) ? n : n.toFixed(2)).replace(".", ",");
+}
 
 export default async function PageNotes({
   searchParams,
@@ -29,29 +34,32 @@ export default async function PageNotes({
   const parMatiere = new Map<string, { total: number; poids: number }>();
   for (const note of notes) {
     const cle = note.matiere.nom;
-    const entree = parMatiere.get(cle) ?? { total: 0, poids: 0 };
-    entree.total += (note.noteObtenue / note.noteMaximale) * 20 * note.coefficient;
-    entree.poids += note.coefficient;
-    parMatiere.set(cle, entree);
+    const e = parMatiere.get(cle) ?? { total: 0, poids: 0 };
+    e.total += (note.noteObtenue / note.noteMaximale) * 20 * note.coefficient;
+    e.poids += note.coefficient;
+    parMatiere.set(cle, e);
   }
 
   return (
-    <div className="flex flex-col gap-6">
-      <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Notes</h1>
+    <div className="flex flex-col gap-[var(--carreau)]">
+      <h1 className={titrePage}>Notes</h1>
 
       {modeDeveloppeur && <FormulaireSynchronisation derniereSynchro={derniereSynchro} />}
-
-      {erreur && <p className="text-sm text-red-500">{erreur}</p>}
+      {erreur && <p className="font-body text-sm text-bic-red">{erreur}</p>}
 
       {parMatiere.size > 0 && (
-        <section className="rounded-lg border border-zinc-300 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950">
-          <h2 className="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">Moyennes par matière</h2>
-          <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+        <section className="flex flex-col">
+          <h2 className={titreSection + " mb-1"}>Moyennes par matière</h2>
+          <ul className="grid gap-x-8 sm:grid-cols-2">
             {[...parMatiere.entries()].map(([nom, { total, poids }]) => (
-              <li key={nom} className="flex justify-between text-sm">
-                <span className="text-zinc-700 dark:text-zinc-300">{nom}</span>
-                <span className="font-medium text-zinc-900 dark:text-zinc-50">
-                  {poids > 0 ? (total / poids).toFixed(2) : "-"}/20
+              <li
+                key={nom}
+                className="flex items-baseline justify-between gap-3 border-b border-ruling/60 leading-[var(--carreau)]"
+              >
+                <span className="truncate text-ink">{nom}</span>
+                <span className="tabulaire shrink-0 font-mono text-sm font-bold text-ink">
+                  {poids > 0 ? fmtNote(total / poids) : "—"}
+                  <span className="font-normal text-ink-soft">/20</span>
                 </span>
               </li>
             ))}
@@ -59,96 +67,90 @@ export default async function PageNotes({
         </section>
       )}
 
-      <div className="flex flex-col gap-4">
-        {notes.length === 0 ? (
-          <p className="rounded-lg border border-zinc-300 bg-white p-4 text-sm text-zinc-500 dark:border-zinc-800 dark:bg-zinc-950">
-            Aucune note enregistrée.
-          </p>
-        ) : (
-          notes.map((note) => (
-            <div
-              key={note.id}
-              className="flex flex-col gap-3 rounded-lg border border-zinc-300 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-950"
-            >
-              <div className="flex items-center justify-between text-sm">
-                <div>
-                  <p className="font-medium text-zinc-800 dark:text-zinc-200">{note.matiere.nom}</p>
-                  <p className="text-xs text-zinc-500">
-                    Coefficient {note.coefficient}
-                    {note.moyenneClasse !== null ? ` · moyenne classe ${note.moyenneClasse}` : ""}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="font-medium text-zinc-900 dark:text-zinc-50">
-                    {note.noteObtenue}/{note.noteMaximale}
-                  </p>
-                  <p className="text-xs text-zinc-500">{note.date.toLocaleDateString("fr-FR")}</p>
-                </div>
-              </div>
+      {notes.length === 0 ? (
+        <p className="font-body leading-[var(--carreau)] text-ink-soft">Aucune note enregistrée.</p>
+      ) : (
+        <ul className="flex flex-col gap-[var(--carreau)]">
+          {notes.map((note) => (
+            <li key={note.id} className="relative flex flex-col">
+              <span
+                className="tabulaire absolute right-full top-0 mr-2 text-right font-display text-lg font-semibold leading-none text-bic-red sm:mr-3 sm:text-2xl"
+                aria-hidden
+              >
+                {fmtNote(note.noteObtenue)}
+                <span className="text-xs font-normal text-ink-soft sm:text-sm">/{note.noteMaximale}</span>
+              </span>
+
+              <p className="font-display text-lg leading-[var(--carreau)] text-ink">
+                <span className="text-ink-blue">{note.matiere.nom}</span>
+                <span className="sr-only">
+                  {" "}
+                  : {fmtNote(note.noteObtenue)} sur {note.noteMaximale}
+                </span>
+              </p>
+              <p className="flex flex-wrap gap-x-2 font-body text-xs text-ink-soft">
+                <span className="tabulaire font-mono">{note.date.toLocaleDateString("fr-FR")}</span>
+                <span>coeff. {fmtNote(note.coefficient)}</span>
+                {note.moyenneClasse !== null && <span>classe {fmtNote(note.moyenneClasse)}</span>}
+              </p>
 
               {note.copies.length > 0 && (
-                <div className="flex flex-col gap-3">
+                <div className="mt-1 flex flex-col gap-1 pl-2">
                   {note.copies.map((copie) => (
-                    <div key={copie.id} className="rounded border border-zinc-300 p-2 dark:border-zinc-800">
-                      <div className="mb-2 flex items-center justify-between">
-                        {copie.commentaire && (
-                          <p className="text-xs text-zinc-500">{copie.commentaire}</p>
+                    <div key={copie.id} className="border-l border-ruling pl-2">
+                      <div className="flex items-baseline justify-between gap-2">
+                        {copie.commentaire ? (
+                          <p className="font-body text-xs text-ink-soft">{copie.commentaire}</p>
+                        ) : (
+                          <span />
                         )}
-                        <form action={supprimerCopie} className="ml-auto">
+                        <form action={supprimerCopie}>
                           <input type="hidden" name="copieId" value={copie.id} />
                           <BoutonSupprimer confirmation="Supprimer définitivement cette copie ?" />
                         </form>
                       </div>
-                      <div className="flex flex-wrap gap-2">
-                        {copie.documents.map((doc) => (
-                          <a
-                            key={doc.id}
-                            href={`/api/documents/${doc.id}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-700 hover:underline dark:bg-zinc-800 dark:text-zinc-300"
-                          >
-                            {doc.nomFichier}
-                          </a>
-                        ))}
-                      </div>
+                      {copie.documents.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5">
+                          {copie.documents.map((doc) => (
+                            <a
+                              key={doc.id}
+                              href={`/api/documents/${doc.id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={etiquette + " hover:underline"}
+                            >
+                              {doc.nomFichier}
+                            </a>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
               )}
 
-              <form
-                action={ajouterCopie}
-                className="flex flex-wrap items-end gap-2"
-              >
+              <form action={ajouterCopie} className="mt-1 flex flex-wrap items-end gap-2 pl-2">
                 <input type="hidden" name="noteId" value={note.id} />
                 <div className="flex flex-1 min-w-40 flex-col gap-1">
-                  <label className="text-xs text-zinc-500" htmlFor={`commentaire-${note.id}`}>
+                  <label className={label} htmlFor={`commentaire-${note.id}`}>
                     Commentaire (optionnel)
                   </label>
-                  <input
-                    id={`commentaire-${note.id}`}
-                    name="commentaire"
-                    className="rounded border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-900"
-                  />
+                  <input id={`commentaire-${note.id}`} name="commentaire" className={champ} />
                 </div>
                 <input
                   type="file"
                   name="fichiers"
                   multiple
-                  className="text-sm text-zinc-700 dark:text-zinc-300"
+                  className="font-body text-xs text-ink-soft file:mr-2 file:rounded-sm file:border file:border-ink-soft/50 file:bg-transparent file:px-2 file:py-1 file:font-body file:text-xs file:font-bold file:text-ink"
                 />
-                <button
-                  type="submit"
-                  className="rounded-full border border-zinc-300 px-3 py-1 text-xs text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
-                >
+                <button type="submit" className={boutonEncadre + " text-xs"}>
                   Ajouter une copie
                 </button>
               </form>
-            </div>
-          ))
-        )}
-      </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
