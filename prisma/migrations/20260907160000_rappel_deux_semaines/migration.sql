@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "TypeRappel" ADD VALUE 'J_MOINS_14' BEFORE 'J_MOINS_7';

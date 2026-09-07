@@ -7,6 +7,10 @@ import type { TypeRappel } from "@/generated/prisma/client";
 function calculerDateEnvoi(dateControle: Date, type: TypeRappel): Date | null {
   const d = new Date(dateControle);
   switch (type) {
+    case "J_MOINS_14":
+      d.setDate(d.getDate() - 14);
+      d.setHours(8, 0, 0, 0);
+      return d;
     case "J_MOINS_7":
       d.setDate(d.getDate() - 7);
       d.setHours(8, 0, 0, 0);

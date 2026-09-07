@@ -59,6 +59,7 @@ export async function mettreAJourRappels(formData: FormData) {
   if (!session?.user) redirect("/connexion");
 
   const rappelsParDefaut = formData.getAll("rappels").map((v) => String(v)) as (
+    | "J_MOINS_14"
     | "J_MOINS_7"
     | "J_MOINS_3"
     | "J_MOINS_2"

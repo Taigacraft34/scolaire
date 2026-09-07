@@ -46,6 +46,7 @@ enum CanalNotification {
 }
 
 enum TypeRappel {
+  J_MOINS_14
   J_MOINS_7
   J_MOINS_3
   J_MOINS_2

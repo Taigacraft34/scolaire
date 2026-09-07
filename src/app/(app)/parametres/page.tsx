@@ -36,6 +36,7 @@ const FUSEAUX_HORAIRES = [
 ];
 
 const OPTIONS_RAPPELS = [
+  { valeur: "J_MOINS_14", libelle: "2 semaines avant" },
   { valeur: "J_MOINS_7", libelle: "7 jours avant" },
   { valeur: "J_MOINS_3", libelle: "3 jours avant" },
   { valeur: "J_MOINS_2", libelle: "2 jours avant" },
@@ -43,7 +44,13 @@ const OPTIONS_RAPPELS = [
   { valeur: "MATIN_MEME", libelle: "Le matin même (6h30)" },
 ];
 
-const OPTIONS_RAPPELS_DEVOIR = OPTIONS_RAPPELS;
+const OPTIONS_RAPPELS_DEVOIR = [
+  { valeur: "J_MOINS_7", libelle: "7 jours avant" },
+  { valeur: "J_MOINS_3", libelle: "3 jours avant" },
+  { valeur: "J_MOINS_2", libelle: "2 jours avant" },
+  { valeur: "VEILLE", libelle: "La veille (18h)" },
+  { valeur: "MATIN_MEME", libelle: "Le matin même (6h30)" },
+];
 
 const OPTIONS_CANAUX = [
   { valeur: "EMAIL", libelle: "Email" },
