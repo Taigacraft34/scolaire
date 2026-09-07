@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { auth, signOut } from "@/auth";
 import { BasculeTheme } from "@/components/BasculeTheme";
+import { BarreRecherche } from "@/components/BarreRecherche";
 
 const LIENS_NAV = [
   { href: "/", label: "Tableau de bord" },
@@ -10,7 +11,6 @@ const LIENS_NAV = [
   { href: "/cours", label: "Cours" },
   { href: "/calendrier", label: "Calendrier" },
   { href: "/emploi-du-temps", label: "Emploi du temps" },
-  { href: "/recherche", label: "Recherche" },
 ];
 
 export default async function LayoutApplication({
@@ -38,7 +38,8 @@ export default async function LayoutApplication({
               </Link>
             )}
           </nav>
-          <div className="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-400">
+          <div className="flex flex-1 items-center justify-end gap-3 text-sm text-zinc-600 dark:text-zinc-400">
+            <BarreRecherche />
             <BasculeTheme />
             <Link href="/parametres" className="hover:text-zinc-950 dark:hover:text-zinc-50">
               {session?.user?.name ?? session?.user?.email}
