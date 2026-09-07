@@ -118,6 +118,11 @@ model Utilisateur {
   rappelsParDefaut TypeRappel[]        @default([J_MOINS_3, VEILLE])
   canauxParDefaut  CanalNotification[] @default([EMAIL, MOBILE])
 
+  // Rappels generes automatiquement pour chaque devoir non termine.
+  // Par defaut : 2 jours avant, la veille (18h) et le matin meme (6h30).
+  rappelsDevoirParDefaut TypeRappel[]        @default([J_MOINS_2, VEILLE, MATIN_MEME])
+  canauxDevoirParDefaut  CanalNotification[] @default([EMAIL, MOBILE])
+
   preferencesAffichage Json?
 
   createdAt DateTime @default(now())
@@ -228,6 +233,7 @@ model Devoir {
   controleGenere Controle?
 
   documents Document[]
+  notifications Notification[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -414,8 +420,13 @@ model Notification {
   utilisateurId String
   utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
 
-  controleId String
-  controle   Controle @relation(fields: [controleId], references: [id], onDelete: Cascade)
+  // Une notification concerne soit un controle, soit un devoir (exactement un
+  // des deux est renseigne).
+  controleId String?
+  controle   Controle? @relation(fields: [controleId], references: [id], onDelete: Cascade)
+
+  devoirId String?
+  devoir   Devoir? @relation(fields: [devoirId], references: [id], onDelete: Cascade)
 
   type          TypeRappel
   dateEnvoiPrevue DateTime

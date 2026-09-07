@@ -5,7 +5,10 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { trouverOuCreerMatiere } from "@/lib/matieres";
-import { genererRappelsPourControle } from "@/lib/notifications/rappels";
+import {
+  genererRappelsPourControle,
+  supprimerRappelsDevoirNonEnvoyes,
+} from "@/lib/notifications/rappels";
 
 export async function creerControleManuel(formData: FormData) {
   const session = await auth();
@@ -51,6 +54,8 @@ export async function creerControleManuel(formData: FormData) {
   });
 
   await genererRappelsPourControle(controle.id, session.user.id);
+  // Le controle prend le relais : plus de rappels "devoir a faire" pour la source.
+  if (devoirSourceId) await supprimerRappelsDevoirNonEnvoyes(devoirSourceId);
 
   revalidatePath("/controles");
   revalidatePath("/devoirs");
@@ -78,6 +83,7 @@ export async function lierDevoirAuControle(formData: FormData) {
   }
 
   await prisma.controle.update({ where: { id: controle.id }, data: { devoirSourceId: devoir.id } });
+  await supprimerRappelsDevoirNonEnvoyes(devoir.id);
 
   revalidatePath("/controles");
   revalidatePath("/devoirs");

@@ -15,6 +15,7 @@ export async function traiterNotificationsDues() {
     },
     include: {
       controle: { include: { matiere: true } },
+      devoir: { include: { matiere: true } },
       utilisateur: { include: { parametresNotif: { where: { actif: true } } } },
     },
     take: 200,
@@ -24,11 +25,32 @@ export async function traiterNotificationsDues() {
   const erreurs: string[] = [];
 
   for (const notif of dues) {
-    const { controle, utilisateur } = notif;
-    const titre = `Controle : ${controle.matiere.nom}`;
-    const message = `${controle.matiere.nom}${controle.chapitreLibre ? " — " + controle.chapitreLibre : ""} le ${controle.date.toLocaleDateString(
-      "fr-FR",
-    )}${controle.heure ? " a " + controle.heure : ""}`;
+    const { controle, devoir, utilisateur } = notif;
+
+    let titre: string;
+    let message: string;
+
+    if (devoir) {
+      // Le devoir a ete fait (ou refait) entre-temps : le rappel n'a plus lieu
+      // d'etre, on le retire sans rien envoyer.
+      if (devoir.statut === "TERMINE") {
+        await prisma.notification.delete({ where: { id: notif.id } });
+        continue;
+      }
+      titre = `Devoir a faire : ${devoir.matiere.nom}`;
+      message = `${devoir.matiere.nom} — ${devoir.titre}, a rendre le ${devoir.date.toLocaleDateString(
+        "fr-FR",
+      )}${devoir.heure ? " a " + devoir.heure : ""}`;
+    } else if (controle) {
+      titre = `Controle : ${controle.matiere.nom}`;
+      message = `${controle.matiere.nom}${controle.chapitreLibre ? " — " + controle.chapitreLibre : ""} le ${controle.date.toLocaleDateString(
+        "fr-FR",
+      )}${controle.heure ? " a " + controle.heure : ""}`;
+    } else {
+      // Notification orpheline (controle/devoir supprime) : on la retire.
+      await prisma.notification.delete({ where: { id: notif.id } });
+      continue;
+    }
 
     try {
       if (notif.canaux.includes("EMAIL")) {

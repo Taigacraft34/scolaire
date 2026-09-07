@@ -76,6 +76,30 @@ export async function mettreAJourRappels(formData: FormData) {
   redirect("/parametres?succes=1");
 }
 
+export async function mettreAJourRappelsDevoir(formData: FormData) {
+  const session = await auth();
+  if (!session?.user) redirect("/connexion");
+
+  const rappelsDevoirParDefaut = formData.getAll("rappelsDevoir").map((v) => String(v)) as (
+    | "J_MOINS_7"
+    | "J_MOINS_3"
+    | "J_MOINS_2"
+    | "VEILLE"
+    | "MATIN_MEME"
+  )[];
+  const canauxDevoirParDefaut = formData
+    .getAll("canauxDevoir")
+    .map((v) => String(v)) as ("EMAIL" | "MOBILE" | "NAVIGATEUR")[];
+
+  await prisma.utilisateur.update({
+    where: { id: session.user.id },
+    data: { rappelsDevoirParDefaut, canauxDevoirParDefaut },
+  });
+
+  revalidatePath("/parametres");
+  redirect("/parametres?succes=1");
+}
+
 export async function enregistrerNtfy(formData: FormData) {
   const session = await auth();
   if (!session?.user) redirect("/connexion");

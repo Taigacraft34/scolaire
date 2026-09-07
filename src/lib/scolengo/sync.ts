@@ -1,6 +1,10 @@
 import { prisma } from "@/lib/prisma";
 import { trouverOuCreerMatiere } from "@/lib/matieres";
-import { genererRappelsPourControle } from "@/lib/notifications/rappels";
+import {
+  genererRappelsPourControle,
+  genererRappelsPourDevoir,
+  supprimerRappelsDevoirNonEnvoyes,
+} from "@/lib/notifications/rappels";
 import { getClientScolengo } from "./client";
 
 export interface OptionsSynchronisation {
@@ -138,6 +142,15 @@ export async function synchroniserUtilisateur(utilisateurId: string, options: Op
               },
             });
           }
+        }
+
+        // Rappels de devoir : programmes tant que le devoir est a faire, retires
+        // des qu'il est marque fait cote MonBureauNumerique. Ignores si le devoir
+        // a donne lieu a un controle (les rappels de controle prennent le relais).
+        if (devoirEnregistre.statut === "A_FAIRE") {
+          await genererRappelsPourDevoir(devoirEnregistre.id, utilisateurId);
+        } else {
+          await supprimerRappelsDevoirNonEnvoyes(devoirEnregistre.id);
         }
       } catch (e) {
         erreurs.push(`Devoir "${devoir.title ?? devoir.id}": ${e instanceof Error ? e.message : String(e)}`);

@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { trouverOuCreerMatiere } from "@/lib/matieres";
 import { synchroniserUtilisateur } from "@/lib/scolengo/sync";
 import { getClientScolengo } from "@/lib/scolengo/client";
+import { genererRappelsPourDevoir, supprimerRappelsDevoirNonEnvoyes } from "@/lib/notifications/rappels";
 
 export async function lancerSynchronisation(formData: FormData) {
   const session = await auth();
@@ -46,7 +47,7 @@ export async function creerDevoirManuel(formData: FormData) {
 
   const matiere = await trouverOuCreerMatiere(session.user.id, matiereNom);
 
-  await prisma.devoir.create({
+  const devoir = await prisma.devoir.create({
     data: {
       utilisateurId: session.user.id,
       matiereId: matiere.id,
@@ -57,6 +58,8 @@ export async function creerDevoirManuel(formData: FormData) {
       provenance: "MANUEL",
     },
   });
+
+  await genererRappelsPourDevoir(devoir.id, session.user.id);
 
   revalidatePath("/devoirs");
   redirect("/devoirs");
@@ -94,6 +97,14 @@ export async function basculerStatutDevoir(formData: FormData) {
   }
 
   await prisma.devoir.update({ where: { id: devoir.id }, data: { statut: nouveauStatut } });
+
+  // Un devoir fait n'a plus besoin de rappels ; s'il repasse "a faire" on les
+  // reprogramme (ceux dont l'echeance n'est pas deja passee).
+  if (nouveauStatut === "TERMINE") {
+    await supprimerRappelsDevoirNonEnvoyes(devoir.id);
+  } else {
+    await genererRappelsPourDevoir(devoir.id, session.user.id);
+  }
 
   revalidatePath("/devoirs");
   redirect("/devoirs");
