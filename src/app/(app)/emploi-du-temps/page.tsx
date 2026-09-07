@@ -48,6 +48,17 @@ export default async function PageEmploiDuTemps({
       })
     : [];
 
+  // Suggestions pour le champ "Matiere" : reprendre exactement les noms des
+  // matieres existantes facilite le rapprochement automatique de date sur les
+  // pages Devoirs et Controles.
+  const nomsMatieres = (
+    await prisma.matiere.findMany({
+      where: { utilisateurId },
+      orderBy: { nom: "asc" },
+      select: { nom: true },
+    })
+  ).map((m) => m.nom);
+
   const peutGerer =
     !!edtSelectionne &&
     (role === "ADMIN" ||
@@ -273,8 +284,14 @@ export default async function PageEmploiDuTemps({
                         id="matiere"
                         name="matiere"
                         required
+                        list="liste-matieres"
                         className="rounded border border-zinc-300 px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-900"
                       />
+                      <datalist id="liste-matieres">
+                        {nomsMatieres.map((nom) => (
+                          <option key={nom} value={nom} />
+                        ))}
+                      </datalist>
                     </div>
                     <div className="flex flex-1 min-w-40 flex-col gap-1">
                       <label className="text-xs text-zinc-500" htmlFor="enseignant">
