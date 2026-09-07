@@ -1,410 +1,290 @@
 ---
-name: Plateforme scolaire
-description: A quiet operator's console for a student's MonBureauNumérique life — homework, assessments, grades, timetable.
+name: Le Cahier Seyès
+description: A French lycéen's school life — homework, assessments, grades, timetable — written onto one continuous seyès-ruled page.
 colors:
-  ink: "#171717"
-  paper: "#ffffff"
-  ink-inverse: "#ededed"
-  paper-inverse: "#0a0a0a"
-  canvas: "#f4f4f5"
-  canvas-inverse: "#000000"
-  surface-raised-dark: "#09090b"
-  hairline: "#d4d4d8"
-  hairline-inverse: "#27272a"
-  field-dark: "#18181b"
-  muted: "#71717a"
-  action: "#2563eb"
-  action-hover: "#1d4ed8"
-  focus: "#3b82f6"
-  danger: "#dc2626"
-  danger-quiet: "#ef4444"
-  positive: "#16a34a"
-  caution: "#d97706"
+  paper: "#fdfdfb"
+  paper-2: "#f4f4ee"
+  ink: "#2c2c34"
+  ink-soft: "#63636f"
+  ink-blue: "#2540c8"
+  ink-blue-strong: "#1a2f9c"
+  ruling: "#c6cef0"
+  bic-red: "#cf1f2e"
+  bic-green: "#1c7a45"
+  surligneur: "#372ebe"
 typography:
   display:
-    fontFamily: "var(--font-geist-sans), Arial, Helvetica, sans-serif"
-    fontSize: "1.25rem"
+    fontFamily: "Spectral, Georgia, 'Times New Roman', serif"
+    fontSize: "1.85rem"
     fontWeight: 600
-    lineHeight: "1.75rem"
+    lineHeight: "3.5rem"
     letterSpacing: "normal"
   headline:
-    fontFamily: "var(--font-geist-sans), Arial, Helvetica, sans-serif"
+    fontFamily: "Spectral, Georgia, 'Times New Roman', serif"
     fontSize: "1.125rem"
     fontWeight: 600
-    lineHeight: "1.75rem"
+    lineHeight: "1.4"
     letterSpacing: "normal"
   title:
-    fontFamily: "var(--font-geist-sans), Arial, Helvetica, sans-serif"
-    fontSize: "0.875rem"
-    fontWeight: 600
-    lineHeight: "1.25rem"
-    letterSpacing: "normal"
+    fontFamily: "Atkinson Hyperlegible, system-ui, sans-serif"
+    fontSize: "0.75rem"
+    fontWeight: 700
+    lineHeight: "1.75rem"
+    letterSpacing: "0.12em"
   body:
-    fontFamily: "Arial, Helvetica, sans-serif"
-    fontSize: "0.875rem"
+    fontFamily: "Atkinson Hyperlegible, system-ui, sans-serif"
+    fontSize: "1rem"
     fontWeight: 400
-    lineHeight: "1.25rem"
+    lineHeight: "1.75rem"
     letterSpacing: "normal"
   label:
-    fontFamily: "Arial, Helvetica, sans-serif"
+    fontFamily: "Atkinson Hyperlegible, system-ui, sans-serif"
     fontSize: "0.75rem"
-    fontWeight: 400
-    lineHeight: "1rem"
-    letterSpacing: "normal"
+    fontWeight: 700
+    lineHeight: "1.75rem"
+    letterSpacing: "0.05em"
   mono:
-    fontFamily: "var(--font-geist-mono), ui-monospace, monospace"
+    fontFamily: "Fragment Mono, ui-monospace, monospace"
     fontSize: "0.75rem"
     fontWeight: 400
-    lineHeight: "1rem"
+    lineHeight: "1.75rem"
     letterSpacing: "normal"
+    fontFeature: "'tnum'"
 rounded:
-  sm: "0.25rem"
-  md: "0.5rem"
-  full: "9999px"
+  sm: "2px"
 spacing:
-  xs: "0.25rem"
-  sm: "0.5rem"
-  md: "0.75rem"
-  lg: "1rem"
-  xl: "1.5rem"
+  carreau: "1.75rem"
+  demi-carreau: "0.875rem"
+  marge: "7rem"
+  marge-mobile: "3.5rem"
 components:
   button-primary:
-    backgroundColor: "{colors.ink}"
-    textColor: "{colors.paper}"
-    typography: "{typography.title}"
-    rounded: "{rounded.full}"
-    padding: "0.5rem 1rem"
-  button-primary-hover:
-    backgroundColor: "#383838"
-    textColor: "{colors.paper}"
-  button-secondary:
-    backgroundColor: "{colors.paper}"
-    textColor: "#3f3f46"
-    typography: "{typography.title}"
-    rounded: "{rounded.full}"
-    padding: "0.5rem 1rem"
-  button-action:
-    backgroundColor: "{colors.action}"
+    backgroundColor: "{colors.ink-blue}"
     textColor: "{colors.paper}"
     typography: "{typography.label}"
-    rounded: "{rounded.full}"
-    padding: "0.25rem 0.75rem"
+    rounded: "{rounded.sm}"
+    padding: "0.375rem 1rem"
+  button-primary-hover:
+    backgroundColor: "{colors.ink-blue-strong}"
+    textColor: "{colors.paper}"
+  button-outline:
+    backgroundColor: "transparent"
+    textColor: "{colors.ink}"
+    typography: "{typography.label}"
+    rounded: "{rounded.sm}"
+    padding: "0.375rem 0.75rem"
+  button-secondary:
+    backgroundColor: "transparent"
+    textColor: "{colors.ink-blue}"
+    typography: "{typography.label}"
+    padding: "0"
   button-danger:
-    backgroundColor: "{colors.danger}"
-    textColor: "#ffffff"
-    typography: "{typography.title}"
-    rounded: "{rounded.full}"
-    padding: "0.5rem 1rem"
+    backgroundColor: "transparent"
+    textColor: "{colors.bic-red}"
+    typography: "{typography.label}"
+    padding: "0"
   input:
     backgroundColor: "{colors.paper}"
     textColor: "{colors.ink}"
     typography: "{typography.body}"
     rounded: "{rounded.sm}"
-    padding: "0.25rem 0.5rem"
+    padding: "0.375rem 0.625rem"
   card:
-    backgroundColor: "{colors.paper}"
+    backgroundColor: "{colors.paper-2}"
     textColor: "{colors.ink}"
-    rounded: "{rounded.md}"
+    rounded: "{rounded.sm}"
     padding: "1rem"
   chip:
-    backgroundColor: "{colors.canvas}"
-    textColor: "#3f3f46"
+    backgroundColor: "{colors.ink-blue}"
+    textColor: "{colors.ink-blue}"
     typography: "{typography.label}"
-    rounded: "{rounded.full}"
-    padding: "0.125rem 0.5rem"
-  nav-link:
-    textColor: "#3f3f46"
-    typography: "{typography.title}"
+    rounded: "{rounded.sm}"
+    padding: "0.125rem 0.375rem"
+  nav-tab:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.ink-blue}"
+    typography: "{typography.label}"
+    rounded: "{rounded.sm}"
+    padding: "0.375rem 0.75rem"
 ---
 
-# Design System: Plateforme scolaire
+# Design System: Le Cahier Seyès
 
 ## Overview
 
-**Creative North Star: "The Quiet Console"**
+**Creative North Star: "Le Cahier Seyès"**
 
-This is an operator's dashboard reduced to signal. A French lycée student opens it
-several times a day to answer one question — *what do I have to do next* — so the
-interface earns its keep by getting out of the way. It is monochrome on purpose:
-near-black ink on paper white, a full ramp of cool slate greys, and almost nothing
-else. Colour is rationed so that when it appears — a red badge on an unfinished
-assignment, an amber pill on an assessment that is still coming, a single blue
-"mark done" — it *means* something and reads instantly. Restraint is the feature,
-not a limitation.
+The whole application is one continuous seyès-ruled page — the ruled sheet every French lycée student writes their homework on — not a dashboard of cards floating on a page-shaped background. A student opens it several times a day to decide what to do next and what to revise, and it earns trust by looking like the cahier they already keep: bright Clairefontaine-white ground, a bold school-ink-blue rule down the left margin, faint blue-violet ruling behind the content, and every line of type set down onto the baseline.
 
-The surface is flat and quiet at rest: cards are white (or near-black in dark
-mode) held by a one-pixel hairline, corners softened to 8px, no shadow. Rhythm is
-generous and consistent — a `1.5rem` gap between the stacked sections of every
-page — while the content inside stays dense and scannable: `0.875rem` is the
-workhorse size, tables and lists are tight, and hierarchy comes from weight and a
-Geist-Sans heading rather than scale jumps. Both themes are first-class and
-class-driven; the student toggles between them and the choice sticks.
+The 8mm carreau is the single layout unit. `--carreau` is `1.75rem` (28px); it is simultaneously the ruling pitch, the body line-height, and the module every gap, padding and measure is a multiple of. The left margin rule sits at four carreaux from the edge (`--marge`, halved to two on mobile). Colour follows strict Bic four-colour semantics and never decorates: ink-blue is structure, links, and the margin; graphite (`--ink`) is body text; Bic red is to-do / important / a teacher's mark / an error; Bic green is done. State is drawn *into* the page — a green pen-stroke check in the margin, a single strike-through, a red grade written large in the margin on the Notes page — rather than floated above it. Navigation is a row of classeur intercalaire tabs with the active tab joined to the page.
 
-The identity lives in the small, exact details — the pill geometry shared by every
-button and every status chip, the left-border accent on a timetable lesson, the
-persistent blue ring on a search result you jumped to — not in any decorative
-gesture. Nothing here is trying to impress; it is trying to be legible at a glance
-on a phone in a hallway between classes.
+The system explicitly refuses the sidebar-plus-card-grid ed-tech dashboard, resting shadows, card borders over 1px, coloured left-stripe accents, and any glyph or emoji iconography (icons are an authored hand-inked SVG set, one ~1.6 stroke weight, round caps). Dark mode is the same page at night under a desk lamp: deep ink-blue ground (`--paper` `#151b2e`), luminous ruling, warm off-white ink; it is class-driven (`.dark`), user-toggled, and persisted.
 
 **Key Characteristics:**
-- Monochrome slate-grey system; colour is semantic and rare.
-- Flat surfaces, hairline borders, 8px card corners, fully-round buttons and chips.
-- `0.875rem` body / `0.75rem` labels; dense content, roomy `1.5rem` section rhythm.
-- Geist Sans for headings, system sans (Arial/Helvetica) for body, Geist Mono for code.
-- Dark and light are equal, `.dark`-class driven, user-toggled and persisted.
-- Touch-first: pill targets, `max-w-6xl` centered column, `sm:` is the primary breakpoint.
+- One continuous ruled page; no floating card grid.
+- The 8mm carreau (`1.75rem`) is the only layout unit — every measure is a multiple of it.
+- Bold ink-blue margin rule at 4 carreaux left; faint blue-violet ruling behind content.
+- Strict Bic four-colour semantics; colour is never decorative.
+- Square corners (2px), 1px lines only, no resting shadows.
+- Spectral serif for titles, Atkinson Hyperlegible for body, Fragment Mono for figures — all set on the carreau baseline.
+- State is drawn into the page: margin tick, struck line, red teacher's mark.
+- Dark mode is a first-class night version of the same page, `.dark`-driven and persisted.
 
 ## Colors
 
-A cool slate-grey monochrome. One accent (blue) for action and wayfinding; a
-semantic trio (red / green / amber) for state. Nothing else.
+A bright paper ground carrying one blue voice for structure and a strict two-colour Bic pen for state. Everything else is graphite and ruling-violet.
 
 ### Primary
-- **Ink** (`#171717`): the primary text colour in light mode and the fill of the
-  primary button (`bg-foreground`). Not a grey — a near-black ink that gives crisp
-  contrast against paper. Inverts to **Ink Inverse** (`#ededed`) in dark mode.
-- **Blue Action** (`#2563eb`, Tailwind blue-600): the single non-semantic accent.
-  Fills the contextual primary action (the small "Marquer terminé" button), colours
-  every text link, and — as **Focus** (`#3b82f6`, blue-500) — draws the persistent
-  ring around a search result you navigated to and the left border of a timetable
-  lesson with no subject colour. Hover deepens to **Blue Action Hover**
-  (`#1d4ed8`, blue-700).
+- **École Ink-Blue** (`#2540c8`): the structural voice — the left margin rule (`.cahier-marge::before`), every link, the active intercalaire tab, section headings (`titreSection`), the primary button fill, `::selection`, `caret-color`, `accent-color`, and the focus-visible outline. Deepens to **Ink-Blue Strong** (`#1a2f9c`) on primary-button hover and for the strongest headings in dark mode.
+
+### Secondary (state — the Bic pen)
+- **Bic Red** (`#cf1f2e`): to-do, the single most urgent line, "important", a teacher's mark, and form errors. The grade on the Notes page is written large in the margin in this colour, like a red pen.
+- **Bic Green** (`#1c7a45`): done — the pen-stroke check drawn in the margin, the strike-through on a completed line, the "Terminé" state.
+
+### Tertiary
+- **Surligneur Blue-Violet** (`#372ebe`, exposed as `--tache` in RGB channels): only the search-highlight wash (`.mise-en-avant`) — a translucent highlighter bleed behind a jumped-to line plus an inked bracket in the margin. Never used opaque.
 
 ### Neutral
-- **Paper** (`#ffffff`) / **Paper Inverse** (`#0a0a0a`): the base surface and body
-  background. Cards sit on this in light mode.
-- **Canvas** (`#f4f4f5`, zinc-100) / **Canvas Inverse** (`#000000`): the page
-  background *behind* the cards, one tonal step off Paper so white cards read as
-  raised without a shadow. Dark mode goes to true black behind near-black cards.
-- **Surface Raised (dark)** (`#09090b`, zinc-950): the card fill in dark mode.
-- **Hairline** (`#d4d4d8`, zinc-300) / **Hairline Inverse** (`#27272a`, zinc-800):
-  every border and divider. The system is held together by these one-pixel lines,
-  not by elevation.
-- **Field (dark)** (`#18181b`, zinc-900): input/select/textarea fill in dark mode.
-- **Muted** (`#71717a`, zinc-500): secondary text, all field labels, timestamps,
-  counts. The single most-used non-structural colour in the app.
-
-### Semantic
-- **Danger** (`#dc2626`, red-600): fill of the typed-confirmation delete button.
-  **Danger Quiet** (`#ef4444`, red-500): destructive text links ("Supprimer",
-  "Désactiver ntfy") and inline form errors; danger-zone card border is red-300 /
-  red-900.
-- **Positive** (`#16a34a`, green-600): the "done" state — the green **T** badge on
-  a timetable lesson whose homework is finished, the "Terminé" chip.
-- **Caution** (`#d97706`, amber-600): "still to come / attention" — the "Contrôle à
-  venir" chip, the "no MBN token configured" notice (amber-50 / amber-950 panel).
+- **Clairefontaine Paper** (`#fdfdfb`): the page ground. In dark mode, deep ink-blue `#151b2e`.
+- **Page Fold** (`#f4f4ee`): a leaf laid on the page — the fill of an `encart`, an intercalaire tab at rest, a torn-corner slip. One faint step off paper; dark mode `#1c2440`.
+- **Graphite** (`#2c2c34`): body text. Dark mode warm off-white `#e9e7dc`.
+- **Soft Graphite** (`#63636f`): secondary text, field labels, timestamps, counts, resting field and tab borders (always at reduced opacity). Dark mode `#9aa0b8`.
+- **Ruling Violet** (`#c6cef0`): the horizontal (and, on squared pages, vertical) ruling behind content, plus dividers and the scrollbar thumb. Dark mode `#2c3660`.
 
 ### Named Rules
-**The One Blue Rule.** Blue is action and wayfinding only — the contextual primary
-button, links, the search-highlight ring, a lesson's default accent border. It is
-never a background wash, never decorative, and never competes with the black
-primary button for "the main thing to click".
+**The Bic Four-Colour Rule.** Ink-blue = structure / links / margin. Graphite = body. Bic red = to-do / important / teacher's mark / error. Bic green = done. A new surface uses exactly these four roles; introducing a fifth hue is off-system. Subject colours from Scolengo are the one sanctioned exception and appear only as a 1px full border plus a ~12% tinted fill plus coloured caps — never a stripe.
 
-**The Rationed Colour Rule.** On a resting screen, colour covers a few percent of
-the pixels — badges, chips, one or two links. If a new screen needs a colour block
-to work, the layout is wrong first.
+**The Colour Is Never Decorative Rule.** If a colour on screen is not carrying one of the four semantic roles, it is a bug. Test: name the role of every non-graphite mark on the page. No answer means remove it.
 
 ## Typography
 
-**Display Font:** Geist Sans (with `Arial, Helvetica, sans-serif` fallback) — headings only.
-**Body Font:** system sans — `Arial, Helvetica, sans-serif`. Zero web-font cost for body copy; identical rendering everywhere.
-**Mono Font:** Geist Mono (with `ui-monospace` fallback) — code and pasted config only.
+**Display Font:** Spectral (with `Georgia, "Times New Roman", serif`) — the parisian screen-serif voice of titles, "school textbook" register.
+**Body Font:** Atkinson Hyperlegible (with `system-ui, sans-serif`) — chosen for pure legibility, the text a student reads ten times a day, set on the ruling.
+**Mono Font:** Fragment Mono (with `ui-monospace, monospace`) — figures and codes: times, dates, grades, Scolengo abbreviations, aligned like written columns.
 
-**Character:** utilitarian and unfussy. Geist Sans gives page and section headings a
-touch of contemporary precision; the Arial body keeps the reading surface neutral
-and instantly familiar. There is no editorial voice in the type — it is signage.
+**Character:** a serious, unfussy schoolbook. Spectral gives page titles a printed-textbook weight; Atkinson keeps the reading surface calm and maximally legible; Fragment Mono lines figures up on the baseline as if hand-tabulated. There is one committed type voice, not a handwriting costume.
 
 ### Hierarchy
-- **Display** (Geist Sans, 600, `1.25rem` / `1.75rem`): the page title (`<h1>`), one
-  per screen. A few dense views (print, sign-in) step up to `1.5rem`.
-- **Headline** (Geist Sans, 600, `1.125rem` / `1.75rem`): a secondary in-page header,
-  e.g. the "Semaine du…" bar above the timetable grid.
-- **Title** (Geist Sans, 600, `0.875rem` / `1.25rem`, colour Muted-plus / zinc-700):
-  section headings inside cards ("Ajouter un devoir", "Rappels de contrôles"). Small
-  and quiet — it labels, it does not announce.
-- **Body** (system sans, 400, `0.875rem` / `1.25rem`): the workhorse. Almost all
-  interface text, list rows, form values. Base `1rem` exists but `0.875rem` is the
-  default reach.
-- **Label** (system sans, 400, `0.75rem`, colour Muted): every field label,
-  timestamp, count, helper line. The stat-card variant adds `font-medium`,
-  `uppercase`, and `tracking-wide`.
+- **Display / Page Title** (Spectral, 600, `1.85rem`, line-height `calc(var(--carreau)*2)` = `3.5rem`): the `<h1>` on each page, occupying two carreaux; the header wordmark steps to `1.5rem` (`text-2xl`).
+- **Headline** (Spectral, 600, `1.125rem`, tight leading): a slip or modal heading — the prochain-contrôle slip, the timetable lesson modal, a note's subject line.
+- **Title / Section** (Atkinson, 700, `0.75rem`, `tracking-[0.12em]`, uppercase, ink-blue): section headings written as small inked capitals (`titreSection`). It labels, it does not announce.
+- **Body** (Atkinson, 400, `1rem`, line-height `var(--carreau)`): the workhorse — every list line, form value, description. Always leaded to the carreau so text sits on the ruling.
+- **Label** (Atkinson, 700, `0.75rem`, `tracking-wide`, uppercase, soft graphite): field labels, the etiquette subject tag, tab captions, "Prochain contrôle" kickers on the slip.
+- **Mono / Figures** (Fragment Mono, 400, `0.75rem`, `font-variant-numeric: tabular-nums` via `.tabulaire`): all times, dates, coefficients, counts, and grades.
 
 ### Named Rules
-**The Weight-Not-Size Rule.** Hierarchy is carried by font-weight (400 body → 600
-headings) and the Geist/Arial switch, not by a big type scale. Display is only
-`1.4×` body. Keep new headings in this narrow range.
+**The Baseline Rule.** Body text is leaded to exactly `var(--carreau)` (`line-height: var(--carreau)`) so every line lands on the ruling. New text blocks inherit the carreau leading; never set an arbitrary line-height on reading copy.
 
-**The Geist-Heading Rule.** New headings (`<h1>`, `<h2>` section titles) get
-`font-sans` (Geist). Body, labels and controls stay on the system stack. Geist Mono
-is for `<code>` / pasted JSON only. *(Implementation note: Geist is loaded via
-`next/font` and exposed as `--font-geist-sans`; existing headings do not yet carry
-`font-sans` — apply it on new work and when touching a heading.)*
+**The Figures Are Tabular Rule.** Anything that is data — a time, a grade, a date, a count — is set in Fragment Mono with `.tabulaire` so columns align. Prose is never set in mono.
 
 ## Layout
 
-A single centred column, `max-w-6xl` (72rem), with `px-4` gutters and `py-6`
-vertical padding; the sticky-feeling header uses the same `max-w-6xl` / `px-4` with
-`py-3`. Every page is a vertical stack of sections at `flex flex-col gap-6`
-(`1.5rem`) — this gap is the app's primary rhythm and is near-universal. Inside a
-section, controls and rows sit at `gap-3` / `gap-4` (`0.75`–`1rem`); card padding
-is `p-4` (`1rem`).
+One centred column, `max-w-[calc(var(--carreau)*46)]` (~46 carreaux), with horizontal padding of `var(--marge)` and the ruled `<main>` inset a further carreau past the margin rule (`pl-[calc(var(--marge)+var(--carreau))]`). The margin rule itself is drawn by `.cahier-marge::before` at `left: var(--marge)`; `--marge` is `calc(var(--carreau)*4)` and collapses to `calc(var(--carreau)*2)` at ≤640px.
 
-Content density is high within that roomy frame: list rows are `p-3` with
-`divide-y` hairlines rather than gaps, forms wrap their fields with
-`flex flex-wrap gap-3` and `min-w-40` so they reflow to one column on narrow
-screens without a media query.
+Every page is a vertical stack at `gap-[var(--carreau)]`; sections stack internally with `mb-1` heading spacing and rely on ruling-violet `border-b` dividers rather than gaps between rows. The ruled ground is applied with `.regle` (horizontal ruling) on lined pages and `.carreaux` (horizontal + vertical) on the timetable and calendar. Card-like leaves (`encart`) use `p-4` (`1rem`).
 
-Responsive behaviour keys almost entirely on `sm:` (640px): stat cards go
-`grid-cols-2` → `sm:grid-cols-4`, course cards `grid-cols-1` → `sm:grid-cols-2` →
-`md:grid-cols-3`, the calendar is a fixed `grid-cols-7`, and the timetable is a
-`grid-cols-1` stack that becomes a 5-column week at `sm:`. Wide, fixed-width views
-(timetable grid, calendar) live inside `overflow-x-auto` with a `min-w-[720px]`
-inner track so the page column itself never scrolls sideways. The print view
-(`/cours/imprimer`) drops dark-mode classes and hides the header via
-`print:hidden`.
+Responsive behaviour is minimal: the margin halves at 640px; grids that must stay wide (the timetable week, the month calendar) live inside `overflow-x-auto` with a `min-w-[720px]` inner track so the page column never scrolls sideways; multi-column lists go `sm:grid-cols-2`. The print stylesheet strips `.regle` / `.carreaux` backgrounds and hides the margin rule and header.
+
+### Named Rules
+**The Carreau Rule.** `--carreau` (`1.75rem` / 28px) is the only layout unit. Every gap, padding, height, offset and max-width is a multiple or simple fraction of it (`calc(var(--carreau)*n)`). A raw px or rem value that is not a carreau multiple is off-system.
+
+**The Margin Rule.** Every screen carries the ink-blue margin rule down the left at four carreaux (two on mobile). Primary actions and the date/marker gutter live in the space to its left; body content starts one carreau to its right.
 
 ## Elevation & Depth
 
-Flat by default. Depth is conveyed by the one tonal step between Canvas (page) and
-Paper (card) plus a hairline border — no resting shadow anywhere in the app. Shadow
-appears only on surfaces that genuinely float above the page: the search dropdown
-(`shadow-lg`) and the timetable lesson modal (`shadow-xl`), both also dimming the
-page behind (`bg-black/40` for the modal). The search-highlight treatment
-(`.mise-en-avant`) deliberately uses an `outline` + faint blue tint, not a shadow.
+No shadows on resting surfaces. Depth is the single faint tonal step from Paper to Page Fold (`--paper` → `--paper-2`) plus 1px ruling-violet or soft-graphite lines. A soft offset shadow appears only on genuinely floating slips: the search dropdown and the timetable lesson modal, each over a dimmed page for the modal. The `.mise-en-avant` search highlight uses a translucent highlighter box-shadow as a *marker bleed*, not as elevation.
 
 ### Shadow Vocabulary
-- **Floating panel** (`box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)` — Tailwind `shadow-lg`): dropdowns and popovers anchored to a trigger (the search results panel).
-- **Dialog** (`box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)` — Tailwind `shadow-xl`): centred modals over a dimmed page (the lesson detail popup).
+- **Floating slip** (`box-shadow: 0.25rem 0.5rem 1.4rem rgb(20 20 40 / 0.16)`): a panel clipped to the page — the search results dropdown.
+- **Lifted slip** (`box-shadow: 0.25rem 0.5rem 1.6rem rgb(20 20 40 / 0.2)`): a centred modal over a `rgb(12 14 26 / 0.55)` page dim — the timetable lesson detail.
+- **Marker bleed** (`box-shadow: -0.35rem 0 0 rgb(var(--tache)/0.16), 0.35rem 0 0 rgb(var(--tache)/0.16)`): not elevation — extends the highlighter wash of `.mise-en-avant` past the text box.
 
 ### Named Rules
-**The Flat-By-Default Rule.** Surfaces are flat at rest — hairline + tonal
-background only. A shadow means "this element is floating above the page" (modal,
-dropdown), never "this card is important". *(Provisional: the owner is open to a
-single very soft resting shadow on primary cards later; if added, it becomes a
-named token and applies uniformly, not per-card.)*
+**The No Resting Shadow Rule.** A resting surface has no shadow — ever. A shadow means "this slip is floating above the page" (dropdown, modal). It is a warm near-black offset (down and right, like a lamp), never a symmetric ambient glow.
 
 ## Shapes
 
-Two radii and a pill. Inputs, selects, textareas and small inline blocks (timetable
-lessons) use `rounded` (`0.25rem` / 4px). Cards, sections, modals and the
-search-highlight use `rounded-lg` (`0.5rem` / 8px). Every button and every status
-chip is `rounded-full` — the pill is the single most recognisable shape in the
-system and it is shared across primary, secondary, danger, action and filter
-controls as well as subject tags and status badges.
+Square by intent: `--radius-sm`, `--radius` and `--radius-lg` are all `2px`, so every corner in the system reads as a cut edge, not a rounded one. The exceptions are drawn deliberately: the torn-corner clip on the prochain-contrôle slip (`clip-path` polygon plus a ruling-violet triangle), the pen-stroke check and the small circular subject/assessment marks (`rounded-full`, ~`0.95rem`).
 
-Borders are always 1px and always a hairline grey; the only coloured border is the
-`border-l-2` accent stripe on a timetable lesson (subject colour, or blue-400
-fallback) and the red-tinted border on the danger-zone card. No gradients, no
-clipping, no decorative geometry.
+Borders are always 1px. The only coloured borders are ink-blue (the timetable frame, the active intercalaire tab, a focused field, a floating slip) and the Scolengo subject colour as a full 1px box with tinted fill — never a left stripe. No gradients, no decorative geometry.
+
+### Named Rules
+**The 1px Line Rule.** Every border and divider is 1px. No coloured left-stripe accents anywhere — a subject or status is shown by a full box, a tinted fill, coloured caps, or a mark in the margin.
+
+**The Square Corner Rule.** Radius is `2px` everywhere via the `rounded-sm` token. Don't introduce a new radius; the only round things are the pen check and the letter marks.
 
 ## Components
 
 ### Buttons
-Every button is a full pill (`rounded-full`) at `text-sm font-medium`, with a
-`0.2s` colour transition and no shadow.
-- **Primary:** `bg-foreground text-background`, padding `0.5rem 1rem` (`px-4 py-2`).
-  Near-black on paper in light mode, inverting in dark. Hover shifts the fill to
-  `#383838` (light) / `#ccc` (dark). This is "the main action on the screen".
-- **Secondary / ghost:** transparent fill, `text-zinc-700` / `dark:text-zinc-300`,
-  `border border-zinc-300` / `dark:border-zinc-700`, same padding. Hover fills
-  `bg-zinc-100` / `dark:bg-zinc-900`. Used for navigation-ish and low-stakes
-  actions (week nav, "Voir les devoirs passés", export links).
-- **Action (small):** `bg-blue-600 text-white`, padding `0.25rem 0.75rem`
-  (`px-3 py-1`), `text-xs`. The contextual "do this now" — "Marquer terminé".
-  Toggled-off state reverts to a small secondary pill.
-- **Danger:** `bg-red-600 text-white` pill, only ever behind a typed-word
-  confirmation. Destructive *links* are `text-xs text-red-500 hover:underline`
-  with a native `confirm()`.
-- **Pending state:** the label is replaced by a `1rem` spinner
-  (`animate-spin rounded-full border-2 border-current border-t-transparent`) plus a
-  loading word; the button is `disabled`.
-
-### Chips / Tags
-- **Style:** `rounded-full`, `text-xs`, padding `0.125rem 0.5rem` (`px-2 py-0.5`).
-  Neutral tags are `bg-zinc-100 text-zinc-700` / `dark:bg-zinc-800 dark:text-zinc-300`.
-- **Status variants:** tinted pairs — blue (`bg-blue-100 text-blue-700` /
-  `dark:bg-blue-950 dark:text-blue-300`) for "Ajouté automatiquement", amber for
-  "Contrôle à venir", red/green for devoir status.
-- **Badge variant:** a `1rem` solid circle with a single letter (**T** homework,
-  **C** assessment), `bg-red-500` (to do / upcoming) or `bg-green-600` (done /
-  past), pinned bottom-right of a timetable lesson.
-
-### Cards / Containers
-- **Corner:** `rounded-lg` (8px).
-- **Background:** `bg-white` / `dark:bg-zinc-950`.
-- **Border:** `border border-zinc-300` / `dark:border-zinc-800` — always present,
-  always 1px.
-- **Shadow:** none (see Elevation).
-- **Padding:** `p-4` (`1rem`); list-style cards drop padding and use `divide-y
-  divide-zinc-100` / `dark:divide-zinc-900` rows at `p-3`.
-- **Section header inside a card:** `<h2>` at Title spec, `mb-3`.
+- **Shape:** square (`rounded-sm`, 2px); label typography (Atkinson 700, `text-sm`, uppercase, `tracking-wide`).
+- **Primary** (`boutonPrincipal`): solid ink-blue fill, `text-paper`, padding `0.375rem 1rem` (`px-4 py-1.5`). Hover shifts the fill to Ink-Blue Strong (`transition-colors`). Disabled: `opacity-40`, no pointer events. This is "the main thing to do on this line".
+- **Outline** (`boutonEncadre`): transparent fill, 1px soft-graphite border, `text-ink`, padding `0.375rem 0.75rem`. Hover moves border and text to ink-blue. For neutral actions that need a wide target.
+- **Secondary** (`boutonSecondaire`): no box — ink-blue text with a 1px underline (`underline-offset-4`) that thickens to 2px on hover. A written cross-reference, not a button surface.
+- **Destructive** (`boutonRouge`): no box — Bic-red `text-xs` bold text with a thickening underline, always behind a native `confirm()`.
+- **Pending:** the submit component swaps the label for a short loading word and disables the control.
 
 ### Inputs / Fields
-- **Style:** `rounded` (4px), `border border-zinc-300` / `dark:border-zinc-700`,
-  fill `transparent` (light) / `bg-zinc-900` (dark), padding `0.25rem 0.5rem`
-  (`px-2 py-1`), `text-sm`. Paired with a `text-xs text-zinc-500` label above.
-- **Focus:** browser default on most fields; the search field is the exception —
-  wrapped in a pill that does `focus-within:border-zinc-500`. *(Gap: no explicit
-  `focus-visible` ring system — new work should add a consistent
-  `focus-visible` treatment keyed on `{colors.focus}`.)*
-- **Danger field:** the reset-confirmation input swaps to `border-red-300` /
-  `dark:border-red-900`.
-- **Disabled:** `disabled:opacity-50 disabled:cursor-not-allowed`.
+- **Style** (`champ`): `bg-paper`, 1px soft-graphite border at ~55% opacity, `rounded-sm`, padding `0.375rem 0.625rem` (`px-2.5 py-1.5`), `text-sm`. Paired with a `label` above (uppercase, `text-xs`, soft graphite).
+- **Focus:** border moves to ink-blue (`focus:border-ink-blue`); the global `:focus-visible` adds a 2px ink-blue outline at 2px offset. The search field is a borderless underline that turns ink-blue on `focus-within`.
+- **Error:** message in Bic red beneath / above the field; `caret-color` and checkbox `accent-color` are ink-blue.
+- **File input:** native, with a `rounded-sm` bordered file button in label type.
 
-### Navigation
-The header is a single row: a wrapping link list on the left, a right cluster
-(search field, theme toggle, account link, sign-out). Links are `text-sm
-font-medium text-zinc-700` / `dark:text-zinc-300`, hover to `text-zinc-950` /
-`dark:text-zinc-50`. No active-state styling — the app has no persistent
-"current page" indicator in the nav. On narrow screens the link list wraps and the
-right cluster drops below it; the search field goes full-width (`w-full sm:w-64`).
+### Leaves / Containers (`encart`)
+- **Corner:** square (`rounded-sm`, 2px).
+- **Background:** Page Fold (`bg-paper-2/60`) — a leaf laid on the page.
+- **Border:** 1px soft-graphite at ~25% opacity.
+- **Shadow:** none (see Elevation).
+- **Padding:** `p-4` (`1rem`). Not a card — no elevation, no strong outline.
 
-### Search field (signature)
-A `rounded-full` bordered input with a leading magnifier glyph, `px-3 py-1.5`.
-Focusing it opens an 8px-cornered dropdown (`shadow-lg`) with a 4-tab row (Tous /
-Devoirs / Contrôles / Cours, each an icon + label + count) over a scrollable
-result list; results show subject then title on two lines and deep-link with a
-`?focus=` param that the target page turns into a persistent blue highlight ring.
+### Subject Tag (`etiquette`)
+A small filled tab: `bg-ink-blue/10`, ink-blue text, `text-[0.72rem]` bold uppercase `tracking-wide`, `rounded-sm`, padding `0.125rem 0.375rem`. Used for a matière name inline and on documents.
 
-### Timetable grid (signature)
-Monday–Friday columns over an hour axis (`56px` per hour). Each lesson is an
-absolutely-positioned block: `top` from start time, `height` proportional to
-duration, `left`/`width` split into columns when lessons overlap. `rounded` (4px),
-a `border-l-2` accent in the Scolengo subject colour (blue-400 fallback), a faint
-tint of the same colour as fill, cancelled lessons struck through and greyed. A
-homework/assessment badge sits bottom-right; clicking opens the lesson modal.
+### Navigation — Intercalaire Tabs (`Onglets`)
+A horizontally scrollable row of classeur tabs sitting on an ink-blue base border (`-mb-px`). Each tab: `rounded-t-sm`, 1px border with no bottom edge, `px-3 py-1.5`, label type (`text-xs` bold uppercase). Active tab: ink-blue border, `bg-paper` fill, ink-blue text — visually joined to the page below. Inactive: soft-graphite border at ~35%, Page Fold fill, soft-graphite text darkening to graphite on hover. `aria-current="page"` on the active tab.
+
+### Signature — The Margin Check (`CaseCoche` / `@keyframes trace-coche`)
+The primary interaction. An empty `1.15rem` square checkbox sits in the margin gutter of every obligation line. On submit, a Bic-green checkmark is *drawn* along its path — `stroke-dasharray: 24; stroke-dashoffset: 24 → 0` over `0.22s cubic-bezier(.2,.8,.2,1)` — then the line itself takes a green `line-through` and drops to soft graphite. The server-returned state is authoritative. Honour `prefers-reduced-motion` (the global rule collapses the animation).
+
+### Signature — The Ruled Obligation Line (`LigneObligation`)
+One homework/assessment per ruled line, leaded to `var(--carreau)`: the checkbox or a `1.5px` Bic-red dot in the margin gutter, then the subject in small ink-blue caps (`text-[0.72rem]` bold uppercase), then the task in graphite, then an optional Fragment-Mono date at the right. The single most urgent line is set bold in Bic red; a done line is soft graphite with a Bic-green strike.
+
+### Signature — The Contrôle Slip (`SlipControle`)
+The next assessment on a torn-corner feuillet clipped to the page: Page Fold fill, 1px soft-graphite border going ink-blue on hover, a `clip-path` cut corner with a ruling-violet triangle behind it, a `max-w-[calc(var(--carreau)*13)]` measure. Label kicker, Spectral subject + chapter, Fragment-Mono date.
+
+### Signature — The Timetable Grid (`GrilleEmploiDuTemps`)
+Days as columns over an hour axis on a `.carreaux` squared ground, framed by a 1px ink-blue box. Each lesson is an absolutely-positioned block: `top`/`height` from time, `left`/`width` split on overlap, a **full 1px border** in `color-mix(subject 55%, transparent)` and a `color-mix(subject 12%, --paper)` fill — no stripe. Cancelled lessons are struck through and greyed. A `0.95rem` circular letter mark (`C` assessment, `T` homework) in Bic red (upcoming/to-do) or Bic green (done) sits bottom-right. Click opens the lifted-slip modal. Hover is a `brightness(0.97)` nudge (`1.1` in dark).
+
+### Signature — The Search Highlight (`.mise-en-avant`)
+A `?focus=` deep link lands on a line and marks it persistently: a translucent surligneur wash (`rgb(var(--tache)/0.16)`) behind the text with a marker-bleed box-shadow, plus an inked open bracket in the margin (`border: 2px solid var(--ink-blue); border-right: 0`). Persists while `?focus=` is in the URL.
+
+### Icons (`Icone.tsx`)
+An authored hand-inked SVG set on a 16px grid: `fill: none`, `stroke: currentColor`, `stroke-width: 1.6`, round caps and joins, sized in `em`. Strokes are drawn slightly loose, as if penned. No icon font, no emoji, no unicode glyphs.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** stack every page as `flex flex-col gap-6` sections inside the
-  `max-w-6xl` column.
-- **Do** hold surfaces with a 1px hairline (`border-zinc-300` /
-  `dark:border-zinc-800`) and the Canvas→Paper tonal step; keep them shadowless.
-- **Do** make every button and every status chip a full pill (`rounded-full`);
-  use `rounded-lg` for cards and `rounded` for fields.
-- **Do** reserve `bg-foreground` (near-black pill) for the one primary action per
-  view and `bg-blue-600` for the one contextual "do it now" action.
-- **Do** label fields with `text-xs text-zinc-500` above the control, and keep
-  body text at `text-sm`.
-- **Do** put Geist (`font-sans`) on new headings; leave body and controls on the
-  system stack.
-- **Do** wrap fixed-width views (grids, calendars) in `overflow-x-auto` with a
-  `min-w-[…]` inner track so the page never scrolls sideways.
-- **Do** ship every new surface in both themes, driven by the `.dark` class, with
-  a real dark value for every colour used.
+- **Do** size every measure as a carreau multiple — `var(--carreau)`, `calc(var(--carreau)*n)`, or the `carreau` spacing token (The Carreau Rule).
+- **Do** carry the ink-blue margin rule on every screen and keep the primary action / marker in the gutter left of it (The Margin Rule).
+- **Do** lead body text to `var(--carreau)` so it sits on the ruling (The Baseline Rule).
+- **Do** keep colour strictly semantic: ink-blue structure, graphite body, Bic red to-do/important/mark/error, Bic green done (The Bic Four-Colour Rule).
+- **Do** draw state into the page — a margin check, a strike-through, a red grade in the margin — not onto a floated badge.
+- **Do** set all times, dates, grades and counts in Fragment Mono with `.tabulaire`.
+- **Do** use `.regle` for lined pages and `.carreaux` for the timetable and calendar.
+- **Do** ship every surface in both themes via the `.dark` class, with a real night value for every colour used.
+- **Do** use the authored `Icone` set at 1.6 stroke weight for every icon.
 
 ### Don't:
-- **Don't** use blue as a background wash, a section fill, or decoration — it is
-  action and wayfinding only (The One Blue Rule).
-- **Don't** add a resting shadow to a card to signal importance; a shadow means
-  "floating above the page".
-- **Don't** build hierarchy with big type — stay inside the `1×`–`1.4×` range and
-  use weight plus the Geist/Arial switch (The Weight-Not-Size Rule).
-- **Don't** introduce a fifth hue. Neutrals carry structure; red/green/amber carry
-  state; blue carries action. That is the whole palette.
-- **Don't** invent a new radius. Two values and a pill.
-- **Don't** rely on colour alone for a state — pair it with a letter, label or
-  icon (the T/C badges, the status chips).
-- **Don't** add a "current page" highlight to the nav unless it is designed
-  system-wide; today the nav has none.
+- **Don't** build a sidebar-plus-card-grid dashboard; the app is one continuous page.
+- **Don't** put a shadow on a resting surface — a shadow means a slip is floating (The No Resting Shadow Rule).
+- **Don't** use a border over 1px, or any coloured left-stripe accent; show a subject or status as a full box, tint, caps or margin mark (The 1px Line Rule).
+- **Don't** introduce a new radius; corners are `2px` via `rounded-sm` (The Square Corner Rule).
+- **Don't** introduce a fifth hue or use any colour decoratively (The Colour Is Never Decorative Rule).
+- **Don't** use emoji, unicode symbols, or an icon font.
+- **Don't** set reading copy in Fragment Mono or at an arbitrary line-height.
+- **Don't** rely on colour alone for a state — pair it with the check mark, the strike, or a letter mark.
+
+<!--
+Not canonized: the dark `theme-color` meta value (`#141a2e` in src/app/layout.tsx) diverges from the
+canonical dark `--paper` (`#151b2e` in globals.css). `--paper` is recorded as the single source of truth;
+the meta hex is treated as an unratified approximation, not a second token.
+-->

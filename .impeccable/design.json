@@ -1,85 +1,102 @@
 {
   "schemaVersion": 2,
   "generatedAt": "2026-09-07T00:00:00Z",
-  "title": "Design System: Plateforme scolaire",
+  "title": "Design System: Le Cahier Seyès",
   "extensions": {
     "colorMeta": {
-      "ink": {
-        "role": "primary",
-        "displayName": "Ink",
-        "canonical": "#171717",
-        "tonalRamp": ["#0a0a0a", "#171717", "#27272a", "#3f3f46", "#52525b", "#71717a", "#a1a1aa", "#d4d4d8"]
-      },
-      "action": {
-        "role": "primary",
-        "displayName": "Blue Action",
-        "canonical": "#2563eb",
-        "tonalRamp": ["#172554", "#1e3a8a", "#1e40af", "#1d4ed8", "#2563eb", "#3b82f6", "#60a5fa", "#93c5fd"]
-      },
-      "focus": {
-        "role": "primary",
-        "displayName": "Focus Blue",
-        "canonical": "#3b82f6",
-        "tonalRamp": ["#172554", "#1e3a8a", "#1e40af", "#1d4ed8", "#2563eb", "#3b82f6", "#60a5fa", "#93c5fd"]
-      },
-      "muted": {
-        "role": "neutral",
-        "displayName": "Slate Muted",
-        "canonical": "#71717a",
-        "tonalRamp": ["#09090b", "#18181b", "#27272a", "#3f3f46", "#71717a", "#a1a1aa", "#e4e4e7", "#f4f4f5"]
-      },
       "paper": {
         "role": "neutral",
-        "displayName": "Paper",
-        "canonical": "#ffffff",
-        "tonalRamp": ["#09090b", "#18181b", "#27272a", "#3f3f46", "#71717a", "#a1a1aa", "#e4e4e7", "#ffffff"]
+        "displayName": "Clairefontaine Paper",
+        "canonical": "#fdfdfb",
+        "dark": "#151b2e",
+        "tonalRamp": ["#151b2e", "#26304f", "#3a4670", "#5b6aa0", "#8b96c4", "#b8c0de", "#e3e6f2", "#fdfdfb"]
       },
-      "canvas": {
+      "paper-2": {
         "role": "neutral",
-        "displayName": "Canvas",
-        "canonical": "#f4f4f5",
-        "tonalRamp": ["#09090b", "#18181b", "#27272a", "#3f3f46", "#71717a", "#a1a1aa", "#e4e4e7", "#f4f4f5"]
+        "displayName": "Page Fold",
+        "canonical": "#f4f4ee",
+        "dark": "#1c2440",
+        "tonalRamp": ["#1c2440", "#2c3560", "#414c82", "#6773a6", "#98a1c5", "#c4cadf", "#e6e6e0", "#f4f4ee"]
       },
-      "danger": {
-        "role": "tertiary",
-        "displayName": "Danger Red",
-        "canonical": "#dc2626",
-        "tonalRamp": ["#450a0a", "#7f1d1d", "#991b1b", "#b91c1c", "#dc2626", "#ef4444", "#f87171", "#fca5a5"]
+      "ink": {
+        "role": "neutral",
+        "displayName": "Graphite",
+        "canonical": "#2c2c34",
+        "dark": "#e9e7dc",
+        "tonalRamp": ["#17171c", "#2c2c34", "#3f3f4a", "#5a5a68", "#7d7d8c", "#a5a5b2", "#cfcfd6", "#e9e7dc"]
       },
-      "positive": {
-        "role": "tertiary",
-        "displayName": "Positive Green",
-        "canonical": "#16a34a",
-        "tonalRamp": ["#052e16", "#14532d", "#166534", "#15803d", "#16a34a", "#22c55e", "#4ade80", "#86efac"]
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Soft Graphite",
+        "canonical": "#63636f",
+        "dark": "#9aa0b8",
+        "tonalRamp": ["#2b2b33", "#3d3d47", "#50505c", "#63636f", "#82828f", "#a2a2ad", "#c6c6cd", "#e6e6ea"]
       },
-      "caution": {
+      "ink-blue": {
+        "role": "primary",
+        "displayName": "Ecole Ink-Blue",
+        "canonical": "#2540c8",
+        "dark": "#97a9ff",
+        "tonalRamp": ["#101b56", "#16267a", "#1a2f9c", "#2540c8", "#4a63e0", "#7489ee", "#a3b2f6", "#cdd6fb"]
+      },
+      "ink-blue-strong": {
+        "role": "primary",
+        "displayName": "Ink-Blue Strong",
+        "canonical": "#1a2f9c",
+        "dark": "#c2ccff",
+        "tonalRamp": ["#0d1450", "#111c6e", "#16268c", "#1a2f9c", "#2f45c0", "#556ade", "#8496ef", "#bcc6fa"]
+      },
+      "ruling": {
+        "role": "neutral",
+        "displayName": "Ruling Violet",
+        "canonical": "#c6cef0",
+        "dark": "#2c3660",
+        "tonalRamp": ["#2c3660", "#3d4a82", "#5464a5", "#7684c0", "#9ba6d6", "#bcc4e8", "#d6dcf3", "#eef0fb"]
+      },
+      "bic-red": {
+        "role": "secondary",
+        "displayName": "Bic Red",
+        "canonical": "#cf1f2e",
+        "dark": "#ff6b73",
+        "tonalRamp": ["#4c0a10", "#7c131c", "#a51824", "#cf1f2e", "#e0424f", "#ee7079", "#f6a1a7", "#fbccce"]
+      },
+      "bic-green": {
+        "role": "secondary",
+        "displayName": "Bic Green",
+        "canonical": "#1c7a45",
+        "dark": "#62c98a",
+        "tonalRamp": ["#0a3520", "#11512f", "#16663b", "#1c7a45", "#2f9b5e", "#55bd82", "#88d4a7", "#c0e9d1"]
+      },
+      "surligneur": {
         "role": "tertiary",
-        "displayName": "Caution Amber",
-        "canonical": "#d97706",
-        "tonalRamp": ["#451a03", "#78350f", "#92400e", "#b45309", "#d97706", "#f59e0b", "#fbbf24", "#fcd34d"]
+        "displayName": "Surligneur Blue-Violet",
+        "canonical": "#372ebe",
+        "dark": "#97a9ff",
+        "tonalRamp": ["#141058", "#1e177e", "#2a219f", "#372ebe", "#5a52d3", "#8781e5", "#b2aef1", "#d8d6f9"]
       }
     },
     "typographyMeta": {
-      "display": { "displayName": "Display", "purpose": "The page title (one per screen). Geist Sans 600." },
-      "headline": { "displayName": "Headline", "purpose": "A secondary in-page header, e.g. the timetable week bar." },
-      "title": { "displayName": "Section Title", "purpose": "Small quiet headings inside cards. Geist Sans 600, ~zinc-700." },
-      "body": { "displayName": "Body", "purpose": "The workhorse. Almost all interface text and form values. System sans." },
-      "label": { "displayName": "Label", "purpose": "Field labels, timestamps, counts, helper lines. 0.75rem, Muted." },
-      "mono": { "displayName": "Mono", "purpose": "Code and pasted config only (the Scolengo JSON field). Geist Mono." }
+      "display": { "displayName": "Page Title", "purpose": "The h1 on each page, two carreaux tall. Spectral 600. Header wordmark steps to 1.5rem." },
+      "headline": { "displayName": "Headline", "purpose": "Slip and modal headings — the contrôle slip, the timetable modal, a note's subject line. Spectral 600." },
+      "title": { "displayName": "Section", "purpose": "Section headings as small inked capitals (titreSection). Atkinson 700, uppercase, tracking 0.12em, ink-blue." },
+      "body": { "displayName": "Body", "purpose": "Every list line, form value, description. Atkinson 400, leaded to the carreau (1.75rem)." },
+      "label": { "displayName": "Label", "purpose": "Field labels, the etiquette subject tag, tab captions, slip kickers. Atkinson 700, uppercase." },
+      "mono": { "displayName": "Figures", "purpose": "All times, dates, grades, coefficients, counts. Fragment Mono with .tabulaire (tabular-nums)." }
     },
     "shadows": [
-      { "name": "floating-panel", "value": "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)", "purpose": "Dropdowns/popovers anchored to a trigger (the search results panel). Tailwind shadow-lg." },
-      { "name": "dialog", "value": "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)", "purpose": "Centred modals over a dimmed page (the lesson detail popup). Tailwind shadow-xl." }
+      { "name": "floating-slip", "value": "0.25rem 0.5rem 1.4rem rgb(20 20 40 / 0.16)", "purpose": "A panel clipped to the page — the search results dropdown. Warm near-black, offset down-right like a lamp." },
+      { "name": "lifted-slip", "value": "0.25rem 0.5rem 1.6rem rgb(20 20 40 / 0.2)", "purpose": "A centred modal over a rgb(12 14 26 / 0.55) page dim — the timetable lesson detail." },
+      { "name": "marker-bleed", "value": "-0.35rem 0 0 rgb(var(--tache) / 0.16), 0.35rem 0 0 rgb(var(--tache) / 0.16)", "purpose": "Not elevation — extends the highlighter wash of .mise-en-avant past the text box." }
     ],
     "motion": [
-      { "name": "color-shift", "value": "0.2s (transition-colors)", "purpose": "Default for button/tab hover and active-state colour changes." },
-      { "name": "spin", "value": "1s linear infinite (animate-spin)", "purpose": "The pending-state spinner inside a submitting button." },
-      { "name": "brightness-nudge", "value": "filter: brightness(0.95) / dark brightness(1.25) on hover", "purpose": "The only hover feedback on a clickable timetable lesson." }
+      { "name": "trace-coche", "value": "stroke-dashoffset var(--long-trait,24) to 0 over 0.22s cubic-bezier(.2,.8,.2,1) forwards", "purpose": "The signature: a Bic-green checkmark drawn along its path when an obligation is marked done." },
+      { "name": "barre-ligne", "value": "transform: scaleX(0) to scaleX(1)", "purpose": "The green strike-through sweeping across a completed line." },
+      { "name": "color-shift", "value": "transition-colors (~150ms)", "purpose": "Default for button, tab, link and field hover/focus colour changes." },
+      { "name": "brightness-nudge", "value": "filter: brightness(0.97); dark: brightness(1.1)", "purpose": "The only hover feedback on a clickable timetable lesson." },
+      { "name": "reduced-motion", "value": "animation/transition duration forced to ~0 under prefers-reduced-motion: reduce", "purpose": "Global collapse of the pen-stroke and strike animations." }
     ],
     "breakpoints": [
-      { "name": "sm", "value": "640px" },
-      { "name": "md", "value": "768px" },
-      { "name": "lg", "value": "1024px" }
+      { "name": "sm", "value": "640px" }
     ]
   },
   "components": [
@@ -87,119 +104,143 @@
       "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "The single main action per view. Near-black pill on paper, inverting in dark mode.",
-      "html": "<button class=\"ds-btn-primary\">Ajouter</button>",
-      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; background: #171717; color: #ffffff; font-family: 'Geist', Arial, Helvetica, sans-serif; font-size: 0.875rem; font-weight: 500; line-height: 1.25rem; padding: 0.5rem 1rem; border: none; border-radius: 9999px; cursor: pointer; transition: background-color 0.2s; } .ds-btn-primary:hover { background: #383838; } .ds-btn-primary:focus-visible { outline: 2px solid #3b82f6; outline-offset: 2px; } .ds-btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }"
+      "description": "The main action on a line — solid ink-blue, square, uppercase.",
+      "html": "<button class=\"ds-btn-primary\">Marquer terminé</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem; background: var(--ink-blue, #2540c8); color: var(--paper, #fdfdfb); font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 0.875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.375rem 1rem; border: none; border-radius: 2px; cursor: pointer; transition: background-color 0.15s; } .ds-btn-primary:hover { background: var(--ink-blue-strong, #1a2f9c); } .ds-btn-primary:focus-visible { outline: 2px solid var(--ink-blue, #2540c8); outline-offset: 2px; } .ds-btn-primary:disabled { opacity: 0.4; pointer-events: none; }"
     },
     {
-      "name": "Secondary Button",
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Neutral action needing a wide target. Transparent with a 1px border that turns ink-blue on hover.",
+      "html": "<button class=\"ds-btn-outline\">Ajouter une copie</button>",
+      "css": ".ds-btn-outline { display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem; background: transparent; color: var(--ink, #2c2c34); font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 0.875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.375rem 0.75rem; border: 1px solid rgba(99,99,111,0.6); border-radius: 2px; cursor: pointer; transition: color 0.15s, border-color 0.15s; } .ds-btn-outline:hover { color: var(--ink-blue, #2540c8); border-color: var(--ink-blue, #2540c8); } .ds-btn-outline:focus-visible { outline: 2px solid var(--ink-blue, #2540c8); outline-offset: 2px; }"
+    },
+    {
+      "name": "Secondary Link-Button",
       "kind": "button",
       "refersTo": "button-secondary",
-      "description": "Low-stakes and navigation-ish actions (week nav, 'see past homework', export links).",
-      "html": "<button class=\"ds-btn-secondary\">Voir les devoirs passés</button>",
-      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; background: transparent; color: #3f3f46; font-family: 'Geist', Arial, Helvetica, sans-serif; font-size: 0.875rem; font-weight: 500; line-height: 1.25rem; padding: 0.5rem 1rem; border: 1px solid #d4d4d8; border-radius: 9999px; cursor: pointer; transition: background-color 0.2s; } .ds-btn-secondary:hover { background: #f4f4f5; } .ds-btn-secondary:focus-visible { outline: 2px solid #3b82f6; outline-offset: 2px; }"
+      "description": "A written cross-reference, not a button surface — ink-blue text with an underline that thickens on hover.",
+      "html": "<button class=\"ds-btn-secondary\">Ouvrir dans Devoirs</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; gap: 0.375rem; background: none; border: none; padding: 0; color: var(--ink-blue, #2540c8); font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 0.875rem; font-weight: 700; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; cursor: pointer; transition: text-decoration-thickness 0.15s; } .ds-btn-secondary:hover { text-decoration-thickness: 2px; } .ds-btn-secondary:focus-visible { outline: 2px solid var(--ink-blue, #2540c8); outline-offset: 2px; }"
     },
     {
-      "name": "Action Button (small)",
-      "kind": "button",
-      "refersTo": "button-action",
-      "description": "The contextual 'do it now' — e.g. 'Marquer terminé'. Blue, small pill.",
-      "html": "<button class=\"ds-btn-action\">Marquer terminé</button>",
-      "css": ".ds-btn-action { display: inline-flex; align-items: center; justify-content: center; background: #2563eb; color: #ffffff; font-family: Arial, Helvetica, sans-serif; font-size: 0.75rem; line-height: 1rem; padding: 0.25rem 0.75rem; border: none; border-radius: 9999px; cursor: pointer; transition: background-color 0.2s; } .ds-btn-action:hover { background: #1d4ed8; } .ds-btn-action:focus-visible { outline: 2px solid #3b82f6; outline-offset: 2px; }"
-    },
-    {
-      "name": "Danger Link",
+      "name": "Destructive Link",
       "kind": "button",
       "refersTo": "button-danger",
-      "description": "Destructive action. Inline text + native confirm(); the full red pill is reserved for typed-word confirmation.",
+      "description": "Bic-red text link behind a native confirm(). No box.",
       "html": "<button class=\"ds-link-danger\">Supprimer</button>",
-      "css": ".ds-link-danger { background: none; border: none; padding: 0; color: #ef4444; font-family: Arial, Helvetica, sans-serif; font-size: 0.75rem; line-height: 1rem; cursor: pointer; } .ds-link-danger:hover { text-decoration: underline; }"
+      "css": ".ds-link-danger { background: none; border: none; padding: 0; color: var(--bic-red, #cf1f2e); font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 0.75rem; font-weight: 700; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; cursor: pointer; } .ds-link-danger:hover { text-decoration-thickness: 2px; }"
     },
     {
       "name": "Text Field",
       "kind": "input",
       "refersTo": "input",
-      "description": "Input / select / textarea. Paired with a 0.75rem zinc-500 label above.",
-      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">Titre</span><input class=\"ds-field-input\" type=\"text\" placeholder=\"\" /></label>",
-      "css": ".ds-field { display: flex; flex-direction: column; gap: 0.25rem; } .ds-field-label { font-family: Arial, Helvetica, sans-serif; font-size: 0.75rem; line-height: 1rem; color: #71717a; } .ds-field-input { background: transparent; color: #171717; font-family: Arial, Helvetica, sans-serif; font-size: 0.875rem; line-height: 1.25rem; padding: 0.25rem 0.5rem; border: 1px solid #d4d4d8; border-radius: 0.25rem; } .ds-field-input:focus-visible { outline: none; border-color: #71717a; }"
+      "description": "Input / select / textarea — a fine frame on the page, border turns ink-blue on focus. Label above in uppercase.",
+      "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">Commentaire</span><input class=\"ds-field-input\" type=\"text\" /></label>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 0.25rem; } .ds-field-label { font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft, #63636f); } .ds-field-input { width: 100%; background: var(--paper, #fdfdfb); color: var(--ink, #2c2c34); font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 0.875rem; line-height: 1.75rem; padding: 0.375rem 0.625rem; border: 1px solid rgba(99,99,111,0.55); border-radius: 2px; outline: none; caret-color: var(--ink-blue, #2540c8); transition: border-color 0.15s; } .ds-field-input::placeholder { color: rgba(99,99,111,0.7); } .ds-field-input:focus { border-color: var(--ink-blue, #2540c8); } .ds-field-input:focus-visible { outline: 2px solid var(--ink-blue, #2540c8); outline-offset: 2px; }"
     },
     {
-      "name": "Card",
+      "name": "Leaf (encart)",
       "kind": "card",
       "refersTo": "card",
-      "description": "The section container. Flat, hairline border, 8px corner, no shadow.",
-      "html": "<section class=\"ds-card\"><h2 class=\"ds-card-title\">Ajouter un devoir</h2><p class=\"ds-card-body\">Contenu de la section.</p></section>",
-      "css": ".ds-card { background: #ffffff; color: #171717; border: 1px solid #d4d4d8; border-radius: 0.5rem; padding: 1rem; } .ds-card-title { margin: 0 0 0.75rem; font-family: 'Geist', Arial, Helvetica, sans-serif; font-size: 0.875rem; font-weight: 600; line-height: 1.25rem; color: #3f3f46; } .ds-card-body { margin: 0; font-family: Arial, Helvetica, sans-serif; font-size: 0.875rem; line-height: 1.25rem; }"
+      "description": "A leaf laid on the page — Page Fold fill, 1px faint border, square, no shadow. Not a card.",
+      "html": "<section class=\"ds-leaf\"><h2 class=\"ds-leaf-title\">Moyennes par matière</h2><p class=\"ds-leaf-body\">Contenu de la section, posé sur la ligne.</p></section>",
+      "css": ".ds-leaf { background: color-mix(in srgb, var(--paper-2, #f4f4ee) 60%, transparent); color: var(--ink, #2c2c34); border: 1px solid rgba(99,99,111,0.25); border-radius: 2px; padding: 1rem; } .ds-leaf-title { margin: 0 0 0.25rem; font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-blue, #2540c8); } .ds-leaf-body { margin: 0; font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 1rem; line-height: 1.75rem; }"
     },
     {
-      "name": "Status Chip",
+      "name": "Subject Tag (etiquette)",
       "kind": "chip",
       "refersTo": "chip",
-      "description": "Subject tags (neutral) and status pills (tinted pairs: blue auto-detected, amber upcoming, green done).",
-      "html": "<span class=\"ds-chip\">MATHEMATIQUES</span> <span class=\"ds-chip ds-chip-upcoming\">Contrôle à venir</span>",
-      "css": ".ds-chip { display: inline-flex; align-items: center; font-family: Arial, Helvetica, sans-serif; font-size: 0.75rem; line-height: 1rem; padding: 0.125rem 0.5rem; border-radius: 9999px; background: #f4f4f5; color: #3f3f46; } .ds-chip-upcoming { background: #fef3c7; color: #b45309; }"
+      "description": "A small filled tab for a matière name — ink-blue on a 10% ink-blue wash, square, uppercase.",
+      "html": "<span class=\"ds-tag\">Mathematiques</span>",
+      "css": ".ds-tag { display: inline-flex; align-items: center; background: color-mix(in srgb, var(--ink-blue, #2540c8) 10%, transparent); color: var(--ink-blue, #2540c8); font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.125rem 0.375rem; border-radius: 2px; }"
     },
     {
-      "name": "Nav Link",
+      "name": "Intercalaire Tabs",
       "kind": "nav",
-      "refersTo": "nav-link",
-      "description": "Header navigation link. No active/current-page state in the system today.",
-      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-link\" href=\"#\">Devoirs</a><a class=\"ds-nav-link\" href=\"#\">Contrôles</a><a class=\"ds-nav-link\" href=\"#\">Emploi du temps</a></nav>",
-      "css": ".ds-nav { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem; } .ds-nav-link { font-family: 'Geist', Arial, Helvetica, sans-serif; font-size: 0.875rem; font-weight: 500; line-height: 1.25rem; color: #3f3f46; text-decoration: none; } .ds-nav-link:hover { color: #09090b; }"
+      "refersTo": "nav-tab",
+      "description": "Classeur divider tabs on an ink-blue base line; the active tab is joined to the page.",
+      "html": "<nav class=\"ds-tabs\"><a class=\"ds-tab\" href=\"#\">Bord</a><a class=\"ds-tab ds-tab-active\" aria-current=\"page\" href=\"#\">Devoirs</a><a class=\"ds-tab\" href=\"#\">Notes</a></nav>",
+      "css": ".ds-tabs { display: flex; gap: 0.25rem; padding-left: 0.25rem; margin-bottom: -1px; border-bottom: 1px solid var(--ink-blue, #2540c8); overflow-x: auto; } .ds-tab { flex: none; padding: 0.375rem 0.75rem; border: 1px solid rgba(99,99,111,0.35); border-bottom: 0; border-radius: 2px 2px 0 0; background: color-mix(in srgb, var(--paper-2, #f4f4ee) 50%, transparent); color: var(--ink-soft, #63636f); font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; text-decoration: none; transition: color 0.15s; } .ds-tab:hover { color: var(--ink, #2c2c34); } .ds-tab-active { border-color: var(--ink-blue, #2540c8); background: var(--paper, #fdfdfb); color: var(--ink-blue, #2540c8); }"
     },
     {
-      "name": "Search Field",
+      "name": "Margin Check (CaseCoche)",
       "kind": "custom",
       "refersTo": null,
-      "description": "Signature. Pill input with leading magnifier; focusing opens a tabbed results dropdown (Tous / Devoirs / Contrôles / Cours).",
-      "html": "<label class=\"ds-search\"><svg class=\"ds-search-icon\" viewBox=\"0 0 16 16\" width=\"14\" height=\"14\" fill=\"currentColor\" aria-hidden=\"true\"><path d=\"M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0\"/></svg><input class=\"ds-search-input\" type=\"search\" placeholder=\"Rechercher\" /></label>",
-      "css": ".ds-search { display: flex; align-items: center; gap: 0.5rem; width: 16rem; max-width: 100%; padding: 0.375rem 0.75rem; border: 1px solid #d4d4d8; border-radius: 9999px; background: #ffffff; color: #71717a; } .ds-search:focus-within { border-color: #71717a; } .ds-search-icon { flex: none; color: #a1a1aa; } .ds-search-input { flex: 1; min-width: 0; border: none; outline: none; background: transparent; font-family: Arial, Helvetica, sans-serif; font-size: 0.875rem; color: #171717; } .ds-search-input::placeholder { color: #a1a1aa; }"
+      "description": "Signature interaction. An empty square in the margin gutter; marking done draws a Bic-green checkmark along its path.",
+      "html": "<button class=\"ds-check\" aria-pressed=\"true\" title=\"Marquer non fait\"><svg viewBox=\"0 0 16 16\" width=\"15\" height=\"15\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.1\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path class=\"ds-check-path\" d=\"M2.6 8.9c1.3.5 2.7 1.7 3.4 3 .9-3.4 3.2-6.6 6.6-8.7\"/></svg></button>",
+      "css": ".ds-check { display: grid; place-items: center; height: 1.15rem; width: 1.15rem; border: 1px solid rgba(99,99,111,0.7); border-radius: 2px; background: transparent; color: var(--bic-green, #1c7a45); cursor: pointer; transition: border-color 0.15s; } .ds-check:hover { border-color: var(--bic-green, #1c7a45); } .ds-check-path { stroke-dasharray: 24; stroke-dashoffset: 0; animation: ds-trace-coche 0.22s cubic-bezier(.2,.8,.2,1); } @keyframes ds-trace-coche { from { stroke-dashoffset: 24; } to { stroke-dashoffset: 0; } }"
     },
     {
-      "name": "Timetable Lesson",
+      "name": "Ruled Obligation Line (LigneObligation)",
       "kind": "custom",
       "refersTo": null,
-      "description": "Signature. Absolutely-positioned block in the week grid; left-border accent in the subject colour, faint tint fill, bottom-right homework/assessment badge.",
-      "html": "<div class=\"ds-lesson\"><p class=\"ds-lesson-subject\">MATHEMATIQUES</p><p class=\"ds-lesson-time\">08:00–09:55</p><p class=\"ds-lesson-room\">C101</p><span class=\"ds-lesson-badge\">T</span></div>",
-      "css": ".ds-lesson { position: relative; overflow: hidden; padding: 0.25rem 0.375rem; border-radius: 0.25rem; border-left: 2px solid #60a5fa; background: rgba(96,165,250,0.13); font-family: Arial, Helvetica, sans-serif; font-size: 0.7rem; line-height: 1.15; } .ds-lesson-subject { margin: 0; font-weight: 500; color: #27272a; } .ds-lesson-time { margin: 0; color: #71717a; } .ds-lesson-room { margin: 0; color: #a1a1aa; } .ds-lesson-badge { position: absolute; right: 2px; bottom: 2px; display: flex; align-items: center; justify-content: center; width: 1rem; height: 1rem; border-radius: 9999px; background: #ef4444; color: #fff; font-size: 0.6rem; font-weight: 700; }"
+      "description": "Signature. One homework per ruled line: margin marker, subject in ink-blue caps, task in graphite, mono date. Urgent = Bic red.",
+      "html": "<ul class=\"ds-lines\"><li class=\"ds-line\"><span class=\"ds-line-dot\"></span><a class=\"ds-line-link\" href=\"#\"><span class=\"ds-line-subject\">Histoire</span>Fiche sur la Guerre froide</a><span class=\"ds-line-date\">14/03</span></li><li class=\"ds-line\"><span class=\"ds-line-dot ds-line-dot--red\"></span><a class=\"ds-line-link ds-line-link--urgent\" href=\"#\"><span class=\"ds-line-subject ds-line-subject--urgent\">Maths</span>Exercices 4 à 9 p.72</a></li></ul>",
+      "css": ".ds-lines { list-style: none; margin: 0; padding: 0; } .ds-line { position: relative; display: flex; align-items: baseline; gap: 0.5rem; min-height: 1.75rem; line-height: 1.75rem; font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; } .ds-line-dot { position: absolute; right: 100%; top: 0.7rem; margin-right: 0.625rem; height: 0.375rem; width: 0.375rem; border-radius: 999px; background: var(--ink-soft, #63636f); } .ds-line-dot--red { background: var(--bic-red, #cf1f2e); } .ds-line-link { flex: 1; min-width: 0; color: var(--ink, #2c2c34); text-decoration: none; } .ds-line-link:hover { text-decoration: underline; text-underline-offset: 2px; } .ds-line-link--urgent { color: var(--bic-red, #cf1f2e); font-weight: 700; } .ds-line-subject { margin-right: 0.5rem; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-blue, #2540c8); } .ds-line-subject--urgent { color: var(--bic-red, #cf1f2e); } .ds-line-date { flex: none; font-family: 'Fragment Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; font-size: 0.75rem; color: var(--ink-soft, #63636f); }"
+    },
+    {
+      "name": "Controle Slip (SlipControle)",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "Signature. Next assessment on a torn-corner feuillet clipped to the page.",
+      "html": "<a class=\"ds-slip\" href=\"#\"><span class=\"ds-slip-corner\"></span><p class=\"ds-slip-kicker\">Prochain controle · dans 3 jours</p><p class=\"ds-slip-title\"><span class=\"ds-slip-subject\">Physique</span> — Ondes et signaux</p><p class=\"ds-slip-date\">jeudi 13 mars</p></a>",
+      "css": ".ds-slip { position: relative; display: block; width: 100%; max-width: 22.75rem; padding: 1.05rem 2.45rem 1.05rem 1.05rem; border: 1px solid rgba(99,99,111,0.35); background: color-mix(in srgb, var(--paper-2, #f4f4ee) 70%, transparent); text-decoration: none; clip-path: polygon(0 0, calc(100% - 1.1rem) 0, 100% 1.1rem, 100% 100%, 0 100%); transition: border-color 0.15s; } .ds-slip:hover { border-color: var(--ink-blue, #2540c8); } .ds-slip-corner { position: absolute; right: 0; top: 0; height: 1.1rem; width: 1.1rem; background: var(--ruling, #c6cef0); clip-path: polygon(0 0, 100% 100%, 0 100%); } .ds-slip-kicker { margin: 0; font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-soft, #63636f); } .ds-slip-title { margin: 0.15rem 0 0; font-family: 'Spectral', Georgia, serif; font-size: 1.125rem; line-height: 1.2; color: var(--ink, #2c2c34); } .ds-slip-subject { color: var(--ink-blue, #2540c8); } .ds-slip-date { margin: 0.15rem 0 0; font-family: 'Fragment Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; font-size: 0.75rem; color: var(--ink-soft, #63636f); }"
+    },
+    {
+      "name": "Timetable Lesson (GrilleEmploiDuTemps)",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "Signature. A lesson block on the squared grid: full 1px subject-coloured border and tinted fill, no stripe; circular letter marks bottom-right.",
+      "html": "<div class=\"ds-lesson\"><p class=\"ds-lesson-subject\">Mathematiques</p><p class=\"ds-lesson-time\">08:00–09:55</p><p class=\"ds-lesson-room\">C101</p><span class=\"ds-lesson-marks\"><span class=\"ds-mark ds-mark--red\">C</span><span class=\"ds-mark ds-mark--green\">T</span></span></div>",
+      "css": ".ds-lesson { position: relative; overflow: hidden; padding: 0.25rem 0.375rem; border: 1px solid color-mix(in srgb, #2540c8 55%, transparent); border-radius: 2px; background: color-mix(in srgb, #2540c8 12%, var(--paper, #fdfdfb)); font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 0.72rem; line-height: 1.15; transition: filter 0.15s; } .ds-lesson:hover { filter: brightness(0.97); } .ds-lesson-subject { margin: 0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: color-mix(in srgb, #2540c8 78%, var(--ink, #2c2c34)); } .ds-lesson-time { margin: 0; font-family: 'Fragment Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; font-size: 0.62rem; color: var(--ink-soft, #63636f); } .ds-lesson-room { margin: 0; color: var(--ink-soft, #63636f); } .ds-lesson-marks { position: absolute; right: 0.125rem; bottom: 0.125rem; display: flex; gap: 0.125rem; } .ds-mark { display: grid; place-items: center; height: 0.95rem; width: 0.95rem; border: 1px solid currentColor; border-radius: 999px; font-family: 'Fragment Mono', ui-monospace, monospace; font-size: 0.6rem; font-weight: 700; } .ds-mark--red { color: var(--bic-red, #cf1f2e); } .ds-mark--green { color: var(--bic-green, #1c7a45); }"
     }
   ],
   "narrative": {
-    "northStar": "The Quiet Console",
-    "overview": "This is an operator's dashboard reduced to signal. A French lycée student opens it several times a day to answer one question — what do I have to do next — so the interface earns its keep by getting out of the way. It is monochrome on purpose: near-black ink on paper white, a full ramp of cool slate greys, and almost nothing else. Colour is rationed so that when it appears — a red badge on an unfinished assignment, an amber pill on an assessment that is still coming, a single blue 'mark done' — it means something and reads instantly. Restraint is the feature, not a limitation.\n\nThe surface is flat and quiet at rest: cards are white (or near-black in dark mode) held by a one-pixel hairline, corners softened to 8px, no shadow. Rhythm is generous and consistent — a 1.5rem gap between the stacked sections of every page — while the content inside stays dense and scannable: 0.875rem is the workhorse size, tables and lists are tight, and hierarchy comes from weight and a Geist-Sans heading rather than scale jumps. Both themes are first-class and class-driven; the student toggles between them and the choice sticks.\n\nThe identity lives in the small, exact details — the pill geometry shared by every button and every status chip, the left-border accent on a timetable lesson, the persistent blue ring on a search result you jumped to — not in any decorative gesture. Nothing here is trying to impress; it is trying to be legible at a glance on a phone in a hallway between classes.",
+    "northStar": "Le Cahier Seyès",
+    "overview": "The whole application is one continuous seyès-ruled page — the ruled sheet every French lycee student writes their homework on — not a dashboard of cards floating on a page-shaped background. A student opens it several times a day to decide what to do next and what to revise, and it earns trust by looking like the cahier they already keep: bright Clairefontaine-white ground, a bold school-ink-blue rule down the left margin, faint blue-violet ruling behind the content, and every line of type set down onto the baseline.\n\nThe 8mm carreau is the single layout unit. --carreau is 1.75rem (28px); it is simultaneously the ruling pitch, the body line-height, and the module every gap, padding and measure is a multiple of. The left margin rule sits at four carreaux from the edge (--marge, halved to two on mobile). Colour follows strict Bic four-colour semantics and never decorates: ink-blue is structure, links, and the margin; graphite is body text; Bic red is to-do / important / a teacher's mark / an error; Bic green is done. State is drawn into the page — a green pen-stroke check in the margin, a single strike-through, a red grade written large in the margin on the Notes page — rather than floated above it. Navigation is a row of classeur intercalaire tabs with the active tab joined to the page.\n\nThe system explicitly refuses the sidebar-plus-card-grid ed-tech dashboard, resting shadows, card borders over 1px, coloured left-stripe accents, and any glyph or emoji iconography (icons are an authored hand-inked SVG set, one ~1.6 stroke weight, round caps). Dark mode is the same page at night under a desk lamp: deep ink-blue ground (--paper #151b2e), luminous ruling, warm off-white ink; it is class-driven (.dark), user-toggled, and persisted.",
     "keyCharacteristics": [
-      "Monochrome slate-grey system; colour is semantic and rare.",
-      "Flat surfaces, hairline borders, 8px card corners, fully-round buttons and chips.",
-      "0.875rem body / 0.75rem labels; dense content, roomy 1.5rem section rhythm.",
-      "Geist Sans for headings, system sans (Arial/Helvetica) for body, Geist Mono for code.",
-      "Dark and light are equal, .dark-class driven, user-toggled and persisted.",
-      "Touch-first: pill targets, max-w-6xl centered column, sm: is the primary breakpoint."
+      "One continuous ruled page; no floating card grid.",
+      "The 8mm carreau (1.75rem) is the only layout unit — every measure is a multiple of it.",
+      "Bold ink-blue margin rule at 4 carreaux left; faint blue-violet ruling behind content.",
+      "Strict Bic four-colour semantics; colour is never decorative.",
+      "Square corners (2px), 1px lines only, no resting shadows.",
+      "Spectral serif for titles, Atkinson Hyperlegible for body, Fragment Mono for figures — all set on the carreau baseline.",
+      "State is drawn into the page: margin tick, struck line, red teacher's mark.",
+      "Dark mode is a first-class night version of the same page, .dark-driven and persisted."
     ],
     "rules": [
-      { "name": "The One Blue Rule", "body": "Blue is action and wayfinding only — the contextual primary button, links, the search-highlight ring, a lesson's default accent border. It is never a background wash, never decorative, and never competes with the black primary button for 'the main thing to click'.", "section": "colors" },
-      { "name": "The Rationed Colour Rule", "body": "On a resting screen, colour covers a few percent of the pixels — badges, chips, one or two links. If a new screen needs a colour block to work, the layout is wrong first.", "section": "colors" },
-      { "name": "The Weight-Not-Size Rule", "body": "Hierarchy is carried by font-weight (400 body to 600 headings) and the Geist/Arial switch, not by a big type scale. Display is only 1.4x body. Keep new headings in this narrow range.", "section": "typography" },
-      { "name": "The Geist-Heading Rule", "body": "New headings (h1, h2 section titles) get font-sans (Geist). Body, labels and controls stay on the system stack. Geist Mono is for code / pasted JSON only. Implementation note: Geist is loaded via next/font and exposed as --font-geist-sans; existing headings do not yet carry font-sans — apply it on new work and when touching a heading.", "section": "typography" },
-      { "name": "The Flat-By-Default Rule", "body": "Surfaces are flat at rest — hairline + tonal background only. A shadow means 'this element is floating above the page' (modal, dropdown), never 'this card is important'. Provisional: the owner is open to a single very soft resting shadow on primary cards later; if added, it becomes a named token and applies uniformly, not per-card.", "section": "elevation" }
+      { "name": "The Bic Four-Colour Rule", "body": "Ink-blue = structure / links / margin. Graphite = body. Bic red = to-do / important / teacher's mark / error. Bic green = done. A new surface uses exactly these four roles; introducing a fifth hue is off-system. Subject colours from Scolengo are the one sanctioned exception and appear only as a 1px full border plus a ~12% tinted fill plus coloured caps — never a stripe.", "section": "colors" },
+      { "name": "The Colour Is Never Decorative Rule", "body": "If a colour on screen is not carrying one of the four semantic roles, it is a bug. Test: name the role of every non-graphite mark on the page. No answer means remove it.", "section": "colors" },
+      { "name": "The Baseline Rule", "body": "Body text is leaded to exactly var(--carreau) (line-height: var(--carreau)) so every line lands on the ruling. New text blocks inherit the carreau leading; never set an arbitrary line-height on reading copy.", "section": "typography" },
+      { "name": "The Figures Are Tabular Rule", "body": "Anything that is data — a time, a grade, a date, a count — is set in Fragment Mono with .tabulaire so columns align. Prose is never set in mono.", "section": "typography" },
+      { "name": "The Carreau Rule", "body": "--carreau (1.75rem / 28px) is the only layout unit. Every gap, padding, height, offset and max-width is a multiple or simple fraction of it (calc(var(--carreau)*n)). A raw px or rem value that is not a carreau multiple is off-system.", "section": "layout" },
+      { "name": "The Margin Rule", "body": "Every screen carries the ink-blue margin rule down the left at four carreaux (two on mobile). Primary actions and the date/marker gutter live in the space to its left; body content starts one carreau to its right.", "section": "layout" },
+      { "name": "The No Resting Shadow Rule", "body": "A resting surface has no shadow — ever. A shadow means 'this slip is floating above the page' (dropdown, modal). It is a warm near-black offset (down and right, like a lamp), never a symmetric ambient glow.", "section": "elevation" },
+      { "name": "The 1px Line Rule", "body": "Every border and divider is 1px. No coloured left-stripe accents anywhere — a subject or status is shown by a full box, a tinted fill, coloured caps, or a mark in the margin.", "section": "shapes" },
+      { "name": "The Square Corner Rule", "body": "Radius is 2px everywhere via the rounded-sm token. Don't introduce a new radius; the only round things are the pen check and the letter marks.", "section": "shapes" }
     ],
     "dos": [
-      "Do stack every page as flex flex-col gap-6 sections inside the max-w-6xl column.",
-      "Do hold surfaces with a 1px hairline (border-zinc-300 / dark:border-zinc-800) and the Canvas→Paper tonal step; keep them shadowless.",
-      "Do make every button and every status chip a full pill (rounded-full); use rounded-lg for cards and rounded for fields.",
-      "Do reserve bg-foreground (near-black pill) for the one primary action per view and bg-blue-600 for the one contextual 'do it now' action.",
-      "Do label fields with text-xs text-zinc-500 above the control, and keep body text at text-sm.",
-      "Do put Geist (font-sans) on new headings; leave body and controls on the system stack.",
-      "Do wrap fixed-width views (grids, calendars) in overflow-x-auto with a min-w-[…] inner track so the page never scrolls sideways.",
-      "Do ship every new surface in both themes, driven by the .dark class, with a real dark value for every colour used."
+      "Do size every measure as a carreau multiple — var(--carreau), calc(var(--carreau)*n), or the carreau spacing token (The Carreau Rule).",
+      "Do carry the ink-blue margin rule on every screen and keep the primary action / marker in the gutter left of it (The Margin Rule).",
+      "Do lead body text to var(--carreau) so it sits on the ruling (The Baseline Rule).",
+      "Do keep colour strictly semantic: ink-blue structure, graphite body, Bic red to-do/important/mark/error, Bic green done (The Bic Four-Colour Rule).",
+      "Do draw state into the page — a margin check, a strike-through, a red grade in the margin — not onto a floated badge.",
+      "Do set all times, dates, grades and counts in Fragment Mono with .tabulaire.",
+      "Do use .regle for lined pages and .carreaux for the timetable and calendar.",
+      "Do ship every surface in both themes via the .dark class, with a real night value for every colour used.",
+      "Do use the authored Icone set at 1.6 stroke weight for every icon."
     ],
     "donts": [
-      "Don't use blue as a background wash, a section fill, or decoration — it is action and wayfinding only (The One Blue Rule).",
-      "Don't add a resting shadow to a card to signal importance; a shadow means 'floating above the page'.",
-      "Don't build hierarchy with big type — stay inside the 1x–1.4x range and use weight plus the Geist/Arial switch (The Weight-Not-Size Rule).",
-      "Don't introduce a fifth hue. Neutrals carry structure; red/green/amber carry state; blue carries action. That is the whole palette.",
-      "Don't invent a new radius. Two values and a pill.",
-      "Don't rely on colour alone for a state — pair it with a letter, label or icon (the T/C badges, the status chips).",
-      "Don't add a 'current page' highlight to the nav unless it is designed system-wide; today the nav has none."
+      "Don't build a sidebar-plus-card-grid dashboard; the app is one continuous page.",
+      "Don't put a shadow on a resting surface — a shadow means a slip is floating (The No Resting Shadow Rule).",
+      "Don't use a border over 1px, or any coloured left-stripe accent; show a subject or status as a full box, tint, caps or margin mark (The 1px Line Rule).",
+      "Don't introduce a new radius; corners are 2px via rounded-sm (The Square Corner Rule).",
+      "Don't introduce a fifth hue or use any colour decoratively (The Colour Is Never Decorative Rule).",
+      "Don't use emoji, unicode symbols, or an icon font.",
+      "Don't set reading copy in Fragment Mono or at an arbitrary line-height.",
+      "Don't rely on colour alone for a state — pair it with the check mark, the strike, or a letter mark."
     ]
   }
 }
