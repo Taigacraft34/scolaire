@@ -8,13 +8,14 @@ import { FormulaireSynchronisation } from "@/components/FormulaireSynchronisatio
 import { SelecteurMatiere } from "@/components/SelecteurMatiere";
 import { BoutonSupprimer } from "@/components/BoutonSupprimer";
 import { BoutonSoumission } from "@/components/BoutonSoumission";
+import { MiseEnAvantRecherche } from "@/components/MiseEnAvantRecherche";
 import { basculerStatutDevoir, creerDevoirManuel, supprimerDevoir } from "./actions";
 
 type DevoirAvecMatiere = Devoir & { matiere: Matiere };
 
 function LigneDevoir({ devoir }: { devoir: DevoirAvecMatiere }) {
   return (
-    <li className="flex flex-col gap-2 p-3 text-sm">
+    <li id={`element-${devoir.id}`} className="flex flex-col gap-2 p-3 text-sm">
       <details>
         <summary className="cursor-pointer list-none marker:hidden">
           <p className="font-medium text-zinc-800 dark:text-zinc-200">
@@ -78,12 +79,11 @@ function GroupeDevoirs({ titre, devoirs }: { titre: string; devoirs: DevoirAvecM
 export default async function PageDevoirs({
   searchParams,
 }: {
-  searchParams: Promise<{ erreur?: string; passes?: string }>;
+  searchParams: Promise<{ erreur?: string; passes?: string; focus?: string }>;
 }) {
   const session = await auth();
   const utilisateurId = session!.user.id;
-  const { erreur, passes } = await searchParams;
-  const afficherPasses = passes === "1";
+  const { erreur, passes, focus } = await searchParams;
 
   // Bornes de dates (heure locale du serveur). Un devoir "passe" est un devoir
   // dont la date de rendu est anterieure a aujourd'hui : ceux du jour meme
@@ -94,6 +94,16 @@ export default async function PageDevoirs({
   finAujourdhui.setDate(finAujourdhui.getDate() + 1);
   const finDemain = new Date(debutAujourdhui);
   finDemain.setDate(finDemain.getDate() + 2);
+
+  // Si on arrive sur un devoir passe depuis la recherche, on deplie
+  // automatiquement la liste des devoirs passes pour qu'il soit visible.
+  const devoirFocus = focus
+    ? await prisma.devoir.findFirst({
+        where: { id: focus, utilisateurId },
+        select: { date: true },
+      })
+    : null;
+  const afficherPasses = passes === "1" || (devoirFocus ? devoirFocus.date < debutAujourdhui : false);
 
   const [utilisateur, devoirsAVenir, devoirsPassesCount, devoirsPasses, derniereSynchro, matieres] =
     await Promise.all([
@@ -129,6 +139,8 @@ export default async function PageDevoirs({
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Devoirs</h1>
+
+      <MiseEnAvantRecherche focusId={focus} />
 
       {modeDeveloppeur && <FormulaireSynchronisation derniereSynchro={derniereSynchro} />}
 

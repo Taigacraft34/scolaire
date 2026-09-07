@@ -89,14 +89,14 @@ export async function GET(request: Request) {
       titre: d.titre,
       matiere: d.matiere.nom,
       date: d.date,
-      href: "/devoirs",
+      href: `/devoirs?focus=${d.id}`,
     })),
     controles: controles.map((c) => ({
       id: c.id,
       titre: c.chapitreLibre || "Controle",
       matiere: c.matiere.nom,
       date: c.date,
-      href: "/controles",
+      href: `/controles?focus=${c.id}`,
     })),
     cours: chapitres.map((c) => ({
       id: c.id,

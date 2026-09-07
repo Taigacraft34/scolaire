@@ -4,6 +4,7 @@ import { libelleStatutControle } from "@/lib/libelles";
 import { FormulaireSynchronisation } from "@/components/FormulaireSynchronisation";
 import { SelecteurMatiereDevoir } from "@/components/SelecteurMatiereDevoir";
 import { BoutonSupprimer } from "@/components/BoutonSupprimer";
+import { MiseEnAvantRecherche } from "@/components/MiseEnAvantRecherche";
 import Link from "next/link";
 import {
   creerControleManuel,
@@ -16,11 +17,11 @@ import {
 export default async function PageControles({
   searchParams,
 }: {
-  searchParams: Promise<{ erreur?: string }>;
+  searchParams: Promise<{ erreur?: string; focus?: string }>;
 }) {
   const session = await auth();
   const utilisateurId = session!.user.id;
-  const { erreur } = await searchParams;
+  const { erreur, focus } = await searchParams;
 
   const [utilisateur, controles, derniereSynchro, matieres, devoirsDisponibles, chapitresDisponibles] =
     await Promise.all([
@@ -57,6 +58,8 @@ export default async function PageControles({
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-xl font-semibold text-zinc-900 dark:text-zinc-50">Controles</h1>
+
+      <MiseEnAvantRecherche focusId={focus} />
 
       {modeDeveloppeur && <FormulaireSynchronisation derniereSynchro={derniereSynchro} />}
 
@@ -136,7 +139,11 @@ export default async function PageControles({
         ) : (
           <ul className="divide-y divide-zinc-100 dark:divide-zinc-900">
             {controles.map((controle) => (
-              <li key={controle.id} className="flex flex-col gap-2 p-3 text-sm">
+              <li
+                key={controle.id}
+                id={`element-${controle.id}`}
+                className="flex flex-col gap-2 p-3 text-sm"
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div>
