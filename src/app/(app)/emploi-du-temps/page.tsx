@@ -176,6 +176,10 @@ export default async function PageEmploiDuTemps({
     return `/emploi-du-temps?semaine=${formatDateParam(ajouterJours(lundiAffiche, delta * 7))}`;
   }
 
+  const retour = semaineParam
+    ? `/emploi-du-temps?semaine=${encodeURIComponent(semaineParam)}`
+    : "/emploi-du-temps";
+
   // Lundi -> vendredi uniquement.
   const jours = JOURS_ORDRE.slice(0, 5).map((jour, index) => {
     const date = ajouterJours(lundiAffiche, index);
@@ -301,7 +305,12 @@ export default async function PageEmploiDuTemps({
           Aucun cours pour cette semaine.
         </p>
       ) : (
-        <GrilleEmploiDuTemps jours={joursGrille} lignes={lignes} hauteur={hauteurGrille} />
+        <GrilleEmploiDuTemps
+          jours={joursGrille}
+          lignes={lignes}
+          hauteur={hauteurGrille}
+          retour={retour}
+        />
       )}
     </div>
   );

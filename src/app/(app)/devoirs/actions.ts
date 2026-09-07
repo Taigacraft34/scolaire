@@ -70,8 +70,13 @@ export async function basculerStatutDevoir(formData: FormData) {
   if (!session?.user) redirect("/connexion");
 
   const devoirId = String(formData.get("devoirId") ?? "").trim();
+  // Permet d'appeler l'action depuis une autre page (ex: emploi du temps) et d'y
+  // revenir. On limite aux chemins internes.
+  const retourBrut = String(formData.get("retour") ?? "").trim();
+  const retour = retourBrut.startsWith("/") ? retourBrut : "/devoirs";
+
   const devoir = await prisma.devoir.findFirst({ where: { id: devoirId, utilisateurId: session.user.id } });
-  if (!devoir) redirect("/devoirs");
+  if (!devoir) redirect(retour);
 
   const nouveauStatut = devoir.statut === "TERMINE" ? "A_FAIRE" : "TERMINE";
 
@@ -107,7 +112,8 @@ export async function basculerStatutDevoir(formData: FormData) {
   }
 
   revalidatePath("/devoirs");
-  redirect("/devoirs");
+  revalidatePath("/emploi-du-temps");
+  redirect(retour);
 }
 
 export async function supprimerDevoir(formData: FormData) {

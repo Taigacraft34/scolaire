@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { basculerStatutDevoir } from "@/app/(app)/devoirs/actions";
+import { BoutonSoumission } from "@/components/BoutonSoumission";
 
 export interface DevoirGrille {
   id: string;
@@ -69,17 +71,26 @@ export function GrilleEmploiDuTemps({
   jours,
   lignes,
   hauteur,
+  retour,
 }: {
   jours: JourGrille[];
   lignes: { label: string; top: number }[];
   hauteur: number;
+  retour: string;
 }) {
-  const [blocActif, setBlocActif] = useState<BlocGrille | null>(null);
+  const [blocActifId, setBlocActifId] = useState<string | null>(null);
+
+  const tousBlocs = useMemo(() => jours.flatMap((j) => j.blocs), [jours]);
+  // On derive le bloc affiche des donnees a jour : apres avoir marque un devoir
+  // fait/non fait, la modale reflete le nouvel etat sans etre rouverte.
+  const blocActif = blocActifId
+    ? (tousBlocs.find((b) => b.id === blocActifId) ?? null)
+    : null;
 
   useEffect(() => {
     if (!blocActif) return;
     function surTouche(e: KeyboardEvent) {
-      if (e.key === "Escape") setBlocActif(null);
+      if (e.key === "Escape") setBlocActifId(null);
     }
     document.addEventListener("keydown", surTouche);
     return () => document.removeEventListener("keydown", surTouche);
@@ -133,7 +144,7 @@ export function GrilleEmploiDuTemps({
                       key={bloc.id}
                       type="button"
                       disabled={!cliquable}
-                      onClick={() => cliquable && setBlocActif(bloc)}
+                      onClick={() => cliquable && setBlocActifId(bloc.id)}
                       className={`absolute block overflow-hidden rounded border-l-2 px-1.5 py-1 text-left text-[0.7rem] leading-tight ${
                         cliquable ? "cursor-pointer hover:brightness-95 dark:hover:brightness-125" : "cursor-default"
                       }`}
@@ -178,7 +189,7 @@ export function GrilleEmploiDuTemps({
       {blocActif && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
-          onClick={() => setBlocActif(null)}
+          onClick={() => setBlocActifId(null)}
         >
           <div
             className="max-h-[85vh] w-full max-w-md overflow-y-auto rounded-lg border border-zinc-300 bg-white p-4 shadow-xl dark:border-zinc-700 dark:bg-zinc-950"
@@ -197,7 +208,7 @@ export function GrilleEmploiDuTemps({
               </div>
               <button
                 type="button"
-                onClick={() => setBlocActif(null)}
+                onClick={() => setBlocActifId(null)}
                 className="text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200"
                 aria-label="Fermer"
               >
@@ -260,12 +271,28 @@ export function GrilleEmploiDuTemps({
                 ) : (
                   <p className="mt-1 text-xs text-zinc-500">Aucune description.</p>
                 )}
-                <Link
-                  href={`/devoirs?focus=${devoir.id}`}
-                  className="mt-1 inline-block text-xs text-blue-600 hover:underline dark:text-blue-400"
-                >
-                  Ouvrir dans Devoirs →
-                </Link>
+                <div className="mt-2 flex flex-wrap items-center gap-3">
+                  <form action={basculerStatutDevoir}>
+                    <input type="hidden" name="devoirId" value={devoir.id} />
+                    <input type="hidden" name="retour" value={retour} />
+                    <BoutonSoumission
+                      texteChargement="…"
+                      className={
+                        devoir.statut === "TERMINE"
+                          ? "rounded-full border border-zinc-300 px-3 py-1 text-xs text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-900"
+                          : "rounded-full bg-blue-600 px-3 py-1 text-xs text-white hover:bg-blue-700"
+                      }
+                    >
+                      {devoir.statut === "TERMINE" ? "Marquer non fait" : "Marquer terminé"}
+                    </BoutonSoumission>
+                  </form>
+                  <Link
+                    href={`/devoirs?focus=${devoir.id}`}
+                    className="text-xs text-blue-600 hover:underline dark:text-blue-400"
+                  >
+                    Ouvrir dans Devoirs →
+                  </Link>
+                </div>
               </div>
             ))}
           </div>
