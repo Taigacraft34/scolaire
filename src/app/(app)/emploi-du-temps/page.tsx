@@ -2,13 +2,96 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { ajouterJours, debutSemaine } from "@/lib/calendrier";
-import { JOURS_ORDRE, LIBELLES_JOUR, heureLocale, indexJourSemaine } from "@/lib/emploiDuTemps";
+import { JOURS_ORDRE, LIBELLES_JOUR } from "@/lib/emploiDuTemps";
+import type { SeanceEmploiDuTemps } from "@/generated/prisma/client";
+
+const PX_PAR_HEURE = 56;
+const HEURE_MIN_DEFAUT = 8;
+const HEURE_MAX_DEFAUT = 18;
 
 function formatDateParam(date: Date): string {
   const annee = date.getFullYear();
   const mois = String(date.getMonth() + 1).padStart(2, "0");
   const jour = String(date.getDate()).padStart(2, "0");
   return `${annee}-${mois}-${jour}`;
+}
+
+// Heure d'une date exprimee dans le fuseau de l'utilisateur (les dates Scolengo
+// sont en UTC ; on veut l'heure "murale" locale pour aligner la grille).
+function partiesFuseau(date: Date, timeZone: string) {
+  const parts = new Intl.DateTimeFormat("fr-FR", {
+    timeZone,
+    weekday: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(date);
+  const val = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
+  const h = Number(val("hour"));
+  const m = Number(val("minute"));
+  return {
+    minutes: h * 60 + m,
+    label: `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`,
+    cleJour: `${val("year")}-${val("month")}-${val("day")}`,
+  };
+}
+
+interface Bloc {
+  seance: SeanceEmploiDuTemps;
+  debMin: number;
+  finMin: number;
+  labelDeb: string;
+  labelFin: string;
+  col: number;
+  nbCol: number;
+}
+
+// Repartit les seances d'une journee en colonnes : les seances qui se
+// chevauchent sont placees cote a cote (partitionnement d'intervalles).
+function disposerJournee(seances: SeanceEmploiDuTemps[], timeZone: string): Bloc[] {
+  const evenements = seances
+    .map((seance) => {
+      const d = partiesFuseau(seance.debut, timeZone);
+      const f = partiesFuseau(seance.fin, timeZone);
+      const debMin = d.minutes;
+      const finMin = Math.max(f.minutes, debMin + 25);
+      return { seance, debMin, finMin, labelDeb: d.label, labelFin: f.label };
+    })
+    .sort((a, b) => a.debMin - b.debMin || a.finMin - b.finMin);
+
+  const resultat: Bloc[] = [];
+  let groupe: Bloc[] = [];
+  let colonnesFin: number[] = [];
+  let groupeFin = -1;
+
+  const cloturer = () => {
+    for (const bloc of groupe) bloc.nbCol = colonnesFin.length;
+    resultat.push(...groupe);
+    groupe = [];
+    colonnesFin = [];
+    groupeFin = -1;
+  };
+
+  for (const ev of evenements) {
+    if (groupe.length > 0 && ev.debMin >= groupeFin) cloturer();
+
+    let col = colonnesFin.findIndex((fin) => fin <= ev.debMin);
+    if (col === -1) {
+      col = colonnesFin.length;
+      colonnesFin.push(ev.finMin);
+    } else {
+      colonnesFin[col] = ev.finMin;
+    }
+
+    groupe.push({ ...ev, col, nbCol: 1 });
+    groupeFin = Math.max(groupeFin, ev.finMin);
+  }
+  if (groupe.length > 0) cloturer();
+
+  return resultat;
 }
 
 export default async function PageEmploiDuTemps({
@@ -22,33 +105,44 @@ export default async function PageEmploiDuTemps({
 
   const utilisateur = await prisma.utilisateur.findUniqueOrThrow({
     where: { id: utilisateurId },
-    select: { scolengoTokenChiffre: true },
+    select: { scolengoTokenChiffre: true, fuseauHoraire: true },
   });
+  const timeZone = utilisateur.fuseauHoraire || "Europe/Paris";
 
   const semaineBase = semaineParam ? new Date(semaineParam) : new Date();
   const lundiAffiche = debutSemaine(Number.isNaN(semaineBase.getTime()) ? new Date() : semaineBase);
-  const dimancheAffiche = ajouterJours(lundiAffiche, 6);
+  const vendrediAffiche = ajouterJours(lundiAffiche, 4);
   const finSemaine = ajouterJours(lundiAffiche, 7);
 
-  const seances = await prisma.seanceEmploiDuTemps.findMany({
-    where: { utilisateurId, debut: { gte: lundiAffiche, lt: finSemaine } },
-    orderBy: { debut: "asc" },
-  });
-
-  const derniereSynchro = await prisma.synchronisation.findFirst({
-    where: { utilisateurId },
-    orderBy: { demarreeLe: "desc" },
-  });
+  const [seances, derniereSynchro] = await Promise.all([
+    prisma.seanceEmploiDuTemps.findMany({
+      where: { utilisateurId, debut: { gte: lundiAffiche, lt: finSemaine } },
+      orderBy: { debut: "asc" },
+    }),
+    prisma.synchronisation.findFirst({ where: { utilisateurId }, orderBy: { demarreeLe: "desc" } }),
+  ]);
 
   function lienSemaine(delta: number): string {
     return `/emploi-du-temps?semaine=${formatDateParam(ajouterJours(lundiAffiche, delta * 7))}`;
   }
 
-  const joursAffiches = JOURS_ORDRE.map((jour, index) => {
+  // Lundi -> vendredi uniquement.
+  const jours = JOURS_ORDRE.slice(0, 5).map((jour, index) => {
     const date = ajouterJours(lundiAffiche, index);
-    const seancesJour = seances.filter((s) => indexJourSemaine(s.debut) === index);
-    return { jour, date, seances: seancesJour };
+    const cleJour = partiesFuseau(date, timeZone).cleJour;
+    const seancesJour = seances.filter((s) => partiesFuseau(s.debut, timeZone).cleJour === cleJour);
+    return { jour, date, blocs: disposerJournee(seancesJour, timeZone) };
   });
+
+  const tousBlocs = jours.flatMap((j) => j.blocs);
+  const heureMin = tousBlocs.length
+    ? Math.floor(Math.min(...tousBlocs.map((b) => b.debMin)) / 60)
+    : HEURE_MIN_DEFAUT;
+  const heureMax = tousBlocs.length
+    ? Math.ceil(Math.max(...tousBlocs.map((b) => b.finMin)) / 60)
+    : HEURE_MAX_DEFAUT;
+  const hauteurGrille = (heureMax - heureMin) * PX_PAR_HEURE;
+  const heures = Array.from({ length: heureMax - heureMin + 1 }, (_, i) => heureMin + i);
 
   return (
     <div className="flex flex-col gap-6">
@@ -79,7 +173,7 @@ export default async function PageEmploiDuTemps({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
           Semaine du {lundiAffiche.toLocaleDateString("fr-FR")} au{" "}
-          {dimancheAffiche.toLocaleDateString("fr-FR")}
+          {vendrediAffiche.toLocaleDateString("fr-FR")}
         </h2>
         <div className="flex gap-2">
           <Link
@@ -108,40 +202,84 @@ export default async function PageEmploiDuTemps({
           Aucun cours pour cette semaine.
         </p>
       ) : (
-        <div className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-zinc-300 bg-zinc-200 sm:grid-cols-7 dark:border-zinc-800 dark:bg-zinc-800">
-          {joursAffiches.map(({ jour, date, seances: seancesJour }) => (
-            <div key={jour} className="min-h-32 bg-white p-2 dark:bg-zinc-950">
-              <p className="mb-1 text-xs font-medium text-zinc-500">
-                {LIBELLES_JOUR[jour]} {date.getDate()}/{date.getMonth() + 1}
-              </p>
-              <div className="flex flex-col gap-1">
-                {seancesJour.length === 0 ? (
-                  <p className="text-xs text-zinc-400">—</p>
-                ) : (
-                  seancesJour.map((s) => (
-                    <div
-                      key={s.id}
-                      className={`rounded border-l-2 bg-zinc-100 px-2 py-1 text-xs dark:bg-zinc-800 ${
-                        s.annule
-                          ? "border-red-400 text-zinc-400 line-through dark:text-zinc-500"
-                          : "border-blue-400 text-zinc-700 dark:text-zinc-300"
-                      }`}
-                      style={s.couleur && !s.annule ? { borderLeftColor: s.couleur } : undefined}
-                    >
-                      <p className="font-medium">
-                        {heureLocale(s.debut)}–{heureLocale(s.fin)} {s.matiere}
-                      </p>
-                      {(s.enseignant || s.salle) && (
-                        <p className="text-zinc-500">
-                          {[s.enseignant, s.salle].filter(Boolean).join(" · ")}
-                        </p>
-                      )}
-                    </div>
-                  ))
-                )}
-              </div>
+        <div className="overflow-x-auto rounded-lg border border-zinc-300 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+          <div className="min-w-[720px]">
+            {/* En-tetes des jours */}
+            <div className="flex border-b border-zinc-200 dark:border-zinc-800">
+              <div className="w-12 shrink-0" />
+              {jours.map(({ jour, date }) => (
+                <div
+                  key={jour}
+                  className="flex-1 border-l border-zinc-200 px-2 py-2 text-center text-xs font-medium text-zinc-600 dark:border-zinc-800 dark:text-zinc-300"
+                >
+                  {LIBELLES_JOUR[jour]} {date.getDate()}/{date.getMonth() + 1}
+                </div>
+              ))}
             </div>
-          ))}
+
+            {/* Grille horaire */}
+            <div className="flex" style={{ height: hauteurGrille }}>
+              {/* Colonne des heures */}
+              <div className="relative w-12 shrink-0">
+                {heures.map((h) => (
+                  <div
+                    key={h}
+                    className="absolute right-1 -translate-y-1/2 text-[0.7rem] text-zinc-400"
+                    style={{ top: (h - heureMin) * PX_PAR_HEURE }}
+                  >
+                    {h}h
+                  </div>
+                ))}
+              </div>
+
+              {/* Colonnes des jours */}
+              {jours.map(({ jour, blocs }) => (
+                <div
+                  key={jour}
+                  className="relative flex-1 border-l border-zinc-200 dark:border-zinc-800"
+                >
+                  {/* Lignes horaires */}
+                  {heures.slice(1).map((h) => (
+                    <div
+                      key={h}
+                      className="absolute inset-x-0 border-t border-zinc-100 dark:border-zinc-900"
+                      style={{ top: (h - heureMin) * PX_PAR_HEURE }}
+                    />
+                  ))}
+
+                  {blocs.map(({ seance, debMin, finMin, labelDeb, labelFin, col, nbCol }) => (
+                    <div
+                      key={seance.id}
+                      className="absolute overflow-hidden rounded border-l-2 px-1.5 py-1 text-[0.7rem] leading-tight"
+                      style={{
+                        top: ((debMin - heureMin * 60) / 60) * PX_PAR_HEURE,
+                        height: ((finMin - debMin) / 60) * PX_PAR_HEURE - 2,
+                        left: `calc(${(col / nbCol) * 100}% + 2px)`,
+                        width: `calc(${100 / nbCol}% - 4px)`,
+                        backgroundColor:
+                          seance.couleur && !seance.annule ? `${seance.couleur}22` : undefined,
+                        borderLeftColor: seance.couleur ?? "#60a5fa",
+                      }}
+                    >
+                      <p
+                        className={
+                          seance.annule
+                            ? "font-medium text-zinc-400 line-through dark:text-zinc-500"
+                            : "font-medium text-zinc-800 dark:text-zinc-100"
+                        }
+                      >
+                        {seance.matiere}
+                      </p>
+                      <p className="text-zinc-500">
+                        {labelDeb}–{labelFin}
+                      </p>
+                      {seance.salle && <p className="text-zinc-400">{seance.salle}</p>}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
     </div>
