@@ -1,13 +1,22 @@
-import type { CSSProperties } from "react";
 import Link from "next/link";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { ajouterJours, debutSemaine } from "@/lib/calendrier";
 import { JOURS_ORDRE, LIBELLES_JOUR } from "@/lib/emploiDuTemps";
 import { memeMatiere } from "@/lib/prochainCours";
-import type { Devoir, Matiere, SeanceEmploiDuTemps } from "@/generated/prisma/client";
+import { libelleStatutControle } from "@/lib/libelles";
+import { nettoyerHtml } from "@/lib/html";
+import {
+  GrilleEmploiDuTemps,
+  type BlocGrille,
+  type ControleGrille,
+  type DevoirGrille,
+  type JourGrille,
+} from "@/components/GrilleEmploiDuTemps";
+import type { Controle, Devoir, Matiere, SeanceEmploiDuTemps } from "@/generated/prisma/client";
 
 type DevoirAvecMatiere = Devoir & { matiere: Matiere };
+type ControleAvecMatiere = Controle & { matiere: Matiere };
 
 const PX_PAR_HEURE = 56;
 const HEURE_MIN_DEFAUT = 8;
@@ -25,7 +34,6 @@ function formatDateParam(date: Date): string {
 function partiesFuseau(date: Date, timeZone: string) {
   const parts = new Intl.DateTimeFormat("fr-FR", {
     timeZone,
-    weekday: "short",
     hour: "2-digit",
     minute: "2-digit",
     hourCycle: "h23",
@@ -52,6 +60,7 @@ interface Bloc {
   col: number;
   nbCol: number;
   devoirs: DevoirAvecMatiere[];
+  controles: ControleAvecMatiere[];
 }
 
 // Repartit les seances d'une journee en colonnes : les seances qui se
@@ -91,7 +100,7 @@ function disposerJournee(seances: SeanceEmploiDuTemps[], timeZone: string): Bloc
       colonnesFin[col] = ev.finMin;
     }
 
-    groupe.push({ ...ev, col, nbCol: 1, devoirs: [] });
+    groupe.push({ ...ev, col, nbCol: 1, devoirs: [], controles: [] });
     groupeFin = Math.max(groupeFin, ev.finMin);
   }
   if (groupe.length > 0) cloturer();
@@ -99,65 +108,29 @@ function disposerJournee(seances: SeanceEmploiDuTemps[], timeZone: string): Bloc
   return resultat;
 }
 
-function BlocSeance({ bloc, heureMin }: { bloc: Bloc; heureMin: number }) {
-  const { seance, debMin, finMin, labelDeb, labelFin, col, nbCol, devoirs } = bloc;
-
-  const devoirCible = devoirs.find((d) => d.statut === "A_FAIRE") ?? devoirs[0] ?? null;
-  const aFaire = devoirs.some((d) => d.statut === "A_FAIRE");
-
-  const style: CSSProperties = {
-    top: ((debMin - heureMin * 60) / 60) * PX_PAR_HEURE,
-    height: ((finMin - debMin) / 60) * PX_PAR_HEURE - 2,
-    left: `calc(${(col / nbCol) * 100}% + 2px)`,
-    width: `calc(${100 / nbCol}% - 4px)`,
-    backgroundColor: seance.couleur && !seance.annule ? `${seance.couleur}22` : undefined,
-    borderLeftColor: seance.couleur ?? "#60a5fa",
-  };
-
-  const classe =
-    "absolute block overflow-hidden rounded border-l-2 px-1.5 py-1 text-[0.7rem] leading-tight" +
-    (devoirCible ? " hover:brightness-95 dark:hover:brightness-125" : "");
-
-  const contenu = (
-    <>
-      <p
-        className={
-          seance.annule
-            ? "font-medium text-zinc-400 line-through dark:text-zinc-500"
-            : "font-medium text-zinc-800 dark:text-zinc-100"
-        }
-      >
-        {seance.matiere}
-      </p>
-      <p className="text-zinc-500">
-        {labelDeb}–{labelFin}
-      </p>
-      {seance.salle && <p className="text-zinc-400">{seance.salle}</p>}
-      {devoirCible && (
-        <span
-          title={aFaire ? "Devoir a faire" : "Devoir fait"}
-          className={`absolute bottom-0.5 right-0.5 flex h-4 w-4 items-center justify-center rounded-full text-[0.6rem] font-bold text-white ${
-            aFaire ? "bg-red-500" : "bg-green-600"
-          }`}
-        >
-          T
-        </span>
-      )}
-    </>
-  );
-
-  if (devoirCible) {
-    return (
-      <Link href={`/devoirs?focus=${devoirCible.id}`} className={classe} style={style}>
-        {contenu}
-      </Link>
-    );
+// Rattache un element date (devoir ou controle) a la seance de sa matiere qui a
+// lieu le meme jour et dont l'heure de debut est la plus proche de l'echeance.
+function rattacher<T extends { date: Date; matiere: Matiere }>(
+  elements: T[],
+  blocs: Bloc[],
+  timeZone: string,
+  ajouter: (bloc: Bloc, element: T) => void,
+) {
+  for (const element of elements) {
+    const jourElement = partiesFuseau(element.date, timeZone).cleJour;
+    let meilleur: Bloc | null = null;
+    let meilleurEcart = Infinity;
+    for (const bloc of blocs) {
+      if (partiesFuseau(bloc.seance.debut, timeZone).cleJour !== jourElement) continue;
+      if (!memeMatiere(bloc.seance.matiere, element.matiere.nom)) continue;
+      const ecart = Math.abs(bloc.seance.debut.getTime() - element.date.getTime());
+      if (ecart < meilleurEcart) {
+        meilleur = bloc;
+        meilleurEcart = ecart;
+      }
+    }
+    if (meilleur) ajouter(meilleur, element);
   }
-  return (
-    <div className={classe} style={style}>
-      {contenu}
-    </div>
-  );
 }
 
 export default async function PageEmploiDuTemps({
@@ -179,17 +152,21 @@ export default async function PageEmploiDuTemps({
   const lundiAffiche = debutSemaine(Number.isNaN(semaineBase.getTime()) ? new Date() : semaineBase);
   const vendrediAffiche = ajouterJours(lundiAffiche, 4);
   const finSemaine = ajouterJours(lundiAffiche, 7);
+  const bornesEcheance = {
+    date: { gte: ajouterJours(lundiAffiche, -1), lt: ajouterJours(finSemaine, 1) },
+  };
 
-  const [seances, devoirsSemaine, derniereSynchro] = await Promise.all([
+  const [seances, devoirsSemaine, controlesSemaine, derniereSynchro] = await Promise.all([
     prisma.seanceEmploiDuTemps.findMany({
       where: { utilisateurId, debut: { gte: lundiAffiche, lt: finSemaine } },
       orderBy: { debut: "asc" },
     }),
     prisma.devoir.findMany({
-      where: {
-        utilisateurId,
-        date: { gte: ajouterJours(lundiAffiche, -1), lt: ajouterJours(finSemaine, 1) },
-      },
+      where: { utilisateurId, ...bornesEcheance },
+      include: { matiere: true },
+    }),
+    prisma.controle.findMany({
+      where: { utilisateurId, ...bornesEcheance },
       include: { matiere: true },
     }),
     prisma.synchronisation.findFirst({ where: { utilisateurId }, orderBy: { demarreeLe: "desc" } }),
@@ -204,28 +181,18 @@ export default async function PageEmploiDuTemps({
     const date = ajouterJours(lundiAffiche, index);
     const cleJour = partiesFuseau(date, timeZone).cleJour;
     const seancesJour = seances.filter((s) => partiesFuseau(s.debut, timeZone).cleJour === cleJour);
-    return { jour, date, blocs: disposerJournee(seancesJour, timeZone) };
+    return {
+      jour,
+      libelle: `${LIBELLES_JOUR[jour]} ${date.getDate()}/${date.getMonth() + 1}`,
+      cle: cleJour,
+      blocs: disposerJournee(seancesJour, timeZone),
+    };
   });
 
   const tousBlocs = jours.flatMap((j) => j.blocs);
+  rattacher(devoirsSemaine, tousBlocs, timeZone, (b, d) => b.devoirs.push(d));
+  rattacher(controlesSemaine, tousBlocs, timeZone, (b, c) => b.controles.push(c));
 
-  // Rattache chaque devoir a la seance de sa matiere qui a lieu le meme jour
-  // (celle dont l'heure de debut est la plus proche de l'echeance).
-  for (const devoir of devoirsSemaine) {
-    const jourDevoir = partiesFuseau(devoir.date, timeZone).cleJour;
-    let meilleur: Bloc | null = null;
-    let meilleurEcart = Infinity;
-    for (const bloc of tousBlocs) {
-      if (partiesFuseau(bloc.seance.debut, timeZone).cleJour !== jourDevoir) continue;
-      if (!memeMatiere(bloc.seance.matiere, devoir.matiere.nom)) continue;
-      const ecart = Math.abs(bloc.seance.debut.getTime() - devoir.date.getTime());
-      if (ecart < meilleurEcart) {
-        meilleur = bloc;
-        meilleurEcart = ecart;
-      }
-    }
-    if (meilleur) meilleur.devoirs.push(devoir);
-  }
   const heureMin = tousBlocs.length
     ? Math.floor(Math.min(...tousBlocs.map((b) => b.debMin)) / 60)
     : HEURE_MIN_DEFAUT;
@@ -233,7 +200,48 @@ export default async function PageEmploiDuTemps({
     ? Math.ceil(Math.max(...tousBlocs.map((b) => b.finMin)) / 60)
     : HEURE_MAX_DEFAUT;
   const hauteurGrille = (heureMax - heureMin) * PX_PAR_HEURE;
-  const heures = Array.from({ length: heureMax - heureMin + 1 }, (_, i) => heureMin + i);
+  const lignes = Array.from({ length: heureMax - heureMin + 1 }, (_, i) => ({
+    label: `${heureMin + i}h`,
+    top: i * PX_PAR_HEURE,
+  }));
+
+  const enDevoir = (d: DevoirAvecMatiere): DevoirGrille => ({
+    id: d.id,
+    titre: d.titre,
+    descriptionHtml: d.description ? nettoyerHtml(d.description) : null,
+    statut: d.statut,
+    dateLabel: d.date.toLocaleDateString("fr-FR"),
+  });
+
+  const enControle = (c: ControleAvecMatiere): ControleGrille => ({
+    id: c.id,
+    intitule: c.chapitreLibre || `Controle de ${c.matiere.nom}`,
+    commentaire: c.commentaire,
+    aVenir: libelleStatutControle(c.date) === "À venir",
+    dateLabel: c.date.toLocaleDateString("fr-FR"),
+    heure: c.heure,
+  });
+
+  const joursGrille: JourGrille[] = jours.map((j) => ({
+    cle: j.cle,
+    libelle: j.libelle,
+    blocs: j.blocs.map<BlocGrille>((b) => ({
+      id: b.seance.id,
+      matiere: b.seance.matiere,
+      salle: b.seance.salle,
+      enseignant: b.seance.enseignant,
+      couleur: b.seance.couleur,
+      annule: b.seance.annule,
+      labelDeb: b.labelDeb,
+      labelFin: b.labelFin,
+      top: ((b.debMin - heureMin * 60) / 60) * PX_PAR_HEURE,
+      height: ((b.finMin - b.debMin) / 60) * PX_PAR_HEURE - 2,
+      leftPct: (b.col / b.nbCol) * 100,
+      widthPct: 100 / b.nbCol,
+      devoirs: b.devoirs.map(enDevoir),
+      controles: b.controles.map(enControle),
+    })),
+  }));
 
   return (
     <div className="flex flex-col gap-6">
@@ -293,59 +301,7 @@ export default async function PageEmploiDuTemps({
           Aucun cours pour cette semaine.
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-zinc-300 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-          <div className="min-w-[720px]">
-            {/* En-tetes des jours */}
-            <div className="flex border-b border-zinc-200 dark:border-zinc-800">
-              <div className="w-12 shrink-0" />
-              {jours.map(({ jour, date }) => (
-                <div
-                  key={jour}
-                  className="flex-1 border-l border-zinc-200 px-2 py-2 text-center text-xs font-medium text-zinc-600 dark:border-zinc-800 dark:text-zinc-300"
-                >
-                  {LIBELLES_JOUR[jour]} {date.getDate()}/{date.getMonth() + 1}
-                </div>
-              ))}
-            </div>
-
-            {/* Grille horaire */}
-            <div className="flex" style={{ height: hauteurGrille }}>
-              {/* Colonne des heures */}
-              <div className="relative w-12 shrink-0">
-                {heures.map((h) => (
-                  <div
-                    key={h}
-                    className="absolute right-1 -translate-y-1/2 text-[0.7rem] text-zinc-400"
-                    style={{ top: (h - heureMin) * PX_PAR_HEURE }}
-                  >
-                    {h}h
-                  </div>
-                ))}
-              </div>
-
-              {/* Colonnes des jours */}
-              {jours.map(({ jour, blocs }) => (
-                <div
-                  key={jour}
-                  className="relative flex-1 border-l border-zinc-200 dark:border-zinc-800"
-                >
-                  {/* Lignes horaires */}
-                  {heures.slice(1).map((h) => (
-                    <div
-                      key={h}
-                      className="absolute inset-x-0 border-t border-zinc-100 dark:border-zinc-900"
-                      style={{ top: (h - heureMin) * PX_PAR_HEURE }}
-                    />
-                  ))}
-
-                  {blocs.map((bloc) => (
-                    <BlocSeance key={bloc.seance.id} bloc={bloc} heureMin={heureMin} />
-                  ))}
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+        <GrilleEmploiDuTemps jours={joursGrille} lignes={lignes} hauteur={hauteurGrille} />
       )}
     </div>
   );
