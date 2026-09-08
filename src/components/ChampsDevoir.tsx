@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { SelecteurMatiereChamp } from "./SelecteurMatiereChamp";
 import { formatDateInput, prochaineDateCours, type SeanceMinimale } from "@/lib/prochainCours";
-import { champ as CLASSE_CHAMP, label as CLASSE_LABEL } from "@/lib/ui";
+import { champ as CLASSE_CHAMP, label as CLASSE_LABEL, blocChamp, rangeeChamps } from "@/lib/ui";
 
 // Ligne "Matiere / Titre / Date" du formulaire d'ajout de devoir. Choisir une
 // matiere pre-remplit la date avec celle du prochain cours de cette matiere
@@ -27,15 +27,15 @@ export function ChampsDevoir({
   }
 
   return (
-    <div className="flex flex-wrap gap-3">
+    <div className={rangeeChamps}>
       <SelecteurMatiereChamp matieres={matieres} valeur={matiere} onChange={changerMatiere} />
-      <div className="flex flex-1 min-w-40 flex-col gap-1">
+      <div className={blocChamp}>
         <label className={CLASSE_LABEL} htmlFor="titre">
           Titre
         </label>
         <input id="titre" name="titre" required className={CLASSE_CHAMP} />
       </div>
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1 sm:min-w-[9rem]">
         <label className={CLASSE_LABEL} htmlFor="date">
           Date
         </label>

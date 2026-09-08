@@ -137,7 +137,8 @@ export default async function PageAdmin({
                       <form action={supprimerUtilisateur}>
                         <input type="hidden" name="utilisateurId" value={u.id} />
                         <BoutonSupprimer
-                          confirmation={`Supprimer définitivement le compte ${u.email} et toutes ses données ?`}
+                          libelle="Supprimer le compte"
+                          invite={`Supprimer ${u.email} et toutes ses données ?`}
                         />
                       </form>
                     </div>

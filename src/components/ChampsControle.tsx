@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { SelecteurMatiereChamp } from "./SelecteurMatiereChamp";
 import { formatDateInput, prochaineDateCours, type SeanceMinimale } from "@/lib/prochainCours";
-import { champ as CLASSE_CHAMP, label as CLASSE_LABEL } from "@/lib/ui";
+import { champ as CLASSE_CHAMP, label as CLASSE_LABEL, blocChamp } from "@/lib/ui";
 
 interface DevoirOption {
   id: string;
@@ -69,9 +69,9 @@ export function ChampsControle({
     <>
       <SelecteurMatiereChamp matieres={matieres} valeur={matiere} onChange={changerMatiere} />
 
-      <div className="flex flex-1 min-w-40 flex-col gap-1">
+      <div className={blocChamp}>
         <label className={CLASSE_LABEL} htmlFor="devoirId">
-          Devoir associe (optionnel)
+          Devoir associé (optionnel)
         </label>
         <select
           id="devoirId"
@@ -90,7 +90,7 @@ export function ChampsControle({
         </select>
       </div>
 
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1 sm:min-w-[9rem]">
         <label className={CLASSE_LABEL} htmlFor="date">
           Date
         </label>

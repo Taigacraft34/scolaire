@@ -34,6 +34,12 @@ export const champ =
 // Intitulé de champ : petit, à l'encre douce, au-dessus du champ.
 export const label = "font-body text-xs font-bold uppercase tracking-wide text-ink-soft";
 
+// Rangée de champs : empilée sur mobile, en ligne qui s'enroule au-delà.
+export const rangeeChamps = "flex flex-col gap-3 sm:flex-row sm:flex-wrap";
+
+// Un champ + son intitulé : pleine largeur sur mobile, flexible en ligne au-delà.
+export const blocChamp = "flex flex-col gap-1 sm:min-w-40 sm:flex-1";
+
 // Titre de page (h1) : deux carreaux de haut, posé sur la ligne.
 export const titrePage =
   "font-display text-[1.85rem] font-semibold leading-[calc(var(--carreau)*2)] text-ink";

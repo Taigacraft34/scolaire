@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { ajouterJours, debutSemaine } from "@/lib/calendrier";
 import { JOURS_ORDRE, LIBELLES_JOUR } from "@/lib/emploiDuTemps";
 import { memeMatiere } from "@/lib/prochainCours";
+import { partiesFuseau } from "@/lib/fuseau";
+import { dateCourte, dateMoyenne, ilYa } from "@/lib/dates";
 import { libelleStatutControle } from "@/lib/libelles";
 import { nettoyerHtml } from "@/lib/html";
 import {
@@ -29,28 +31,6 @@ function formatDateParam(date: Date): string {
   const mois = String(date.getMonth() + 1).padStart(2, "0");
   const jour = String(date.getDate()).padStart(2, "0");
   return `${annee}-${mois}-${jour}`;
-}
-
-// Heure d'une date exprimee dans le fuseau de l'utilisateur (les dates Scolengo
-// sont en UTC ; on veut l'heure "murale" locale pour aligner la grille).
-function partiesFuseau(date: Date, timeZone: string) {
-  const parts = new Intl.DateTimeFormat("fr-FR", {
-    timeZone,
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(date);
-  const val = (type: string) => parts.find((p) => p.type === type)?.value ?? "";
-  const h = Number(val("hour"));
-  const m = Number(val("minute"));
-  return {
-    minutes: h * 60 + m,
-    label: `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`,
-    cleJour: `${val("year")}-${val("month")}-${val("day")}`,
-  };
 }
 
 interface Bloc {
@@ -216,7 +196,7 @@ export default async function PageEmploiDuTemps({
     titre: d.titre,
     descriptionHtml: d.description ? nettoyerHtml(d.description) : null,
     statut: d.statut,
-    dateLabel: d.date.toLocaleDateString("fr-FR"),
+    dateLabel: dateMoyenne(d.date),
   });
 
   const enControle = (c: ControleAvecMatiere): ControleGrille => ({
@@ -224,7 +204,7 @@ export default async function PageEmploiDuTemps({
     intitule: c.chapitreLibre || `Contrôle de ${c.matiere.nom}`,
     commentaire: c.commentaire,
     aVenir: libelleStatutControle(c.date) === "À venir",
-    dateLabel: c.date.toLocaleDateString("fr-FR"),
+    dateLabel: dateMoyenne(c.date),
     heure: c.heure,
   });
 
@@ -254,8 +234,8 @@ export default async function PageEmploiDuTemps({
       <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
         <h1 className={titrePage}>Emploi du temps</h1>
         {derniereSynchro && (
-          <p className="tabulaire font-mono text-xs text-ink-soft">
-            sync. {derniereSynchro.demarreeLe.toLocaleString("fr-FR")}
+          <p className="font-body text-xs text-ink-soft">
+            Synchronisé {ilYa(derniereSynchro.termineeLe ?? derniereSynchro.demarreeLe)}
           </p>
         )}
       </div>
@@ -273,8 +253,8 @@ export default async function PageEmploiDuTemps({
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2 className="font-display text-lg text-ink">
           Semaine du{" "}
-          <span className="tabulaire">{lundiAffiche.toLocaleDateString("fr-FR")}</span> au{" "}
-          <span className="tabulaire">{vendrediAffiche.toLocaleDateString("fr-FR")}</span>
+          <span className="tabulaire">{dateCourte(lundiAffiche)}</span> au{" "}
+          <span className="tabulaire">{dateCourte(vendrediAffiche)}</span>
         </h2>
         <div className="flex gap-1.5">
           <Link href={lienSemaine(-1)} className={boutonEncadre} aria-label="Semaine précédente">

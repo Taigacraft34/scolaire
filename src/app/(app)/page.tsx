@@ -1,9 +1,13 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { partiesFuseau } from "@/lib/fuseau";
+import { memeMatiere } from "@/lib/prochainCours";
+import { dateCourte, dateLongue, ilYa } from "@/lib/dates";
 import { LigneObligation } from "@/components/LigneObligation";
+import { LigneSeance } from "@/components/LigneSeance";
 import { SlipControle } from "@/components/SlipControle";
-import { titrePage, titreSection } from "@/lib/ui";
+import { titreSection } from "@/lib/ui";
 
 function jours(entre: Date, et: Date): number {
   return Math.round((et.getTime() - entre.getTime()) / 86_400_000);
@@ -15,6 +19,25 @@ function dansLabel(n: number): string {
   if (n < 7) return `dans ${n} jours`;
   if (n < 14) return "la semaine prochaine";
   return `dans ${Math.round(n / 7)} semaines`;
+}
+
+type Synchro = {
+  statut: "EN_COURS" | "SUCCES" | "ECHEC";
+  demarreeLe: Date;
+  termineeLe: Date | null;
+};
+
+// La ligne de fraîcheur : elle dit la vérité même quand la dernière synchro a
+// échoué, et passe en rouge dès que l'app n'est plus à jour.
+function etatSynchro(s: Synchro | null, maintenant: Date): { texte: string; alerte: boolean } {
+  if (!s) return { texte: "Jamais synchronisé — configure ton token Scolengo", alerte: true };
+  if (s.statut === "EN_COURS") return { texte: "Synchronisation en cours…", alerte: false };
+  if (s.statut === "ECHEC")
+    return { texte: `Dernière synchro en échec ${ilYa(s.demarreeLe, maintenant)}`, alerte: true };
+  const quand = s.termineeLe ?? s.demarreeLe;
+  const heures = (maintenant.getTime() - quand.getTime()) / 3_600_000;
+  if (heures > 36) return { texte: `Dernière synchro ${ilYa(quand, maintenant)}`, alerte: true };
+  return { texte: `Synchronisé ${ilYa(quand, maintenant)}`, alerte: false };
 }
 
 export default async function PageTableauDeBord() {
@@ -30,8 +53,30 @@ export default async function PageTableauDeBord() {
   finDemain.setDate(finDemain.getDate() + 2);
   const finSemaine = new Date(debutAuj);
   finSemaine.setDate(finSemaine.getDate() + 7);
+  const dans48h = new Date(maintenant);
+  dans48h.setHours(dans48h.getHours() + 48);
 
-  const [devoirs, controles, notes] = await Promise.all([
+  const [
+    utilisateur,
+    enRetard,
+    enRetardTotal,
+    devoirs,
+    controles,
+    notes,
+    derniereSynchro,
+    seancesJour,
+  ] = await Promise.all([
+    prisma.utilisateur.findUnique({
+      where: { id: utilisateurId },
+      select: { fuseauHoraire: true },
+    }),
+    prisma.devoir.findMany({
+      where: { utilisateurId, statut: "A_FAIRE", date: { lt: debutAuj } },
+      orderBy: { date: "asc" },
+      take: 6,
+      include: { matiere: true },
+    }),
+    prisma.devoir.count({ where: { utilisateurId, statut: "A_FAIRE", date: { lt: debutAuj } } }),
     prisma.devoir.findMany({
       where: { utilisateurId, statut: "A_FAIRE", date: { gte: debutAuj } },
       orderBy: { date: "asc" },
@@ -42,10 +87,24 @@ export default async function PageTableauDeBord() {
       where: { utilisateurId, date: { gte: debutAuj } },
       orderBy: { date: "asc" },
       take: 12,
-      include: { matiere: true },
+      include: { matiere: true, chapitres: { include: { chapitre: true } } },
     }),
-    prisma.note.findMany({ where: { utilisateurId }, select: { noteObtenue: true, noteMaximale: true, coefficient: true } }),
+    prisma.note.findMany({
+      where: { utilisateurId },
+      select: { noteObtenue: true, noteMaximale: true, coefficient: true },
+    }),
+    prisma.synchronisation.findFirst({
+      where: { utilisateurId },
+      orderBy: { demarreeLe: "desc" },
+      select: { statut: true, demarreeLe: true, termineeLe: true },
+    }),
+    prisma.seanceEmploiDuTemps.findMany({
+      where: { utilisateurId, debut: { gte: debutAuj, lt: finAuj } },
+      orderBy: { debut: "asc" },
+    }),
   ]);
+
+  const timeZone = utilisateur?.fuseauHoraire || "Europe/Paris";
 
   const pondere = notes.reduce((a, n) => a + (n.noteObtenue / n.noteMaximale) * 20 * n.coefficient, 0);
   const coeffs = notes.reduce((a, n) => a + n.coefficient, 0);
@@ -53,31 +112,111 @@ export default async function PageTableauDeBord() {
 
   const pourAuj = devoirs.filter((d) => d.date < finAuj);
   const pourDemain = devoirs.filter((d) => d.date >= finAuj && d.date < finDemain);
-  const pourPlusTard = devoirs.filter((d) => d.date >= finDemain).slice(0, 8);
-  const controlesSemaine = controles.filter((c) => c.date < finSemaine);
+  const plusTardTous = devoirs.filter((d) => d.date >= finDemain);
+  const pourPlusTard = plusTardTous.slice(0, 8);
+
   const prochainControle = controles[0];
+  const controleImminent = prochainControle && prochainControle.date < dans48h;
+  const controlesJour = controles.filter((c) => c.date < finAuj);
+  const controlesSemaine = controles.filter(
+    (c) => c.date < finSemaine && c.id !== prochainControle?.id,
+  );
 
-  // La chose la plus urgente : le premier devoir d'aujourd'hui, sinon de demain.
-  const idUrgent = (pourAuj[0] ?? pourDemain[0])?.id;
+  const chapitresAReviser = prochainControle
+    ? prochainControle.chapitres.map((c) => c.chapitre.nom).filter(Boolean)
+    : [];
+  if (chapitresAReviser.length === 0 && prochainControle?.chapitreLibre) {
+    chapitresAReviser.push(prochainControle.chapitreLibre);
+  }
 
-  const dateAuj = maintenant.toLocaleDateString("fr-FR", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-  });
-  const fmt = (d: Date) => d.toLocaleDateString("fr-FR", { day: "2-digit", month: "2-digit" });
+  // Le stylo rouge est réservé à ce qui est en retard ou dû aujourd'hui. Une
+  // seule ligne — la première — passe en grand.
+  const idAccent = (enRetard[0] ?? pourAuj[0])?.id;
+
+  const sync = etatSynchro(derniereSynchro, maintenant);
+
+  const dateAuj = dateLongue(maintenant);
+  const jourCourt = maintenant.toLocaleDateString("fr-FR", { weekday: "short" }).replace(".", "");
+  const moisCourt = maintenant.toLocaleDateString("fr-FR", { month: "long" });
+  const numJour = maintenant.getDate();
+
+  // Rattache à chaque cours du jour l'échéance qui « tombe » pendant lui.
+  function echeanceDe(matiereCours: string) {
+    const c = controlesJour.find((x) => memeMatiere(matiereCours, x.matiere.nom));
+    if (c) return { href: `/controles?focus=${c.id}`, marque: { lettre: "C" as const, couleur: "rouge" as const } };
+    const d = pourAuj.find((x) => memeMatiere(matiereCours, x.matiere.nom));
+    if (d) return { href: `/devoirs?focus=${d.id}`, marque: { lettre: "T" as const, couleur: "rouge" as const } };
+    return null;
+  }
 
   return (
-    <div className="flex flex-col gap-[var(--carreau)]">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
-        <h1 className={titrePage + " first-letter:uppercase"}>{dateAuj}</h1>
+    <div className="relative flex flex-col gap-[var(--carreau)]">
+      {/* La date : en ligne sur mobile, empilée dans la marge sur desktop. */}
+      <div className="flex items-baseline justify-between gap-x-6 gap-y-1">
+        <h1 className="font-display text-[1.85rem] leading-[calc(var(--carreau)*2)] text-ink first-letter:uppercase sm:sr-only">
+          {dateAuj}
+        </h1>
         {moyenne ? (
-          <Link href="/notes" className="font-body text-sm text-ink-soft hover:text-ink-blue">
-            moyenne générale <span className="tabulaire font-bold text-ink">{moyenne}</span>
-            <span className="text-ink-soft">/20</span>
+          <Link
+            href="/notes"
+            aria-label={`Moyenne générale : ${moyenne} sur 20`}
+            className="shrink-0 font-body text-sm text-ink-soft hover:text-ink-blue"
+          >
+            <span aria-hidden>
+              moyenne <span className="tabulaire font-bold text-ink">{moyenne}</span>
+              <span className="text-ink-soft">/20</span>
+            </span>
           </Link>
         ) : null}
       </div>
+      <div
+        aria-hidden
+        className="pointer-events-none hidden sm:absolute sm:right-full sm:top-0 sm:mr-[calc(var(--carreau)+0.3rem)] sm:flex sm:w-[var(--marge)] sm:flex-col sm:items-end sm:text-right sm:leading-tight"
+      >
+        <span className="font-body text-xs font-bold uppercase tracking-[0.1em] text-ink-soft">
+          {jourCourt}
+        </span>
+        <span className="font-display text-[1.85rem] leading-none text-ink">{numJour}</span>
+        <span className="font-body text-xs text-ink-soft">{moisCourt}</span>
+      </div>
+
+      <Link
+        href="/parametres"
+        className={
+          "-mt-[calc(var(--carreau)*0.5)] font-body text-xs hover:text-ink-blue " +
+          (sync.alerte ? "font-bold text-bic-red" : "text-ink-soft/80")
+        }
+      >
+        {sync.texte}
+      </Link>
+
+      {enRetard.length > 0 && (
+        <section className="flex flex-col">
+          <h2 className={titreSection + " mb-1 flex items-baseline gap-2 text-bic-red"}>
+            En retard <span className="tabulaire text-bic-red/70">· {enRetardTotal}</span>
+            {enRetardTotal > enRetard.length && (
+              <Link href="/devoirs" className="font-body text-xs font-bold text-bic-red underline decoration-1 underline-offset-2">
+                voir tout
+              </Link>
+            )}
+          </h2>
+          <ul className="flex flex-col">
+            {enRetard.map((d) => (
+              <LigneObligation
+                key={d.id}
+                matiere={d.matiere.nom}
+                intitule={d.titre}
+                date={dateCourte(d.date)}
+                href={`/devoirs?focus=${d.id}`}
+                urgent
+                accent={d.id === idAccent}
+                devoir={{ id: d.id, coche: false }}
+                retour="/"
+              />
+            ))}
+          </ul>
+        </section>
+      )}
 
       <section className="flex flex-col">
         <h2 className={titreSection + " mb-1"}>Pour aujourd&apos;hui</h2>
@@ -91,7 +230,8 @@ export default async function PageTableauDeBord() {
                 matiere={d.matiere.nom}
                 intitule={d.titre}
                 href={`/devoirs?focus=${d.id}`}
-                urgent={d.id === idUrgent}
+                urgent
+                accent={d.id === idAccent}
                 devoir={{ id: d.id, coche: false }}
                 retour="/"
               />
@@ -100,85 +240,113 @@ export default async function PageTableauDeBord() {
         )}
       </section>
 
-      {pourDemain.length > 0 && (
+      {seancesJour.length > 0 && (
         <section className="flex flex-col">
-          <h2 className={titreSection + " mb-1"}>Demain</h2>
+          <h2 className={titreSection + " mb-1"}>Cours du jour</h2>
           <ul className="flex flex-col">
-            {pourDemain.map((d) => (
-              <LigneObligation
-                key={d.id}
-                matiere={d.matiere.nom}
-                intitule={d.titre}
-                href={`/devoirs?focus=${d.id}`}
-                urgent={d.id === idUrgent}
-                devoir={{ id: d.id, coche: false }}
-                retour="/"
-              />
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {pourPlusTard.length > 0 && (
-        <section className="flex flex-col">
-          <h2 className={titreSection + " mb-1"}>Cette semaine et après</h2>
-          <ul className="flex flex-col">
-            {pourPlusTard.map((d) => (
-              <LigneObligation
-                key={d.id}
-                matiere={d.matiere.nom}
-                intitule={d.titre}
-                date={fmt(d.date)}
-                href={`/devoirs?focus=${d.id}`}
-                devoir={{ id: d.id, coche: false }}
-                retour="/"
-              />
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {prochainControle && (
-        <div className="pt-[calc(var(--carreau)*0.5)]">
-          <SlipControle
-            matiere={prochainControle.matiere.nom}
-            intitule={prochainControle.chapitreLibre ?? ""}
-            dateLabel={prochainControle.date.toLocaleDateString("fr-FR", {
-              weekday: "long",
-              day: "numeric",
-              month: "long",
+            {seancesJour.map((s) => {
+              const e = s.annule ? null : echeanceDe(s.matiere);
+              return (
+                <LigneSeance
+                  key={s.id}
+                  heure={partiesFuseau(s.debut, timeZone).label}
+                  matiere={s.matiere}
+                  salle={s.salle}
+                  annule={s.annule}
+                  marque={e?.marque}
+                  href={e?.href}
+                />
+              );
             })}
-            dansLabel={dansLabel(jours(debutAuj, prochainControle.date))}
-            href={`/controles?focus=${prochainControle.id}`}
-          />
+          </ul>
+        </section>
+      )}
+
+      {(pourDemain.length > 0 || pourPlusTard.length > 0) && (
+        <div className="flex flex-col gap-[calc(var(--carreau)*0.5)]">
+          {pourDemain.length > 0 && (
+            <section className="flex flex-col">
+              <h2 className={titreSection + " mb-1 text-ink-blue/70"}>Demain</h2>
+              <ul className="flex flex-col">
+                {pourDemain.map((d) => (
+                  <LigneObligation
+                    key={d.id}
+                    matiere={d.matiere.nom}
+                    intitule={d.titre}
+                    href={`/devoirs?focus=${d.id}`}
+                    attenue
+                    devoir={{ id: d.id, coche: false }}
+                    retour="/"
+                  />
+                ))}
+              </ul>
+            </section>
+          )}
+
+          {pourPlusTard.length > 0 && (
+            <section className="flex flex-col">
+              <h2 className={titreSection + " mb-1 flex items-baseline gap-2 text-ink-blue/70"}>
+                Cette semaine et après
+                {plusTardTous.length > pourPlusTard.length && (
+                  <Link
+                    href="/devoirs"
+                    className="font-body text-xs font-bold text-ink-blue underline decoration-1 underline-offset-2"
+                  >
+                    voir tout ({plusTardTous.length})
+                  </Link>
+                )}
+              </h2>
+              <ul className="flex flex-col">
+                {pourPlusTard.map((d) => (
+                  <LigneObligation
+                    key={d.id}
+                    matiere={d.matiere.nom}
+                    intitule={d.titre}
+                    date={dateCourte(d.date)}
+                    href={`/devoirs?focus=${d.id}`}
+                    attenue
+                    devoir={{ id: d.id, coche: false }}
+                    retour="/"
+                  />
+                ))}
+              </ul>
+            </section>
+          )}
         </div>
       )}
 
-      {controlesSemaine.length > 1 && (
+      <div>
+        {prochainControle ? (
+          <SlipControle
+            matiere={prochainControle.matiere.nom}
+            intitule={prochainControle.chapitreLibre ?? ""}
+            dateLabel={dateLongue(prochainControle.date)}
+            dansLabel={dansLabel(jours(debutAuj, prochainControle.date))}
+            imminent={!!controleImminent}
+            chapitres={chapitresAReviser}
+            href={`/controles?focus=${prochainControle.id}`}
+          />
+        ) : (
+          <p className="font-body text-sm text-ink-soft">Aucun contrôle en vue.</p>
+        )}
+      </div>
+
+      {controlesSemaine.length > 0 && (
         <section className="flex flex-col">
-          <h2 className={titreSection + " mb-1"}>Contrôles de la semaine</h2>
+          <h2 className={titreSection + " mb-1 text-ink-blue/70"}>Autres contrôles cette semaine</h2>
           <ul className="flex flex-col">
             {controlesSemaine.map((c) => (
               <LigneObligation
                 key={c.id}
                 matiere={c.matiere.nom}
                 intitule={c.chapitreLibre ?? "Contrôle"}
-                date={fmt(c.date)}
+                date={dateCourte(c.date)}
                 href={`/controles?focus=${c.id}`}
+                attenue
               />
             ))}
           </ul>
         </section>
-      )}
-
-      {devoirs.length === 0 && controles.length === 0 && (
-        <p className="leading-[var(--carreau)] text-ink-soft">
-          Rien de prévu. Lance une synchronisation depuis les{" "}
-          <Link href="/parametres" className="text-ink-blue underline underline-offset-2">
-            paramètres
-          </Link>
-          .
-        </p>
       )}
     </div>
   );

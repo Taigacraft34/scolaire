@@ -46,7 +46,10 @@ export default async function PageChapitre({
           <form action={supprimerChapitre}>
             <input type="hidden" name="chapitreId" value={chapitre.id} />
             <input type="hidden" name="matiereId" value={matiereId} />
-            <BoutonSupprimer confirmation={`Supprimer définitivement le chapitre « ${chapitre.nom} » ?`} />
+            <BoutonSupprimer
+              libelle="Supprimer le chapitre"
+              invite={`Supprimer « ${chapitre.nom} » ?`}
+            />
           </form>
         </div>
       </div>

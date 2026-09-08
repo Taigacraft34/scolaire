@@ -106,7 +106,7 @@ export default async function PageNotes({
                         )}
                         <form action={supprimerCopie}>
                           <input type="hidden" name="copieId" value={copie.id} />
-                          <BoutonSupprimer confirmation="Supprimer définitivement cette copie ?" />
+                          <BoutonSupprimer libelle="Supprimer la copie" />
                         </form>
                       </div>
                       {copie.documents.length > 0 && (

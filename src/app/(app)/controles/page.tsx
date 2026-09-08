@@ -7,7 +7,7 @@ import { BoutonSupprimer } from "@/components/BoutonSupprimer";
 import { MiseEnAvantRecherche } from "@/components/MiseEnAvantRecherche";
 import { formatDateInput } from "@/lib/prochainCours";
 import { IconeCroix } from "@/components/Icone";
-import { boutonEncadre, boutonPrincipal, champ, encart, etiquette, label, titrePage, titreSection } from "@/lib/ui";
+import { blocChamp, boutonEncadre, boutonPrincipal, champ, encart, etiquette, label, rangeeChamps, titrePage, titreSection } from "@/lib/ui";
 import Link from "next/link";
 import {
   creerControleManuel,
@@ -79,7 +79,7 @@ export default async function PageControles({
         <h2 className={titreSection + " mb-2"}>Ajouter un contrôle</h2>
         {erreur && <p className="mb-2 font-body text-sm text-bic-red">{erreur}</p>}
         <form action={creerControleManuel} className="flex flex-col gap-3">
-          <div className="flex flex-wrap gap-3">
+          <div className={rangeeChamps}>
             <ChampsControle
               matieres={matieres.map((m) => m.nom)}
               seances={seances}
@@ -90,13 +90,13 @@ export default async function PageControles({
                 date: formatDateInput(devoir.date),
               }))}
             />
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 sm:min-w-[7rem]">
               <label className={label} htmlFor="heure">
                 Heure
               </label>
               <input type="time" id="heure" name="heure" className={champ} />
             </div>
-            <div className="flex flex-1 min-w-40 flex-col gap-1">
+            <div className={blocChamp}>
               <label className={label} htmlFor="chapitre">
                 Chapitre
               </label>
@@ -142,7 +142,7 @@ export default async function PageControles({
                     </span>
                     <form action={supprimerControle}>
                       <input type="hidden" name="controleId" value={controle.id} />
-                      <BoutonSupprimer confirmation="Supprimer définitivement ce contrôle ?" />
+                      <BoutonSupprimer libelle="Supprimer le contrôle" />
                     </form>
                   </div>
                 </div>

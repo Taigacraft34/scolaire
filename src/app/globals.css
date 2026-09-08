@@ -26,16 +26,19 @@
   --bic-red: #cf1f2e;
   --bic-green: #1c7a45;
   --tache: 55 46 190; /* teinte de la mise en avant (surligneur), en RGB */
+  --voile: rgb(12 14 26 / 0.55); /* assombrissement derrière une modale */
 }
 
 .dark {
   --paper: #151b2e;
   --paper-2: #1c2440;
   --ink: #e9e7dc;
-  --ink-soft: #9aa0b8;
+  /* Éclairci pour tenir 4.5:1 même là où une ligne de réglure passe derrière. */
+  --ink-soft: #aab0c8;
   --ink-blue: #97a9ff;
   --ink-blue-strong: #c2ccff;
-  --ruling: #2c3660;
+  /* Réglure « lumineuse » : visible sur le fond encre sans écraser le texte. */
+  --ruling: #323d68;
   --bic-red: #ff6b73;
   --bic-green: #62c98a;
   --tache: 151 169 255;
@@ -63,8 +66,13 @@
   --spacing-carreau: var(--carreau);
 }
 
-* {
-  min-width: 0;
+/* Empêche les enfants flex/grid de forcer leur taille de contenu (pour que
+   `truncate` fonctionne). Dans @layer base pour qu'un `min-w-*` explicite
+   puisse quand même l'emporter. */
+@layer base {
+  * {
+    min-width: 0;
+  }
 }
 
 body {
@@ -75,6 +83,9 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   font-synthesis: none;
+  /* Aucun débordement horizontal ne doit faire dézoomer la page sur mobile
+     (ce qui décalerait tous les points de contact). */
+  overflow-x: clip;
 }
 
 /* La page réglée : réglure horizontale au pas du carreau, calée pour que les
@@ -128,6 +139,15 @@ body {
   :root {
     --marge: calc(var(--carreau) * 2);
   }
+
+  /* Sur mobile, une grille (emploi du temps, calendrier) reprend toute la
+     largeur de l'écran en annulant les marges du <main> (padding gauche =
+     3 carreaux, droit = 1 carreau). Multiplication simple : un calc imbriqué
+     via var(--marge) est calculé à 0 par certains moteurs. */
+  .pleine-largeur-mobile {
+    margin-left: calc(var(--carreau) * -3);
+    margin-right: calc(var(--carreau) * -1);
+  }
 }
 
 /* Mise en avant depuis la recherche (?focus=) : un coup de surligneur derrière
@@ -176,7 +196,7 @@ body {
 :focus-visible {
   outline: 2px solid var(--ink-blue);
   outline-offset: 2px;
-  border-radius: 1px;
+  border-radius: 2px;
 }
 
 input,
@@ -201,7 +221,7 @@ input[type="radio"] {
 *::-webkit-scrollbar-thumb {
   background: var(--ruling);
   border: 3px solid var(--paper);
-  border-radius: 999px;
+  border-radius: 2px;
 }
 *::-webkit-scrollbar-track {
   background: transparent;

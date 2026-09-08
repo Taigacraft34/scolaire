@@ -57,11 +57,22 @@ function marqueControle(controles: ControleGrille[]): "rouge" | "vert" | null {
   return controles.some((c) => c.aVenir) ? "rouge" : "vert";
 }
 
-function Marque({ lettre, couleur }: { lettre: string; couleur: "rouge" | "vert" }) {
+function Marque({
+  lettre,
+  couleur,
+  libelle,
+}: {
+  lettre: string;
+  couleur: "rouge" | "vert";
+  libelle: string;
+}) {
   return (
     <span
+      title={libelle || undefined}
+      aria-label={libelle || undefined}
+      aria-hidden={libelle ? undefined : true}
       className={
-        "grid h-[0.95rem] w-[0.95rem] place-items-center rounded-full border border-current font-mono text-[0.6rem] font-bold " +
+        "grid h-[1.05rem] w-[1.05rem] place-items-center rounded-full border border-current bg-paper font-mono text-xs font-bold " +
         (couleur === "rouge" ? "text-bic-red" : "text-bic-green")
       }
     >
@@ -95,16 +106,29 @@ export function GrilleEmploiDuTemps({
     return () => document.removeEventListener("keydown", surTouche);
   }, [blocActif]);
 
+  const legende = (
+    <p className="flex flex-wrap items-center gap-x-3 gap-y-1 font-body text-xs text-ink-soft">
+      <span className="flex items-center gap-1.5">
+        <Marque lettre="T" couleur="rouge" libelle="" /> devoir
+      </span>
+      <span className="flex items-center gap-1.5">
+        <Marque lettre="C" couleur="rouge" libelle="" /> contrôle
+      </span>
+      <span>· rouge : à faire · vert : fait</span>
+    </p>
+  );
+
   return (
-    <>
-      <div className="overflow-x-auto border border-ink-blue bg-paper">
+    <div className="pleine-largeur-mobile flex flex-col gap-[calc(var(--carreau)*0.75)]">
+      {/* Desktop : la grille horaire. */}
+      <div className="hidden overflow-x-auto border border-ink-blue bg-paper sm:block">
         <div className="min-w-[720px]">
           <div className="flex border-b border-ink-blue">
             <div className="w-12 shrink-0" />
             {jours.map((j) => (
               <div
                 key={j.cle}
-                className="flex-1 border-l border-ruling px-2 py-1.5 text-center font-body text-[0.72rem] font-bold uppercase tracking-wide text-ink-blue"
+                className="flex-1 border-l border-ruling px-2 py-1.5 text-center font-body text-xs font-bold uppercase tracking-wide text-ink-blue"
               >
                 {j.libelle}
               </div>
@@ -116,7 +140,7 @@ export function GrilleEmploiDuTemps({
               {lignes.map((l) => (
                 <div
                   key={l.top}
-                  className="tabulaire absolute right-1 -translate-y-1/2 font-mono text-[0.72rem] text-ink-soft"
+                  className="tabulaire absolute right-1 -translate-y-1/2 font-mono text-xs text-ink-soft"
                   style={{ top: l.top }}
                 >
                   {l.label}
@@ -146,38 +170,51 @@ export function GrilleEmploiDuTemps({
                       disabled={!cliquable}
                       onClick={() => cliquable && setBlocActifId(bloc.id)}
                       className={
-                        "absolute block overflow-hidden px-1.5 pt-1 pb-0.5 text-left font-body text-[0.72rem] leading-tight transition-[filter] " +
-                        (cliquable ? "cursor-pointer hover:brightness-[0.97] dark:hover:brightness-110" : "cursor-default")
+                        "absolute block overflow-hidden border px-1.5 pt-1 pb-0.5 text-left font-body text-xs leading-snug transition-colors " +
+                        (cliquable ? "cursor-pointer hover:bg-paper-2" : "cursor-default")
                       }
                       style={{
                         top: bloc.top,
                         height: bloc.height,
                         left: `calc(${bloc.leftPct}% + 1px)`,
                         width: `calc(${bloc.widthPct}% - 2px)`,
-                        border: `1px solid color-mix(in srgb, ${teinte} 55%, transparent)`,
-                        backgroundColor: bloc.annule
-                          ? "transparent"
-                          : `color-mix(in srgb, ${teinte} 12%, var(--paper))`,
+                        borderColor: `color-mix(in srgb, ${teinte} 60%, var(--ruling))`,
+                        backgroundColor: bloc.annule ? "transparent" : "var(--paper)",
                       }}
                     >
                       <p
                         className={
-                          bloc.annule
-                            ? "font-bold uppercase tracking-wide text-ink-soft line-through"
-                            : "font-bold uppercase tracking-wide"
+                          "flex items-center gap-1 font-bold uppercase tracking-wide " +
+                          (bloc.annule ? "text-ink-soft line-through" : "text-ink")
                         }
-                        style={bloc.annule ? undefined : { color: `color-mix(in srgb, ${teinte} 78%, var(--ink))` }}
                       >
-                        {bloc.matiere}
+                        <span
+                          aria-hidden
+                          className="inline-block h-2 w-2 shrink-0 rounded-[1px]"
+                          style={{ backgroundColor: teinte, opacity: bloc.annule ? 0.4 : 1 }}
+                        />
+                        <span className="truncate">{bloc.matiere}</span>
                       </p>
-                      <p className="tabulaire font-mono text-[0.62rem] text-ink-soft">
+                      <p className="tabulaire font-mono text-xs text-ink-soft">
                         {bloc.labelDeb}–{bloc.labelFin}
                       </p>
-                      {bloc.salle && <p className="text-ink-soft">{bloc.salle}</p>}
+                      {bloc.salle && <p className="truncate text-ink-soft">{bloc.salle}</p>}
                       {(md || mc) && (
                         <span className="absolute bottom-0.5 right-0.5 flex gap-0.5">
-                          {mc && <Marque lettre="C" couleur={mc} />}
-                          {md && <Marque lettre="T" couleur={md} />}
+                          {mc && (
+                            <Marque
+                              lettre="C"
+                              couleur={mc}
+                              libelle={mc === "rouge" ? "Contrôle à venir" : "Contrôle passé"}
+                            />
+                          )}
+                          {md && (
+                            <Marque
+                              lettre="T"
+                              couleur={md}
+                              libelle={md === "rouge" ? "Devoir à faire" : "Devoir fait"}
+                            />
+                          )}
                         </span>
                       )}
                     </button>
@@ -189,9 +226,78 @@ export function GrilleEmploiDuTemps({
         </div>
       </div>
 
+      {/* Mobile : une liste par jour, des lignes pleine largeur qu'on peut viser
+          au pouce. Un cours avec devoir/contrôle ouvre le même détail. */}
+      <div className="flex flex-col gap-[var(--carreau)] border border-ink-blue bg-paper p-[calc(var(--carreau)*0.5)] sm:hidden">
+        {jours.filter((j) => j.blocs.length > 0).map((j) => (
+          <div key={j.cle} className="flex flex-col">
+            <h3 className="mb-1 border-b border-ruling pb-1 font-body text-xs font-bold uppercase tracking-wide text-ink-blue">
+              {j.libelle}
+            </h3>
+            <ul className="flex flex-col">
+              {j.blocs.map((bloc) => {
+                const md = marqueDevoir(bloc.devoirs);
+                const mc = marqueControle(bloc.controles);
+                const cliquable = bloc.devoirs.length > 0 || bloc.controles.length > 0;
+                const teinte = bloc.couleur ?? "var(--ink-blue)";
+                return (
+                  <li key={bloc.id}>
+                    <button
+                      type="button"
+                      disabled={!cliquable}
+                      onClick={() => cliquable && setBlocActifId(bloc.id)}
+                      className={
+                        "flex w-full items-baseline gap-2 py-1.5 text-left font-body text-sm " +
+                        (cliquable ? "cursor-pointer" : "cursor-default")
+                      }
+                    >
+                      <span className="tabulaire w-12 shrink-0 font-mono text-xs text-ink-soft">
+                        {bloc.labelDeb}
+                      </span>
+                      <span
+                        className={
+                          "min-w-0 flex-1 " + (bloc.annule ? "text-ink-soft line-through" : "text-ink")
+                        }
+                      >
+                        <span className="inline-flex items-center gap-1.5">
+                          <span
+                            aria-hidden
+                            className="inline-block h-2 w-2 shrink-0 rounded-[1px]"
+                            style={{ backgroundColor: teinte, opacity: bloc.annule ? 0.4 : 1 }}
+                          />
+                          <span className="font-bold uppercase tracking-wide">{bloc.matiere}</span>
+                        </span>
+                        {bloc.salle ? <span className="text-ink-soft"> · {bloc.salle}</span> : null}
+                      </span>
+                      {mc && (
+                        <Marque
+                          lettre="C"
+                          couleur={mc}
+                          libelle={mc === "rouge" ? "Contrôle à venir" : "Contrôle passé"}
+                        />
+                      )}
+                      {md && (
+                        <Marque
+                          lettre="T"
+                          couleur={md}
+                          libelle={md === "rouge" ? "Devoir à faire" : "Devoir fait"}
+                        />
+                      )}
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        ))}
+      </div>
+
+      {legende}
+
       {blocActif && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{ background: "rgb(12 14 26 / 0.55)" }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          style={{ background: "var(--voile)" }}
           onClick={() => setBlocActifId(null)}
         >
           <div
@@ -201,7 +307,7 @@ export function GrilleEmploiDuTemps({
           >
             <div className="mb-3 flex items-start justify-between gap-3 border-b border-ruling pb-2">
               <div>
-                <h3 className="font-display text-lg leading-tight text-ink">{blocActif.matiere}</h3>
+                <h3 className="font-display text-lg leading-snug text-ink">{blocActif.matiere}</h3>
                 <p className="tabulaire font-mono text-xs text-ink-soft">
                   {blocActif.labelDeb}–{blocActif.labelFin}
                   {blocActif.salle ? ` · ${blocActif.salle}` : ""}
@@ -292,6 +398,6 @@ export function GrilleEmploiDuTemps({
           </div>
         </div>
       )}
-    </>
+    </div>
   );
 }

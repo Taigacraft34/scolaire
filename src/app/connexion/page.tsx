@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth, signIn } from "@/auth";
 import { boutonPrincipal } from "@/lib/ui";
+import { NOM_APP } from "@/lib/marque";
 
 export default async function PageConnexion({
   searchParams,
@@ -16,7 +17,7 @@ export default async function PageConnexion({
     <main className="regle cahier-marge relative flex flex-1 flex-col justify-center bg-paper px-[calc(var(--marge)+var(--carreau))] pr-[var(--carreau)]">
       <div className="flex max-w-sm flex-col gap-[var(--carreau)]">
         <h1 className="font-display text-4xl font-semibold leading-tight text-ink">
-          Scolaire
+          {NOM_APP}
           <span className="mt-1 block font-body text-sm font-normal text-ink-soft">
             ton cahier de bord, connecté à MonBureauNumérique
           </span>
