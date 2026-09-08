@@ -37,7 +37,7 @@ export async function traiterNotificationsDues() {
         await prisma.notification.delete({ where: { id: notif.id } });
         continue;
       }
-      titre = `Devoir à faire : ${devoir.matiere.nom}`;
+      titre = `Devoir a faire : ${devoir.matiere.nom}`;
       message = `${devoir.matiere.nom} — ${devoir.titre}, à rendre le ${devoir.date.toLocaleDateString(
         "fr-FR",
       )}${devoir.heure ? " à " + devoir.heure : ""}`;
