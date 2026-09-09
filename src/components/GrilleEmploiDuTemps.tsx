@@ -199,7 +199,7 @@ export function GrilleEmploiDuTemps({
                       key={bloc.id}
                       type="button"
                       onClick={() => ouvrirBloc(bloc)}
-                      className="absolute block cursor-pointer overflow-hidden border px-1.5 pt-1 pb-0.5 text-left font-body text-xs leading-snug transition-colors hover:bg-paper-2"
+                      className="absolute block cursor-pointer overflow-hidden border px-1.5 py-0.5 text-left font-body text-xs leading-tight transition-colors hover:bg-paper-2"
                       style={{
                         top: bloc.top,
                         height: bloc.height,
