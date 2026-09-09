@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { basculerStatutDevoir } from "@/app/(app)/devoirs/actions";
+import { enregistrerActiviteSeance, supprimerActiviteSeance } from "@/app/(app)/emploi-du-temps/actions";
 import { BoutonSoumission } from "@/components/BoutonSoumission";
 import { IconeCroix } from "@/components/Icone";
-import { boutonEncadre, boutonPrincipal, boutonSecondaire } from "@/lib/ui";
+import { boutonEncadre, boutonPrincipal, boutonRouge, boutonSecondaire, champ } from "@/lib/ui";
 
 export interface DevoirGrille {
   id: string;
@@ -24,6 +25,12 @@ export interface ControleGrille {
   heure: string | null;
 }
 
+export interface ContenuSeanceGrille {
+  id: string;
+  titre: string;
+  html: string;
+}
+
 export interface BlocGrille {
   id: string;
   matiere: string;
@@ -39,6 +46,9 @@ export interface BlocGrille {
   widthPct: number;
   devoirs: DevoirGrille[];
   controles: ControleGrille[];
+  contenus: ContenuSeanceGrille[];
+  contenuSynchronise: boolean;
+  contenuManuelTexte: string | null;
 }
 
 export interface JourGrille {
@@ -63,7 +73,7 @@ function Marque({
   libelle,
 }: {
   lettre: string;
-  couleur: "rouge" | "vert";
+  couleur: "rouge" | "vert" | "bleu";
   libelle: string;
 }) {
   return (
@@ -73,7 +83,11 @@ function Marque({
       aria-hidden={libelle ? undefined : true}
       className={
         "grid h-[1.05rem] w-[1.05rem] place-items-center rounded-full border border-current bg-paper font-mono text-xs font-bold " +
-        (couleur === "rouge" ? "text-bic-red" : "text-bic-green")
+        (couleur === "rouge"
+          ? "text-bic-red"
+          : couleur === "vert"
+            ? "text-bic-green"
+            : "text-ink-blue")
       }
     >
       {lettre}
@@ -93,6 +107,7 @@ export function GrilleEmploiDuTemps({
   retour: string;
 }) {
   const [blocActifId, setBlocActifId] = useState<string | null>(null);
+  const [editionActiviteId, setEditionActiviteId] = useState<string | null>(null);
 
   const tousBlocs = useMemo(() => jours.flatMap((j) => j.blocs), [jours]);
   const blocActif = blocActifId ? (tousBlocs.find((b) => b.id === blocActifId) ?? null) : null;
@@ -100,11 +115,24 @@ export function GrilleEmploiDuTemps({
   useEffect(() => {
     if (!blocActif) return;
     function surTouche(e: KeyboardEvent) {
-      if (e.key === "Escape") setBlocActifId(null);
+      if (e.key === "Escape") fermerBloc();
     }
     document.addEventListener("keydown", surTouche);
     return () => document.removeEventListener("keydown", surTouche);
   }, [blocActif]);
+
+  function ouvrirBloc(bloc: BlocGrille) {
+    // Aucune info sur le cours (ni devoir, ni contrôle, ni activité) : on
+    // ouvre directement le champ de saisie plutôt que le bouton "+ Ajouter".
+    const aucuneInfo = bloc.devoirs.length === 0 && bloc.controles.length === 0 && bloc.contenus.length === 0;
+    setEditionActiviteId(aucuneInfo ? bloc.id : null);
+    setBlocActifId(bloc.id);
+  }
+
+  function fermerBloc() {
+    setEditionActiviteId(null);
+    setBlocActifId(null);
+  }
 
   const legende = (
     <p className="flex flex-wrap items-center gap-x-3 gap-y-1 font-body text-xs text-ink-soft">
@@ -113,6 +141,9 @@ export function GrilleEmploiDuTemps({
       </span>
       <span className="flex items-center gap-1.5">
         <Marque lettre="C" couleur="rouge" libelle="" /> contrôle
+      </span>
+      <span className="flex items-center gap-1.5">
+        <Marque lettre="A" couleur="bleu" libelle="" /> activité en séance
       </span>
       <span>· rouge : à faire · vert : fait</span>
     </p>
@@ -161,18 +192,14 @@ export function GrilleEmploiDuTemps({
                 {j.blocs.map((bloc) => {
                   const md = marqueDevoir(bloc.devoirs);
                   const mc = marqueControle(bloc.controles);
-                  const cliquable = bloc.devoirs.length > 0 || bloc.controles.length > 0;
+                  const ma = bloc.contenus.length > 0;
                   const teinte = bloc.couleur ?? "var(--ink-blue)";
                   return (
                     <button
                       key={bloc.id}
                       type="button"
-                      disabled={!cliquable}
-                      onClick={() => cliquable && setBlocActifId(bloc.id)}
-                      className={
-                        "absolute block overflow-hidden border px-1.5 pt-1 pb-0.5 text-left font-body text-xs leading-snug transition-colors " +
-                        (cliquable ? "cursor-pointer hover:bg-paper-2" : "cursor-default")
-                      }
+                      onClick={() => ouvrirBloc(bloc)}
+                      className="absolute block cursor-pointer overflow-hidden border px-1.5 pt-1 pb-0.5 text-left font-body text-xs leading-snug transition-colors hover:bg-paper-2"
                       style={{
                         top: bloc.top,
                         height: bloc.height,
@@ -199,7 +226,7 @@ export function GrilleEmploiDuTemps({
                         {bloc.labelDeb}–{bloc.labelFin}
                       </p>
                       {bloc.salle && <p className="truncate text-ink-soft">{bloc.salle}</p>}
-                      {(md || mc) && (
+                      {(md || mc || ma) && (
                         <span className="absolute bottom-0.5 right-0.5 flex gap-0.5">
                           {mc && (
                             <Marque
@@ -215,6 +242,9 @@ export function GrilleEmploiDuTemps({
                               libelle={md === "rouge" ? "Devoir à faire" : "Devoir fait"}
                             />
                           )}
+                          {ma && (
+                            <Marque lettre="A" couleur="bleu" libelle="Activité en séance renseignée" />
+                          )}
                         </span>
                       )}
                     </button>
@@ -227,7 +257,7 @@ export function GrilleEmploiDuTemps({
       </div>
 
       {/* Mobile : une liste par jour, des lignes pleine largeur qu'on peut viser
-          au pouce. Un cours avec devoir/contrôle ouvre le même détail. */}
+          au pouce. Chaque cours ouvre le même détail (devoir/contrôle/activité). */}
       <div className="flex flex-col gap-[var(--carreau)] border border-ink-blue bg-paper p-[calc(var(--carreau)*0.5)] sm:hidden">
         {jours.filter((j) => j.blocs.length > 0).map((j) => (
           <div key={j.cle} className="flex flex-col">
@@ -238,18 +268,14 @@ export function GrilleEmploiDuTemps({
               {j.blocs.map((bloc) => {
                 const md = marqueDevoir(bloc.devoirs);
                 const mc = marqueControle(bloc.controles);
-                const cliquable = bloc.devoirs.length > 0 || bloc.controles.length > 0;
+                const ma = bloc.contenus.length > 0;
                 const teinte = bloc.couleur ?? "var(--ink-blue)";
                 return (
                   <li key={bloc.id}>
                     <button
                       type="button"
-                      disabled={!cliquable}
-                      onClick={() => cliquable && setBlocActifId(bloc.id)}
-                      className={
-                        "flex w-full items-baseline gap-2 py-1.5 text-left font-body text-sm " +
-                        (cliquable ? "cursor-pointer" : "cursor-default")
-                      }
+                      onClick={() => ouvrirBloc(bloc)}
+                      className="flex w-full cursor-pointer items-baseline gap-2 py-1.5 text-left font-body text-sm"
                     >
                       <span className="tabulaire w-12 shrink-0 font-mono text-xs text-ink-soft">
                         {bloc.labelDeb}
@@ -283,6 +309,7 @@ export function GrilleEmploiDuTemps({
                           libelle={md === "rouge" ? "Devoir à faire" : "Devoir fait"}
                         />
                       )}
+                      {ma && <Marque lettre="A" couleur="bleu" libelle="Activité en séance renseignée" />}
                     </button>
                   </li>
                 );
@@ -298,7 +325,7 @@ export function GrilleEmploiDuTemps({
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{ background: "var(--voile)" }}
-          onClick={() => setBlocActifId(null)}
+          onClick={() => fermerBloc()}
         >
           <div
             className="max-h-[85vh] w-full max-w-md overflow-y-auto border border-ink-blue bg-paper p-4"
@@ -316,12 +343,91 @@ export function GrilleEmploiDuTemps({
               </div>
               <button
                 type="button"
-                onClick={() => setBlocActifId(null)}
+                onClick={() => fermerBloc()}
                 className="text-ink-soft hover:text-bic-red"
                 aria-label="Fermer"
               >
                 <IconeCroix />
               </button>
+            </div>
+
+            <div className="mb-2 border border-ruling p-2">
+              <span className="inline-flex rounded-sm bg-ink-blue/10 px-1.5 py-0.5 font-body text-[0.72rem] font-bold uppercase tracking-wide text-ink-blue">
+                Activité en séance
+              </span>
+
+              {blocActif.contenuSynchronise ? (
+                blocActif.contenus.map((contenu) => (
+                  <div key={contenu.id} className="mt-2 first:mt-1.5">
+                    {contenu.titre && (
+                      <p className="font-body text-sm font-bold text-ink">{contenu.titre}</p>
+                    )}
+                    <div
+                      className="mt-1 whitespace-pre-wrap font-body text-xs text-ink-soft [&_a]:text-ink-blue [&_a]:underline"
+                      dangerouslySetInnerHTML={{ __html: contenu.html }}
+                    />
+                  </div>
+                ))
+              ) : editionActiviteId === blocActif.id ? (
+                <form
+                  action={enregistrerActiviteSeance}
+                  onSubmit={() => setEditionActiviteId(null)}
+                  className="mt-2 flex flex-col gap-2"
+                >
+                  <input type="hidden" name="seanceId" value={blocActif.id} />
+                  <input type="hidden" name="retour" value={retour} />
+                  <textarea
+                    name="contenu"
+                    rows={4}
+                    defaultValue={blocActif.contenuManuelTexte ?? ""}
+                    placeholder="Ce qui a été fait en cours…"
+                    autoFocus
+                    className={champ + " text-xs"}
+                  />
+                  <div className="flex gap-3">
+                    <BoutonSoumission texteChargement="…" className={boutonPrincipal + " text-xs"}>
+                      Enregistrer
+                    </BoutonSoumission>
+                    <button
+                      type="button"
+                      onClick={() => setEditionActiviteId(null)}
+                      className={boutonEncadre + " text-xs"}
+                    >
+                      Annuler
+                    </button>
+                  </div>
+                </form>
+              ) : blocActif.contenus.length > 0 ? (
+                <div className="mt-2">
+                  <p className="whitespace-pre-wrap font-body text-xs text-ink-soft">
+                    {blocActif.contenuManuelTexte}
+                  </p>
+                  <div className="mt-2 flex flex-wrap items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setEditionActiviteId(blocActif.id)}
+                      className={boutonSecondaire + " text-xs"}
+                    >
+                      Modifier
+                    </button>
+                    <form action={supprimerActiviteSeance} className="contents">
+                      <input type="hidden" name="seanceId" value={blocActif.id} />
+                      <input type="hidden" name="retour" value={retour} />
+                      <BoutonSoumission texteChargement="…" className={boutonRouge}>
+                        Supprimer
+                      </BoutonSoumission>
+                    </form>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setEditionActiviteId(blocActif.id)}
+                  className={boutonSecondaire + " mt-2 ml-1.5 text-xs"}
+                >
+                  + Ajouter une activité en séance
+                </button>
+              )}
             </div>
 
             {blocActif.controles.map((controle) => (

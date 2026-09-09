@@ -459,8 +459,8 @@ model Journal {
 // ---------------------------------------------------------------------------
 
 // Seance de cours datee, importee automatiquement depuis MonBureauNumerique
-// (agenda Scolengo). Il n'y a pas de saisie manuelle : le contenu est
-// entierement remplace a chaque synchronisation.
+// (agenda Scolengo) : tous les champs sauf contenuManuel sont entierement
+// remplaces a chaque synchronisation.
 model SeanceEmploiDuTemps {
   id            String @id @default(cuid())
   utilisateurId String
@@ -476,6 +476,15 @@ model SeanceEmploiDuTemps {
   enseignant String?
   couleur    String?
   annule     Boolean @default(false)
+
+  // "Activite en seance" renseignee par l'enseignant sur MBN : liste de blocs
+  // { id, titre, html }, remplacee entierement a chaque synchronisation.
+  contenuSeance Json?
+
+  // Note personnelle saisie par l'utilisateur quand MBN n'a rien : jamais
+  // touchee par la synchronisation. A l'affichage, contenuSeance (le prof)
+  // prend le dessus des qu'il existe.
+  contenuManuel String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

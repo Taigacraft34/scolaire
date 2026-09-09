@@ -11,6 +11,7 @@ import { nettoyerHtml } from "@/lib/html";
 import {
   GrilleEmploiDuTemps,
   type BlocGrille,
+  type ContenuSeanceGrille,
   type ControleGrille,
   type DevoirGrille,
   type JourGrille,
@@ -199,6 +200,16 @@ export default async function PageEmploiDuTemps({
     dateLabel: dateMoyenne(d.date),
   });
 
+  const enContenusSync = (contenuSeance: SeanceEmploiDuTemps["contenuSeance"]): ContenuSeanceGrille[] => {
+    if (!Array.isArray(contenuSeance)) return [];
+    return contenuSeance
+      .filter(
+        (c): c is { id: string; titre: string | null; html: string } =>
+          !!c && typeof c === "object" && "html" in c && typeof (c as { html: unknown }).html === "string",
+      )
+      .map((c) => ({ id: c.id, titre: c.titre ?? "", html: nettoyerHtml(c.html) }));
+  };
+
   const enControle = (c: ControleAvecMatiere): ControleGrille => ({
     id: c.id,
     intitule: c.chapitreLibre || `Contrôle de ${c.matiere.nom}`,
@@ -211,22 +222,37 @@ export default async function PageEmploiDuTemps({
   const joursGrille: JourGrille[] = jours.map((j) => ({
     cle: j.cle,
     libelle: j.libelle,
-    blocs: j.blocs.map<BlocGrille>((b) => ({
-      id: b.seance.id,
-      matiere: b.seance.matiere,
-      salle: b.seance.salle,
-      enseignant: b.seance.enseignant,
-      couleur: b.seance.couleur,
-      annule: b.seance.annule,
-      labelDeb: b.labelDeb,
-      labelFin: b.labelFin,
-      top: ((b.debMin - heureMin * 60) / 60) * PX_PAR_HEURE,
-      height: ((b.finMin - b.debMin) / 60) * PX_PAR_HEURE - 2,
-      leftPct: (b.col / b.nbCol) * 100,
-      widthPct: 100 / b.nbCol,
-      devoirs: b.devoirs.map(enDevoir),
-      controles: b.controles.map(enControle),
-    })),
+    blocs: j.blocs.map<BlocGrille>((b) => {
+      const contenusSync = enContenusSync(b.seance.contenuSeance);
+      const contenuManuelTexte = b.seance.contenuManuel;
+      return {
+        id: b.seance.id,
+        matiere: b.seance.matiere,
+        salle: b.seance.salle,
+        enseignant: b.seance.enseignant,
+        couleur: b.seance.couleur,
+        annule: b.seance.annule,
+        labelDeb: b.labelDeb,
+        labelFin: b.labelFin,
+        top: ((b.debMin - heureMin * 60) / 60) * PX_PAR_HEURE,
+        height: ((b.finMin - b.debMin) / 60) * PX_PAR_HEURE - 2,
+        leftPct: (b.col / b.nbCol) * 100,
+        widthPct: 100 / b.nbCol,
+        devoirs: b.devoirs.map(enDevoir),
+        controles: b.controles.map(enControle),
+        // Le contenu MBN (rempli par le prof) prend le dessus sur la note
+        // personnelle des qu'il existe ; la note reste en base pour reapparaitre
+        // si le prof retire son contenu.
+        contenus:
+          contenusSync.length > 0
+            ? contenusSync
+            : contenuManuelTexte
+              ? [{ id: "manuel", titre: "", html: nettoyerHtml(contenuManuelTexte) }]
+              : [],
+        contenuSynchronise: contenusSync.length > 0,
+        contenuManuelTexte,
+      };
+    }),
   }));
 
   return (

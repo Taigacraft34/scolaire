@@ -1,3 +1,4 @@
+import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { trouverOuCreerMatiere } from "@/lib/matieres";
 import {
@@ -233,6 +234,10 @@ export async function synchroniserUtilisateur(utilisateurId: string, options: Op
 
     // --- Emploi du temps (agenda : seances datees) ---
     try {
+      // NB : demander l'inclusion JSON:API "lessons.contents" directement sur
+      // /agendas fait revenir des jours avec des listes "lessons" vides cote
+      // API Scolengo (verifie empiriquement) - on garde donc les includes par
+      // defaut ici et on va chercher le contenu seance par seance ensuite.
       const agenda = await recupererToutesLesPages((limit, offset) =>
         client.getAgenda(studentId, formatDateAPI(dateDebut), formatDateAPI(dateFin), limit, offset),
       );
@@ -247,6 +252,20 @@ export async function synchroniserUtilisateur(utilisateurId: string, options: Op
               .filter(Boolean)
               .join(", ") || null;
 
+          let contenuSeance: Prisma.InputJsonValue | typeof Prisma.DbNull = Prisma.DbNull;
+          if (seance.anyContent) {
+            try {
+              const detail = await client.getLesson(studentId, seance.id);
+              if (detail.contents && detail.contents.length > 0) {
+                contenuSeance = detail.contents.map((c) => ({ id: c.id, titre: c.title, html: c.html }));
+              }
+            } catch (e) {
+              erreurs.push(
+                `Contenu de la seance "${seance.title ?? seance.id}" : ${e instanceof Error ? e.message : String(e)}`,
+              );
+            }
+          }
+
           const donneesSeance = {
             utilisateurId,
             externalId: seance.id,
@@ -258,6 +277,7 @@ export async function synchroniserUtilisateur(utilisateurId: string, options: Op
             enseignant,
             couleur: seance.subject?.color ?? null,
             annule: seance.canceled ?? false,
+            contenuSeance,
           };
 
           await prisma.seanceEmploiDuTemps.upsert({
