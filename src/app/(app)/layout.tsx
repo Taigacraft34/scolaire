@@ -4,6 +4,7 @@ import { BasculeTheme } from "@/components/BasculeTheme";
 import { BarreRecherche } from "@/components/BarreRecherche";
 import { Onglets } from "@/components/Onglets";
 import { NOM_APP } from "@/lib/marque";
+import { obtenirNomEtablissement } from "@/lib/scolengo/client";
 
 const LIENS_NAV = [
   { href: "/", label: "Accueil" },
@@ -23,6 +24,7 @@ export default async function LayoutApplication({
     session?.user?.role === "ADMIN"
       ? [...LIENS_NAV, { href: "/admin", label: "Administration" }]
       : LIENS_NAV;
+  const nomEntete = session?.user ? ((await obtenirNomEtablissement(session.user.id)) ?? NOM_APP) : NOM_APP;
 
   return (
     <div className="flex min-h-screen flex-col bg-paper">
@@ -32,7 +34,7 @@ export default async function LayoutApplication({
             href="/"
             className="shrink-0 font-display text-2xl font-semibold tracking-tight text-ink"
           >
-            {NOM_APP}
+            {nomEntete}
           </Link>
           <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-x-4 gap-y-2 text-ink-soft">
             <div className="order-last w-full sm:order-none sm:w-56">

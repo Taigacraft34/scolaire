@@ -29,3 +29,20 @@ export async function enregistrerConfigScolengo(utilisateurId: string, config: C
     data: { scolengoTokenChiffre: chiffrer(JSON.stringify(config)) },
   });
 }
+
+// Le nom de l'etablissement est deja present dans le token stocke (config.school) ;
+// pas besoin d'un appel reseau ni d'instancier le client Skolengo pour le lire.
+export async function obtenirNomEtablissement(utilisateurId: string): Promise<string | null> {
+  const utilisateur = await prisma.utilisateur.findUnique({
+    where: { id: utilisateurId },
+    select: { scolengoTokenChiffre: true },
+  });
+  if (!utilisateur?.scolengoTokenChiffre) return null;
+
+  try {
+    const config: ConfigScolengo = JSON.parse(dechiffrer(utilisateur.scolengoTokenChiffre));
+    return config.school?.name ?? null;
+  } catch {
+    return null;
+  }
+}
