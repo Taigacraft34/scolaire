@@ -4,8 +4,8 @@
   "description": "Tableau de bord scolaire personnel connecte a MonBureauNumerique",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#0f172a",
+  "background_color": "#fdfdfb",
+  "theme_color": "#2540c8",
   "orientation": "portrait",
   "icons": [
     {
