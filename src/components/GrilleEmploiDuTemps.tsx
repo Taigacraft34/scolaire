@@ -67,6 +67,11 @@ function marqueControle(controles: ControleGrille[]): "rouge" | "vert" | null {
   return controles.some((c) => c.aVenir) ? "rouge" : "vert";
 }
 
+// Rien n'est renseigne sur ce cours : ni devoir, ni contrôle, ni activité.
+function aucuneInfo(bloc: BlocGrille): boolean {
+  return bloc.devoirs.length === 0 && bloc.controles.length === 0 && bloc.contenus.length === 0;
+}
+
 function Marque({
   lettre,
   couleur,
@@ -111,6 +116,10 @@ export function GrilleEmploiDuTemps({
 
   const tousBlocs = useMemo(() => jours.flatMap((j) => j.blocs), [jours]);
   const blocActif = blocActifId ? (tousBlocs.find((b) => b.id === blocActifId) ?? null) : null;
+  // Si rien n'est renseigne sur ce cours, le champ de saisie s'est ouvert
+  // directement (cf. ouvrirBloc) et "Annuler" doit fermer la pop-up plutôt
+  // que retomber sur le bouton "+ Ajouter".
+  const aucuneInfoBlocActif = !!blocActif && aucuneInfo(blocActif);
 
   useEffect(() => {
     if (!blocActif) return;
@@ -122,10 +131,9 @@ export function GrilleEmploiDuTemps({
   }, [blocActif]);
 
   function ouvrirBloc(bloc: BlocGrille) {
-    // Aucune info sur le cours (ni devoir, ni contrôle, ni activité) : on
-    // ouvre directement le champ de saisie plutôt que le bouton "+ Ajouter".
-    const aucuneInfo = bloc.devoirs.length === 0 && bloc.controles.length === 0 && bloc.contenus.length === 0;
-    setEditionActiviteId(aucuneInfo ? bloc.id : null);
+    // Rien de renseigne sur ce cours : on ouvre directement le champ de
+    // saisie plutôt que le bouton "+ Ajouter".
+    setEditionActiviteId(aucuneInfo(bloc) ? bloc.id : null);
     setBlocActifId(bloc.id);
   }
 
@@ -390,7 +398,7 @@ export function GrilleEmploiDuTemps({
                     </BoutonSoumission>
                     <button
                       type="button"
-                      onClick={() => setEditionActiviteId(null)}
+                      onClick={() => (aucuneInfoBlocActif ? fermerBloc() : setEditionActiviteId(null))}
                       className={boutonEncadre + " text-xs"}
                     >
                       Annuler
