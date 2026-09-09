@@ -7,16 +7,16 @@
       "paper": {
         "role": "neutral",
         "displayName": "Clairefontaine Paper",
-        "canonical": "#fdfdfb",
+        "canonical": "#efe9d8",
         "dark": "#151b2e",
-        "tonalRamp": ["#151b2e", "#26304f", "#3a4670", "#5b6aa0", "#8b96c4", "#b8c0de", "#e3e6f2", "#fdfdfb"]
+        "tonalRamp": ["#151b2e", "#26304f", "#3a4670", "#5b6aa0", "#8b96c4", "#b8c0de", "#e3e6f2", "#efe9d8"]
       },
       "paper-2": {
         "role": "neutral",
         "displayName": "Page Fold",
-        "canonical": "#f4f4ee",
+        "canonical": "#e4ddc8",
         "dark": "#1c2440",
-        "tonalRamp": ["#1c2440", "#2c3560", "#414c82", "#6773a6", "#98a1c5", "#c4cadf", "#e6e6e0", "#f4f4ee"]
+        "tonalRamp": ["#1c2440", "#2c3560", "#414c82", "#6773a6", "#98a1c5", "#c4cadf", "#e6e6e0", "#e4ddc8"]
       },
       "ink": {
         "role": "neutral",
@@ -106,7 +106,7 @@
       "refersTo": "button-primary",
       "description": "The main action on a line — solid ink-blue, square, uppercase.",
       "html": "<button class=\"ds-btn-primary\">Marquer terminé</button>",
-      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem; background: var(--ink-blue, #2540c8); color: var(--paper, #fdfdfb); font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 0.875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.375rem 1rem; border: none; border-radius: 2px; cursor: pointer; transition: background-color 0.15s; } .ds-btn-primary:hover { background: var(--ink-blue-strong, #1a2f9c); } .ds-btn-primary:focus-visible { outline: 2px solid var(--ink-blue, #2540c8); outline-offset: 2px; } .ds-btn-primary:disabled { opacity: 0.4; pointer-events: none; }"
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 0.375rem; background: var(--ink-blue, #2540c8); color: var(--paper, #efe9d8); font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 0.875rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 0.375rem 1rem; border: none; border-radius: 2px; cursor: pointer; transition: background-color 0.15s; } .ds-btn-primary:hover { background: var(--ink-blue-strong, #1a2f9c); } .ds-btn-primary:focus-visible { outline: 2px solid var(--ink-blue, #2540c8); outline-offset: 2px; } .ds-btn-primary:disabled { opacity: 0.4; pointer-events: none; }"
     },
     {
       "name": "Outline Button",
@@ -138,7 +138,7 @@
       "refersTo": "input",
       "description": "Input / select / textarea — a fine frame on the page, border turns ink-blue on focus. Label above in uppercase.",
       "html": "<label class=\"ds-field\"><span class=\"ds-field-label\">Commentaire</span><input class=\"ds-field-input\" type=\"text\" /></label>",
-      "css": ".ds-field { display: flex; flex-direction: column; gap: 0.25rem; } .ds-field-label { font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft, #63636f); } .ds-field-input { width: 100%; background: var(--paper, #fdfdfb); color: var(--ink, #2c2c34); font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 0.875rem; line-height: 1.75rem; padding: 0.375rem 0.625rem; border: 1px solid rgba(99,99,111,0.55); border-radius: 2px; outline: none; caret-color: var(--ink-blue, #2540c8); transition: border-color 0.15s; } .ds-field-input::placeholder { color: rgba(99,99,111,0.7); } .ds-field-input:focus { border-color: var(--ink-blue, #2540c8); } .ds-field-input:focus-visible { outline: 2px solid var(--ink-blue, #2540c8); outline-offset: 2px; }"
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 0.25rem; } .ds-field-label { font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft, #63636f); } .ds-field-input { width: 100%; background: var(--paper, #efe9d8); color: var(--ink, #2c2c34); font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 0.875rem; line-height: 1.75rem; padding: 0.375rem 0.625rem; border: 1px solid rgba(99,99,111,0.55); border-radius: 2px; outline: none; caret-color: var(--ink-blue, #2540c8); transition: border-color 0.15s; } .ds-field-input::placeholder { color: rgba(99,99,111,0.7); } .ds-field-input:focus { border-color: var(--ink-blue, #2540c8); } .ds-field-input:focus-visible { outline: 2px solid var(--ink-blue, #2540c8); outline-offset: 2px; }"
     },
     {
       "name": "Leaf (encart)",
@@ -146,7 +146,7 @@
       "refersTo": "card",
       "description": "A leaf laid on the page — Page Fold fill, 1px faint border, square, no shadow. Not a card.",
       "html": "<section class=\"ds-leaf\"><h2 class=\"ds-leaf-title\">Moyennes par matière</h2><p class=\"ds-leaf-body\">Contenu de la section, posé sur la ligne.</p></section>",
-      "css": ".ds-leaf { background: color-mix(in srgb, var(--paper-2, #f4f4ee) 60%, transparent); color: var(--ink, #2c2c34); border: 1px solid rgba(99,99,111,0.25); border-radius: 2px; padding: 1rem; } .ds-leaf-title { margin: 0 0 0.25rem; font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-blue, #2540c8); } .ds-leaf-body { margin: 0; font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 1rem; line-height: 1.75rem; }"
+      "css": ".ds-leaf { background: color-mix(in srgb, var(--paper-2, #e4ddc8) 60%, transparent); color: var(--ink, #2c2c34); border: 1px solid rgba(99,99,111,0.25); border-radius: 2px; padding: 1rem; } .ds-leaf-title { margin: 0 0 0.25rem; font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-blue, #2540c8); } .ds-leaf-body { margin: 0; font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 1rem; line-height: 1.75rem; }"
     },
     {
       "name": "Subject Tag (etiquette)",
@@ -162,7 +162,7 @@
       "refersTo": "nav-tab",
       "description": "Classeur divider tabs on an ink-blue base line; the active tab is joined to the page.",
       "html": "<nav class=\"ds-tabs\"><a class=\"ds-tab\" href=\"#\">Bord</a><a class=\"ds-tab ds-tab-active\" aria-current=\"page\" href=\"#\">Devoirs</a><a class=\"ds-tab\" href=\"#\">Notes</a></nav>",
-      "css": ".ds-tabs { display: flex; gap: 0.25rem; padding-left: 0.25rem; margin-bottom: -1px; border-bottom: 1px solid var(--ink-blue, #2540c8); overflow-x: auto; } .ds-tab { flex: none; padding: 0.375rem 0.75rem; border: 1px solid rgba(99,99,111,0.35); border-bottom: 0; border-radius: 2px 2px 0 0; background: color-mix(in srgb, var(--paper-2, #f4f4ee) 50%, transparent); color: var(--ink-soft, #63636f); font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; text-decoration: none; transition: color 0.15s; } .ds-tab:hover { color: var(--ink, #2c2c34); } .ds-tab-active { border-color: var(--ink-blue, #2540c8); background: var(--paper, #fdfdfb); color: var(--ink-blue, #2540c8); }"
+      "css": ".ds-tabs { display: flex; gap: 0.25rem; padding-left: 0.25rem; margin-bottom: -1px; border-bottom: 1px solid var(--ink-blue, #2540c8); overflow-x: auto; } .ds-tab { flex: none; padding: 0.375rem 0.75rem; border: 1px solid rgba(99,99,111,0.35); border-bottom: 0; border-radius: 2px 2px 0 0; background: color-mix(in srgb, var(--paper-2, #e4ddc8) 50%, transparent); color: var(--ink-soft, #63636f); font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; text-decoration: none; transition: color 0.15s; } .ds-tab:hover { color: var(--ink, #2c2c34); } .ds-tab-active { border-color: var(--ink-blue, #2540c8); background: var(--paper, #efe9d8); color: var(--ink-blue, #2540c8); }"
     },
     {
       "name": "Margin Check (CaseCoche)",
@@ -186,7 +186,7 @@
       "refersTo": null,
       "description": "Signature. Next assessment on a torn-corner feuillet clipped to the page.",
       "html": "<a class=\"ds-slip\" href=\"#\"><span class=\"ds-slip-corner\"></span><p class=\"ds-slip-kicker\">Prochain controle · dans 3 jours</p><p class=\"ds-slip-title\"><span class=\"ds-slip-subject\">Physique</span> — Ondes et signaux</p><p class=\"ds-slip-date\">jeudi 13 mars</p></a>",
-      "css": ".ds-slip { position: relative; display: block; width: 100%; max-width: 22.75rem; padding: 1.05rem 2.45rem 1.05rem 1.05rem; border: 1px solid rgba(99,99,111,0.35); background: color-mix(in srgb, var(--paper-2, #f4f4ee) 70%, transparent); text-decoration: none; clip-path: polygon(0 0, calc(100% - 1.1rem) 0, 100% 1.1rem, 100% 100%, 0 100%); transition: border-color 0.15s; } .ds-slip:hover { border-color: var(--ink-blue, #2540c8); } .ds-slip-corner { position: absolute; right: 0; top: 0; height: 1.1rem; width: 1.1rem; background: var(--ruling, #c6cef0); clip-path: polygon(0 0, 100% 100%, 0 100%); } .ds-slip-kicker { margin: 0; font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-soft, #63636f); } .ds-slip-title { margin: 0.15rem 0 0; font-family: 'Spectral', Georgia, serif; font-size: 1.125rem; line-height: 1.2; color: var(--ink, #2c2c34); } .ds-slip-subject { color: var(--ink-blue, #2540c8); } .ds-slip-date { margin: 0.15rem 0 0; font-family: 'Fragment Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; font-size: 0.75rem; color: var(--ink-soft, #63636f); }"
+      "css": ".ds-slip { position: relative; display: block; width: 100%; max-width: 22.75rem; padding: 1.05rem 2.45rem 1.05rem 1.05rem; border: 1px solid rgba(99,99,111,0.35); background: color-mix(in srgb, var(--paper-2, #e4ddc8) 70%, transparent); text-decoration: none; clip-path: polygon(0 0, calc(100% - 1.1rem) 0, 100% 1.1rem, 100% 100%, 0 100%); transition: border-color 0.15s; } .ds-slip:hover { border-color: var(--ink-blue, #2540c8); } .ds-slip-corner { position: absolute; right: 0; top: 0; height: 1.1rem; width: 1.1rem; background: var(--ruling, #c6cef0); clip-path: polygon(0 0, 100% 100%, 0 100%); } .ds-slip-kicker { margin: 0; font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink-soft, #63636f); } .ds-slip-title { margin: 0.15rem 0 0; font-family: 'Spectral', Georgia, serif; font-size: 1.125rem; line-height: 1.2; color: var(--ink, #2c2c34); } .ds-slip-subject { color: var(--ink-blue, #2540c8); } .ds-slip-date { margin: 0.15rem 0 0; font-family: 'Fragment Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; font-size: 0.75rem; color: var(--ink-soft, #63636f); }"
     },
     {
       "name": "Timetable Lesson (GrilleEmploiDuTemps)",
@@ -194,7 +194,7 @@
       "refersTo": null,
       "description": "Signature. A lesson block on the squared grid: full 1px subject-coloured border and tinted fill, no stripe; circular letter marks bottom-right.",
       "html": "<div class=\"ds-lesson\"><p class=\"ds-lesson-subject\">Mathematiques</p><p class=\"ds-lesson-time\">08:00–09:55</p><p class=\"ds-lesson-room\">C101</p><span class=\"ds-lesson-marks\"><span class=\"ds-mark ds-mark--red\">C</span><span class=\"ds-mark ds-mark--green\">T</span></span></div>",
-      "css": ".ds-lesson { position: relative; overflow: hidden; padding: 0.25rem 0.375rem; border: 1px solid color-mix(in srgb, #2540c8 55%, transparent); border-radius: 2px; background: color-mix(in srgb, #2540c8 12%, var(--paper, #fdfdfb)); font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 0.72rem; line-height: 1.15; transition: filter 0.15s; } .ds-lesson:hover { filter: brightness(0.97); } .ds-lesson-subject { margin: 0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: color-mix(in srgb, #2540c8 78%, var(--ink, #2c2c34)); } .ds-lesson-time { margin: 0; font-family: 'Fragment Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; font-size: 0.62rem; color: var(--ink-soft, #63636f); } .ds-lesson-room { margin: 0; color: var(--ink-soft, #63636f); } .ds-lesson-marks { position: absolute; right: 0.125rem; bottom: 0.125rem; display: flex; gap: 0.125rem; } .ds-mark { display: grid; place-items: center; height: 0.95rem; width: 0.95rem; border: 1px solid currentColor; border-radius: 999px; font-family: 'Fragment Mono', ui-monospace, monospace; font-size: 0.6rem; font-weight: 700; } .ds-mark--red { color: var(--bic-red, #cf1f2e); } .ds-mark--green { color: var(--bic-green, #1c7a45); }"
+      "css": ".ds-lesson { position: relative; overflow: hidden; padding: 0.25rem 0.375rem; border: 1px solid color-mix(in srgb, #2540c8 55%, transparent); border-radius: 2px; background: color-mix(in srgb, #2540c8 12%, var(--paper, #efe9d8)); font-family: 'Atkinson Hyperlegible', system-ui, sans-serif; font-size: 0.72rem; line-height: 1.15; transition: filter 0.15s; } .ds-lesson:hover { filter: brightness(0.97); } .ds-lesson-subject { margin: 0; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: color-mix(in srgb, #2540c8 78%, var(--ink, #2c2c34)); } .ds-lesson-time { margin: 0; font-family: 'Fragment Mono', ui-monospace, monospace; font-variant-numeric: tabular-nums; font-size: 0.62rem; color: var(--ink-soft, #63636f); } .ds-lesson-room { margin: 0; color: var(--ink-soft, #63636f); } .ds-lesson-marks { position: absolute; right: 0.125rem; bottom: 0.125rem; display: flex; gap: 0.125rem; } .ds-mark { display: grid; place-items: center; height: 0.95rem; width: 0.95rem; border: 1px solid currentColor; border-radius: 999px; font-family: 'Fragment Mono', ui-monospace, monospace; font-size: 0.6rem; font-weight: 700; } .ds-mark--red { color: var(--bic-red, #cf1f2e); } .ds-mark--green { color: var(--bic-green, #1c7a45); }"
     }
   ],
   "narrative": {

@@ -24,7 +24,7 @@ export default async function PageImprimerCours() {
   });
 
   return (
-    <div className="flex flex-col gap-8 bg-[#fdfdfb] font-[var(--font-body)] text-[#2c2c34]">
+    <div className="flex flex-col gap-8 bg-[#efe9d8] font-[var(--font-body)] text-[#2c2c34]">
       <div className="flex items-center justify-between print:hidden">
         <Link
           href="/cours"

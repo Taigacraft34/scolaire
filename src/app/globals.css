@@ -16,8 +16,10 @@
   --carreau: 1.75rem; /* 28px */
   --marge: calc(var(--carreau) * 4); /* la marge, à 4 carreaux du bord */
 
-  --paper: #fdfdfb;
-  --paper-2: #f4f4ee; /* repli d'une page posée sur la page (intercalaire, encart) */
+  /* Ivoire plus sombre et plus chaud que le blanc quasi-pur d'origine
+     (#fdfdfb) — moins agressif à l'œil sans perdre le grain "papier". */
+  --paper: #efe9d8;
+  --paper-2: #e4ddc8; /* repli d'une page posée sur la page (intercalaire, encart) */
   --ink: #2c2c34;
   --ink-soft: #63636f;
   --ink-blue: #2540c8;

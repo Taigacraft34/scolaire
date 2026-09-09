@@ -2,8 +2,8 @@
 name: Le Cahier Seyès
 description: A French lycéen's school life — homework, assessments, grades, timetable — written onto one continuous seyès-ruled page.
 colors:
-  paper: "#fdfdfb"
-  paper-2: "#f4f4ee"
+  paper: "#efe9d8"
+  paper-2: "#e4ddc8"
   ink: "#2c2c34"
   ink-soft: "#63636f"
   ink-blue: "#2540c8"
@@ -145,8 +145,8 @@ A bright paper ground carrying one blue voice for structure and a strict two-col
 - **Surligneur Blue-Violet** (`#372ebe`, exposed as `--tache` in RGB channels): only the search-highlight wash (`.mise-en-avant`) — a translucent highlighter bleed behind a jumped-to line plus an inked bracket in the margin. Never used opaque.
 
 ### Neutral
-- **Clairefontaine Paper** (`#fdfdfb`): the page ground. In dark mode, deep ink-blue `#151b2e`.
-- **Page Fold** (`#f4f4ee`): a leaf laid on the page — the fill of an `encart`, an intercalaire tab at rest, a torn-corner slip. One faint step off paper; dark mode `#1c2440`.
+- **Clairefontaine Paper** (`#efe9d8`): the page ground — a warm, dimmed ivory rather than near-white, kept easy on the eyes at screen brightness. In dark mode, deep ink-blue `#151b2e`.
+- **Page Fold** (`#e4ddc8`): a leaf laid on the page — the fill of an `encart`, an intercalaire tab at rest, a torn-corner slip. One faint step off paper; dark mode `#1c2440`.
 - **Graphite** (`#2c2c34`): body text. Dark mode warm off-white `#e9e7dc`.
 - **Soft Graphite** (`#63636f`): secondary text, field labels, timestamps, counts, resting field and tab borders (always at reduced opacity). Dark mode `#9aa0b8`.
 - **Ruling Violet** (`#c6cef0`): the horizontal (and, on squared pages, vertical) ruling behind content, plus dividers and the scrollbar thumb. Dark mode `#2c3660`.
