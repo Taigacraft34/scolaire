@@ -37,15 +37,16 @@ export async function traiterNotificationsDues() {
         await prisma.notification.delete({ where: { id: notif.id } });
         continue;
       }
-      titre = `Devoir a faire : ${devoir.matiere.nom}`;
-      message = `${devoir.matiere.nom} — ${devoir.titre}, à rendre le ${devoir.date.toLocaleDateString(
-        "fr-FR",
-      )}${devoir.heure ? " à " + devoir.heure : ""}`;
+      // Un rappel anticipe (J-14 a J-2) annonce le devoir a venir ; la veille
+      // et le jour meme, il est deja temps de le faire.
+      const rappelAnticipe = notif.type !== "VEILLE" && notif.type !== "MATIN_MEME";
+      titre = rappelAnticipe
+        ? `Rappel de devoirs : ${devoir.matiere.nom}`
+        : `Devoir a faire : ${devoir.matiere.nom}`;
+      message = `${devoir.matiere.nom} — ${devoir.titre}, à rendre le ${devoir.date.toLocaleDateString("fr-FR")}`;
     } else if (controle) {
       titre = `Contrôle : ${controle.matiere.nom}`;
-      message = `${controle.matiere.nom}${controle.chapitreLibre ? " — " + controle.chapitreLibre : ""} le ${controle.date.toLocaleDateString(
-        "fr-FR",
-      )}${controle.heure ? " à " + controle.heure : ""}`;
+      message = `${controle.matiere.nom}${controle.chapitreLibre ? " — " + controle.chapitreLibre : ""} le ${controle.date.toLocaleDateString("fr-FR")}`;
     } else {
       // Notification orpheline (controle/devoir supprime) : on la retire.
       await prisma.notification.delete({ where: { id: notif.id } });
