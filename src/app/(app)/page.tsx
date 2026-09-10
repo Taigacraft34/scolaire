@@ -65,6 +65,7 @@ export default async function PageTableauDeBord() {
     notes,
     derniereSynchro,
     seancesJour,
+    seancesDemain,
   ] = await Promise.all([
     prisma.utilisateur.findUnique({
       where: { id: utilisateurId },
@@ -102,6 +103,10 @@ export default async function PageTableauDeBord() {
       where: { utilisateurId, debut: { gte: debutAuj, lt: finAuj } },
       orderBy: { debut: "asc" },
     }),
+    prisma.seanceEmploiDuTemps.findMany({
+      where: { utilisateurId, debut: { gte: finAuj, lt: finDemain } },
+      orderBy: { debut: "asc" },
+    }),
   ]);
 
   const timeZone = utilisateur?.fuseauHoraire || "Europe/Paris";
@@ -118,9 +123,16 @@ export default async function PageTableauDeBord() {
   const prochainControle = controles[0];
   const controleImminent = prochainControle && prochainControle.date < dans48h;
   const controlesJour = controles.filter((c) => c.date < finAuj);
+  const controlesDemain = controles.filter((c) => c.date >= finAuj && c.date < finDemain);
   const controlesSemaine = controles.filter(
     (c) => c.date < finSemaine && c.id !== prochainControle?.id,
   );
+
+  // Les cours d'aujourd'hui deja termines n'ont plus d'interet ; s'il n'en
+  // reste aucun, on montre ceux de demain a la place.
+  const seancesJourRestantes = seancesJour.filter((s) => s.fin >= maintenant);
+  const coursDemain = seancesJourRestantes.length === 0 && seancesDemain.length > 0;
+  const seancesAffichees = coursDemain ? seancesDemain : seancesJourRestantes;
 
   const chapitresAReviser = prochainControle
     ? prochainControle.chapitres.map((c) => c.chapitre.nom).filter(Boolean)
@@ -140,11 +152,14 @@ export default async function PageTableauDeBord() {
   const moisCourt = maintenant.toLocaleDateString("fr-FR", { month: "long" });
   const numJour = maintenant.getDate();
 
-  // Rattache à chaque cours du jour l'échéance qui « tombe » pendant lui.
+  // Rattache à chaque cours affiché l'échéance du même jour qui « tombe »
+  // pendant lui (aujourd'hui, ou demain si on affiche les cours de demain).
+  const controlesEcheance = coursDemain ? controlesDemain : controlesJour;
+  const devoirsEcheance = coursDemain ? pourDemain : pourAuj;
   function echeanceDe(matiereCours: string) {
-    const c = controlesJour.find((x) => memeMatiere(matiereCours, x.matiere.nom));
+    const c = controlesEcheance.find((x) => memeMatiere(matiereCours, x.matiere.nom));
     if (c) return { href: `/controles?focus=${c.id}`, marque: { lettre: "C" as const, couleur: "rouge" as const } };
-    const d = pourAuj.find((x) => memeMatiere(matiereCours, x.matiere.nom));
+    const d = devoirsEcheance.find((x) => memeMatiere(matiereCours, x.matiere.nom));
     if (d) return { href: `/devoirs?focus=${d.id}`, marque: { lettre: "T" as const, couleur: "rouge" as const } };
     return null;
   }
@@ -240,11 +255,11 @@ export default async function PageTableauDeBord() {
         )}
       </section>
 
-      {seancesJour.length > 0 && (
+      {seancesAffichees.length > 0 && (
         <section className="flex flex-col">
-          <h2 className={titreSection + " mb-1"}>Cours du jour</h2>
+          <h2 className={titreSection + " mb-1"}>{coursDemain ? "Cours de demain" : "Cours du jour"}</h2>
           <ul className="flex flex-col">
-            {seancesJour.map((s) => {
+            {seancesAffichees.map((s) => {
               const e = s.annule ? null : echeanceDe(s.matiere);
               return (
                 <LigneSeance
