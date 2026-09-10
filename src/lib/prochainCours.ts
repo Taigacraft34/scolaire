@@ -4,8 +4,9 @@ export interface SeanceMinimale {
 }
 
 // Reduit un nom de matiere a ses lettres/chiffres, sans accents ni casse, pour
-// comparer un libelle d'emploi du temps a un nom de matiere (souvent abrege ou
-// accentue differemment d'une source a l'autre).
+// comparer un libelle d'emploi du temps a un nom de matiere accentuee ou
+// ponctuee differemment d'une source a l'autre (ex: "Histoire & Géograph" vs
+// "HISTOIRE & GEOGRAPH").
 function normaliserMatiere(nom: string): string {
   return nom
     .toLowerCase()
@@ -14,11 +15,14 @@ function normaliserMatiere(nom: string): string {
     .replace(/[^a-z0-9]/g, "");
 }
 
+// Egalite stricte apres normalisation seulement : un test "l'un commence par
+// l'autre" confondait par exemple "ANGLAIS" et "ANGLAIS LV SECTION", deux
+// matieres distinctes dont l'une est un prefixe de l'autre.
 export function memeMatiere(a: string, b: string): boolean {
   const na = normaliserMatiere(a);
   const nb = normaliserMatiere(b);
   if (!na || !nb) return false;
-  return na === nb || na.startsWith(nb) || nb.startsWith(na);
+  return na === nb;
 }
 
 // Date (a minuit, heure locale) du prochain cours de `matiereNom` : la premiere
