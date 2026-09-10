@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Spectral, Atkinson_Hyperlegible, Fragment_Mono } from "next/font/google";
 import "./globals.css";
-import { NOM_APP } from "@/lib/marque";
+import { auth } from "@/auth";
+import { nomAffiche } from "@/lib/marque";
 
 // Spectral : sérif d'écran de la fonderie parisienne Prod.Type — la voix des
 // titres, registre « livre scolaire ».
@@ -30,16 +31,24 @@ const fragmentMono = Fragment_Mono({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: NOM_APP,
-  description: "Ton cahier de bord scolaire, connecté à MonBureauNumérique",
-  manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: NOM_APP,
-  },
-};
+// Le titre d'onglet reprend le nom de l'établissement connecté (déjà présent
+// dans le token Scolengo stocké, cf. obtenirNomEtablissement) ; repli sur le
+// nom générique si personne n'est connecté ou qu'aucun token n'est configuré.
+export async function generateMetadata(): Promise<Metadata> {
+  const session = await auth();
+  const titre = await nomAffiche(session?.user?.id);
+
+  return {
+    title: titre,
+    description: "Ton cahier de bord scolaire, connecté à MonBureauNumérique",
+    manifest: "/manifest.json",
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: "default",
+      title: titre,
+    },
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: [

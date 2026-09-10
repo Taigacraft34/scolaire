@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { Skolengo } from "scolengo-api";
 import { chiffrer, dechiffrer } from "@/lib/crypto";
 import { prisma } from "@/lib/prisma";
@@ -61,7 +62,9 @@ export async function enregistrerConfigScolengo(utilisateurId: string, config: C
 
 // Le nom de l'etablissement est deja present dans le token stocke (config.school) ;
 // pas besoin d'un appel reseau ni d'instancier le client Skolengo pour le lire.
-export async function obtenirNomEtablissement(utilisateurId: string): Promise<string | null> {
+// Mis en cache par requete (react cache) : utilise a la fois par le titre
+// d'onglet (generateMetadata) et par l'en-tete, sur le meme rendu.
+export const obtenirNomEtablissement = cache(async (utilisateurId: string): Promise<string | null> => {
   const utilisateur = await prisma.utilisateur.findUnique({
     where: { id: utilisateurId },
     select: { scolengoTokenChiffre: true },
@@ -74,4 +77,4 @@ export async function obtenirNomEtablissement(utilisateurId: string): Promise<st
   } catch {
     return null;
   }
-}
+});

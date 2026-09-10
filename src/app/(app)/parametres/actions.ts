@@ -214,6 +214,23 @@ export async function basculerModeDeveloppeur(formData: FormData) {
   redirect("/parametres");
 }
 
+export async function basculerModeStreamer(formData: FormData) {
+  const session = await auth();
+  if (!session?.user) redirect("/connexion");
+
+  const active = formData.get("actif") === "1";
+
+  await prisma.utilisateur.update({
+    where: { id: session.user.id },
+    data: { modeStreamer: active },
+  });
+
+  // Le nom d'etablissement/utilisateur affecte l'en-tete et le titre d'onglet
+  // sur toutes les pages : on invalide tout le layout racine.
+  revalidatePath("/", "layout");
+  redirect("/parametres");
+}
+
 export async function mettreAJourFrequenceSynchronisation(formData: FormData) {
   const session = await auth();
   if (!session?.user) redirect("/connexion");

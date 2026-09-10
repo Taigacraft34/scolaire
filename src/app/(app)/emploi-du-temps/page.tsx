@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { ajouterJours, debutSemaine } from "@/lib/calendrier";
+import { ajouterJours, debutSemaine, formatDateParam } from "@/lib/calendrier";
 import { JOURS_ORDRE, LIBELLES_JOUR } from "@/lib/emploiDuTemps";
 import { memeMatiere } from "@/lib/prochainCours";
 import { partiesFuseau } from "@/lib/fuseau";
 import { dateCourte, dateMoyenne, ilYa } from "@/lib/dates";
 import { libelleStatutControle } from "@/lib/libelles";
 import { nettoyerHtml } from "@/lib/html";
+import { estEnModeStreamer } from "@/lib/modeStreamer";
 import {
   GrilleEmploiDuTemps,
   type BlocGrille,
@@ -26,13 +27,6 @@ type ControleAvecMatiere = Controle & { matiere: Matiere };
 const PX_PAR_HEURE = 56;
 const HEURE_MIN_DEFAUT = 8;
 const HEURE_MAX_DEFAUT = 18;
-
-function formatDateParam(date: Date): string {
-  const annee = date.getFullYear();
-  const mois = String(date.getMonth() + 1).padStart(2, "0");
-  const jour = String(date.getDate()).padStart(2, "0");
-  return `${annee}-${mois}-${jour}`;
-}
 
 interface Bloc {
   seance: SeanceEmploiDuTemps;
@@ -119,16 +113,19 @@ function rattacher<T extends { date: Date; matiere: Matiere }>(
 export default async function PageEmploiDuTemps({
   searchParams,
 }: {
-  searchParams: Promise<{ semaine?: string }>;
+  searchParams: Promise<{ semaine?: string; focus?: string }>;
 }) {
   const session = await auth();
   const utilisateurId = session!.user.id;
-  const { semaine: semaineParam } = await searchParams;
+  const { semaine: semaineParam, focus } = await searchParams;
 
-  const utilisateur = await prisma.utilisateur.findUniqueOrThrow({
-    where: { id: utilisateurId },
-    select: { scolengoTokenChiffre: true, fuseauHoraire: true },
-  });
+  const [utilisateur, streamer] = await Promise.all([
+    prisma.utilisateur.findUniqueOrThrow({
+      where: { id: utilisateurId },
+      select: { scolengoTokenChiffre: true, fuseauHoraire: true },
+    }),
+    estEnModeStreamer(utilisateurId),
+  ]);
   const timeZone = utilisateur.fuseauHoraire || "Europe/Paris";
 
   const semaineBase = semaineParam ? new Date(semaineParam) : new Date();
@@ -229,7 +226,7 @@ export default async function PageEmploiDuTemps({
         id: b.seance.id,
         matiere: b.seance.matiere,
         salle: b.seance.salle,
-        enseignant: b.seance.enseignant,
+        enseignant: streamer ? null : b.seance.enseignant,
         couleur: b.seance.couleur,
         annule: b.seance.annule,
         labelDeb: b.labelDeb,
@@ -305,6 +302,7 @@ export default async function PageEmploiDuTemps({
           lignes={lignes}
           hauteur={hauteurGrille}
           retour={retour}
+          focus={focus}
         />
       )}
     </div>

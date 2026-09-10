@@ -87,6 +87,9 @@ model Utilisateur {
   role      Role   @default(UTILISATEUR)
   actif     Boolean @default(true)
   modeDeveloppeur Boolean @default(false)
+  // Masque les informations personnelles a l'affichage (nom de l'etablissement,
+  // nom/email du compte, noms des enseignants) sans rien changer en base.
+  modeStreamer    Boolean @default(false)
 
   // Connexion MonBureauNumerique
   scolengoTokenChiffre String? // token Scolengo, stocke chiffre

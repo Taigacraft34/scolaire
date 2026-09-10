@@ -13,6 +13,7 @@ import {
 } from "@/lib/ui";
 import {
   basculerModeDeveloppeur,
+  basculerModeStreamer,
   enregistrerNtfy,
   enregistrerTokenScolengo,
   envoyerNotificationTest,
@@ -188,6 +189,20 @@ export default async function PageParametres({
             {utilisateur.modeDeveloppeur ? "Désactiver le mode développeur" : "Activer le mode développeur"}
           </BoutonSoumission>
         </form>
+
+        <div className="mt-4 border-t border-ruling pt-3">
+          <h3 className={titreSection + " mb-1 block"}>Mode streamer</h3>
+          <p className="mb-2 font-body text-xs text-ink-soft">
+            Masque le nom de l&apos;établissement, ton nom/email et les noms des enseignants
+            partout dans l&apos;appli — utile en direct ou en capture d&apos;écran.
+          </p>
+          <form action={basculerModeStreamer}>
+            <input type="hidden" name="actif" value={utilisateur.modeStreamer ? "0" : "1"} />
+            <BoutonSoumission className={boutonEncadre}>
+              {utilisateur.modeStreamer ? "Désactiver le mode streamer" : "Activer le mode streamer"}
+            </BoutonSoumission>
+          </form>
+        </div>
       </section>
 
       <section className={encart}>

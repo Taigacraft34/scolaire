@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { estEnModeStreamer } from "@/lib/modeStreamer";
 import { LIBELLES_STATUT_SYNCHRONISATION } from "@/lib/libelles";
 import { BoutonSupprimer } from "@/components/BoutonSupprimer";
 import { boutonPrincipal, champ, encart, label, titrePage, titreSection } from "@/lib/ui";
@@ -18,6 +19,10 @@ export default async function PageAdmin({
 }) {
   const session = await auth();
   if (session?.user?.role !== "ADMIN") redirect("/");
+  // La page admin liste des emails et noms d'autres utilisateurs : elle reste
+  // hors d'atteinte tant que le mode streamer masque les informations
+  // personnelles, meme pour un compte ADMIN.
+  if (await estEnModeStreamer(session.user.id)) redirect("/");
   const { erreur } = await searchParams;
 
   const [utilisateurs, journaux, synchronisations, emailsAutorises] = await Promise.all([

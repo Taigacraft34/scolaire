@@ -3,8 +3,8 @@ import { auth, signOut } from "@/auth";
 import { BasculeTheme } from "@/components/BasculeTheme";
 import { BarreRecherche } from "@/components/BarreRecherche";
 import { Onglets } from "@/components/Onglets";
-import { NOM_APP } from "@/lib/marque";
-import { obtenirNomEtablissement } from "@/lib/scolengo/client";
+import { nomAffiche } from "@/lib/marque";
+import { estEnModeStreamer } from "@/lib/modeStreamer";
 
 const LIENS_NAV = [
   { href: "/", label: "Accueil" },
@@ -20,11 +20,16 @@ export default async function LayoutApplication({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const session = await auth();
+  const [nomEntete, streamer] = await Promise.all([
+    nomAffiche(session?.user?.id),
+    estEnModeStreamer(session?.user?.id),
+  ]);
+  // La page admin est elle-meme bloquee en mode streamer (elle liste des
+  // emails/noms d'autres utilisateurs) : inutile de laisser un onglet mort.
   const liens =
-    session?.user?.role === "ADMIN"
+    session?.user?.role === "ADMIN" && !streamer
       ? [...LIENS_NAV, { href: "/admin", label: "Administration" }]
       : LIENS_NAV;
-  const nomEntete = session?.user ? ((await obtenirNomEtablissement(session.user.id)) ?? NOM_APP) : NOM_APP;
 
   return (
     <div className="flex min-h-screen flex-col bg-paper">
@@ -45,7 +50,7 @@ export default async function LayoutApplication({
               href="/parametres"
               className="max-w-[9rem] truncate font-body text-xs font-bold text-ink-soft underline decoration-1 underline-offset-4 hover:text-ink-blue sm:max-w-none"
             >
-              {session?.user?.name ?? session?.user?.email}
+              {streamer ? "Paramètres" : (session?.user?.name ?? session?.user?.email)}
             </Link>
             <form
               action={async () => {
