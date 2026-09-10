@@ -48,6 +48,10 @@ export const titrePage =
 export const titreSection =
   "font-body text-xs font-bold uppercase tracking-[0.12em] text-ink-blue";
 
+// Titre de regroupement : chapeaute plusieurs encarts liés (ex: réglages).
+// Un cran au-dessus du titre de section, registre "headline".
+export const titreGroupe = "font-display text-lg font-semibold leading-tight text-ink";
+
 // Encart : une feuille posée sur la page (pas une carte à ombre). Fond très
 // légèrement décalé, coin carré, filet fin.
 export const encart = "rounded-sm border border-ink-soft/25 bg-paper-2/60 p-4";
