@@ -33,7 +33,7 @@ export function SelecteurMatiereChamp({
           <button
             type="button"
             onClick={basculer}
-            className="hidden shrink-0 font-body text-[0.72rem] font-bold text-ink-blue underline decoration-1 underline-offset-2 hover:decoration-2 sm:inline-block"
+            className="hidden shrink-0 font-body text-[0.72rem] leading-4 font-bold text-ink-blue underline decoration-1 underline-offset-2 hover:decoration-2 sm:inline-block"
           >
             {nouvelle ? "Choisir dans la liste" : "+ Nouvelle matière"}
           </button>
