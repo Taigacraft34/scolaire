@@ -19,12 +19,11 @@ export default async function PageConnexion({
         <h1 className="font-display text-4xl font-semibold leading-tight text-ink">
           {NOM_APP}
           <span className="mt-1 block font-body text-sm font-normal text-ink-soft">
-            ton cahier de bord, connecté à MonBureauNumérique
+            cahier de bord, connecté à MonBureauNumérique
           </span>
         </h1>
         <p className="font-body text-sm leading-[var(--carreau)] text-ink-soft">
-          La connexion se fait via ton compte ZITADEL. Aucune inscription depuis cette page — un
-          administrateur doit d&apos;abord autoriser ton adresse.
+          La connexion se fait exclusivement à l'aide du compte ZITADEL. Vous devez être autorisé à utiliser cette plateforme pour pouvoir se connecter.
         </p>
         <form
           action={async () => {
