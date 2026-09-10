@@ -243,6 +243,16 @@ input[type="radio"] {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
+
+  /* Exception : le petit anneau de chargement des boutons (BoutonSoumission)
+     continue de tourner meme en mouvement reduit. Minuscule et contenu sur
+     place, il n'a pas le grand mouvement que cette preference vise a
+     eviter, et communique un etat fonctionnel (une action est en cours) que
+     rien d'autre ne rend aussi clairement. */
+  .spinner-anime {
+    animation-duration: 0.6s !important;
+    animation-iteration-count: infinite !important;
+  }
 }
 
 @media print {
