@@ -105,14 +105,20 @@ export function GrilleEmploiDuTemps({
   lignes,
   hauteur,
   retour,
+  focus,
 }: {
   jours: JourGrille[];
   lignes: { label: string; top: number }[];
   hauteur: number;
   retour: string;
+  focus?: string;
 }) {
   const [blocActifId, setBlocActifId] = useState<string | null>(null);
   const [editionActiviteId, setEditionActiviteId] = useState<string | null>(null);
+  // Dernier focus (?focus=<id>, arrivee depuis une recherche) deja ouvert :
+  // permet d'ajuster l'etat pendant le rendu (cf. doc React sur les valeurs
+  // derivees des props) sans passer par un effet.
+  const [dernierFocusOuvert, setDernierFocusOuvert] = useState<string | undefined>(undefined);
 
   const tousBlocs = useMemo(() => jours.flatMap((j) => j.blocs), [jours]);
   const blocActif = blocActifId ? (tousBlocs.find((b) => b.id === blocActifId) ?? null) : null;
@@ -129,6 +135,19 @@ export function GrilleEmploiDuTemps({
     document.addEventListener("keydown", surTouche);
     return () => document.removeEventListener("keydown", surTouche);
   }, [blocActif]);
+
+  // Arrivee depuis un resultat de recherche (?focus=<id>) : ouvre directement
+  // la seance visee. Ajuste pendant le rendu (pas via un effet) pour ne pas
+  // rouvrir la pop-up si l'utilisateur la ferme ensuite - le composant ne
+  // demonte pas forcement entre deux navigations ?semaine= sur la meme page.
+  if (focus && focus !== dernierFocusOuvert) {
+    const bloc = tousBlocs.find((b) => b.id === focus);
+    if (bloc) {
+      setDernierFocusOuvert(focus);
+      setEditionActiviteId(aucuneInfo(bloc) ? bloc.id : null);
+      setBlocActifId(bloc.id);
+    }
+  }
 
   function ouvrirBloc(bloc: BlocGrille) {
     // Rien de renseigne sur ce cours : on ouvre directement le champ de

@@ -16,17 +16,19 @@ type Donnees = {
   devoirs: Resultat[];
   controles: Resultat[];
   cours: Resultat[];
+  seances: Resultat[];
 };
 
-type Onglet = "tous" | "devoirs" | "controles" | "cours";
+type Onglet = "tous" | "devoirs" | "controles" | "cours" | "seances";
 
-const DONNEES_VIDES: Donnees = { devoirs: [], controles: [], cours: [] };
+const DONNEES_VIDES: Donnees = { devoirs: [], controles: [], cours: [], seances: [] };
 
 const ONGLETS: { cle: Onglet; titre: string }[] = [
   { cle: "tous", titre: "Tous" },
   { cle: "devoirs", titre: "Devoirs" },
   { cle: "controles", titre: "Contrôles" },
   { cle: "cours", titre: "Cours" },
+  { cle: "seances", titre: "Activités" },
 ];
 
 export function BarreRecherche() {
@@ -65,6 +67,7 @@ export function BarreRecherche() {
           devoirs: json.devoirs ?? [],
           controles: json.controles ?? [],
           cours: json.cours ?? [],
+          seances: json.seances ?? [],
         });
       } catch (e) {
         if ((e as Error).name !== "AbortError") setDonnees(DONNEES_VIDES);
@@ -86,16 +89,19 @@ export function BarreRecherche() {
     tous:
       donneesAffichees.devoirs.length +
       donneesAffichees.controles.length +
-      donneesAffichees.cours.length,
+      donneesAffichees.cours.length +
+      donneesAffichees.seances.length,
     devoirs: donneesAffichees.devoirs.length,
     controles: donneesAffichees.controles.length,
     cours: donneesAffichees.cours.length,
+    seances: donneesAffichees.seances.length,
   };
 
   const groupes: { cle: Exclude<Onglet, "tous">; titre: string; items: Resultat[] }[] = [
     { cle: "devoirs", titre: "Devoirs", items: donneesAffichees.devoirs },
     { cle: "controles", titre: "Contrôles", items: donneesAffichees.controles },
     { cle: "cours", titre: "Cours", items: donneesAffichees.cours },
+    { cle: "seances", titre: "Activités en séance", items: donneesAffichees.seances },
   ];
   const groupesAffiches = onglet === "tous" ? groupes : groupes.filter((g) => g.cle === onglet);
 
@@ -126,17 +132,17 @@ export function BarreRecherche() {
       {ouvert && (
         <div
           id={listeId}
-          className="absolute right-0 z-50 mt-2 w-[22rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-sm border border-ink-blue bg-paper"
+          className="absolute right-0 z-50 mt-2 w-[26rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-sm border border-ink-blue bg-paper"
           style={{ boxShadow: "0.25rem 0.5rem 1.4rem rgb(20 20 40 / 0.16)" }}
         >
-          <div className="flex gap-1 border-b border-ink-soft/25 px-2 pt-1.5">
+          <div className="flex gap-1 overflow-x-auto border-b border-ink-soft/25 px-2 pt-1.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {ONGLETS.map(({ cle, titre }) => (
               <button
                 key={cle}
                 type="button"
                 onClick={() => setOnglet(cle)}
                 className={
-                  "border-b-2 px-2 pb-1.5 font-body text-[0.72rem] font-bold uppercase tracking-wide transition-colors " +
+                  "shrink-0 border-b-2 px-2 pb-1.5 font-body text-[0.72rem] font-bold uppercase tracking-wide transition-colors " +
                   (onglet === cle
                     ? "border-ink-blue text-ink-blue"
                     : "border-transparent text-ink-soft hover:text-ink")
@@ -151,8 +157,8 @@ export function BarreRecherche() {
           <div className="max-h-80 overflow-y-auto px-3 py-2">
             {requeteVide ? (
               <p className="py-5 text-center font-body text-xs text-ink-soft">
-                Le nom d&apos;un devoir, d&apos;un contrôle, d&apos;un cours, d&apos;une matière ou d&apos;un
-                enseignant.
+                Le nom d&apos;un devoir, d&apos;un contrôle, d&apos;un cours, d&apos;une matière, d&apos;un
+                enseignant ou le contenu d&apos;une activité en séance.
               </p>
             ) : chargement && comptes.tous === 0 ? (
               <p className="py-5 text-center font-body text-xs text-ink-soft">Recherche…</p>
