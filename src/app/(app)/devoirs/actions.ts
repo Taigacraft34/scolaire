@@ -6,7 +6,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { trouverOuCreerMatiere } from "@/lib/matieres";
 import { synchroniserUtilisateur } from "@/lib/scolengo/sync";
-import { getClientScolengo } from "@/lib/scolengo/client";
+import { avecVerrouScolengo, getClientScolengo } from "@/lib/scolengo/client";
 import { genererRappelsPourDevoir, supprimerRappelsDevoirNonEnvoyes } from "@/lib/notifications/rappels";
 
 export async function lancerSynchronisation(formData: FormData) {
@@ -81,13 +81,18 @@ export async function basculerStatutDevoir(formData: FormData) {
   const nouveauStatut = devoir.statut === "TERMINE" ? "A_FAIRE" : "TERMINE";
 
   if (devoir.provenance === "MBN" && devoir.externalId) {
+    const externalId = devoir.externalId;
     try {
-      const client = await getClientScolengo(session.user.id);
-      if (client) {
-        await client.patchHomeworkAssignment(client.getTokenClaims().sub, devoir.externalId, {
-          done: nouveauStatut === "TERMINE",
-        });
-      }
+      // Meme verrou que la synchronisation : evite de rafraichir le token en
+      // parallele d'une synchro planifiee (voir avecVerrouScolengo).
+      await avecVerrouScolengo(session.user.id, async () => {
+        const client = await getClientScolengo(session.user.id);
+        if (client) {
+          await client.patchHomeworkAssignment(client.getTokenClaims().sub, externalId, {
+            done: nouveauStatut === "TERMINE",
+          });
+        }
+      });
     } catch (e) {
       await prisma.journal.create({
         data: {

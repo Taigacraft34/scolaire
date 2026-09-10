@@ -6,7 +6,7 @@ import {
   genererRappelsPourDevoir,
   supprimerRappelsDevoirNonEnvoyes,
 } from "@/lib/notifications/rappels";
-import { getClientScolengo } from "./client";
+import { avecVerrouScolengo, getClientScolengo } from "./client";
 
 export interface OptionsSynchronisation {
   dateDebut?: Date;
@@ -51,6 +51,12 @@ async function recupererToutesLesPages<T>(
  * lorsque l'emploi du temps courant est vide (vacances, hors periode scolaire).
  */
 export async function synchroniserUtilisateur(utilisateurId: string, options: OptionsSynchronisation = {}) {
+  // Serialise avec toute autre operation Scolengo pour cet utilisateur (ex: un
+  // clic "marquer termine" pendant une synchro planifiee) - voir avecVerrouScolengo.
+  return avecVerrouScolengo(utilisateurId, () => executerSynchronisation(utilisateurId, options));
+}
+
+async function executerSynchronisation(utilisateurId: string, options: OptionsSynchronisation) {
   const utilisateur = await prisma.utilisateur.findUniqueOrThrow({ where: { id: utilisateurId } });
 
   const synchronisation = await prisma.synchronisation.create({
