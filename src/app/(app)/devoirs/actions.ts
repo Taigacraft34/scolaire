@@ -88,9 +88,16 @@ export async function basculerStatutDevoir(formData: FormData) {
       await avecVerrouScolengo(session.user.id, async () => {
         const client = await getClientScolengo(session.user.id);
         if (client) {
-          await client.patchHomeworkAssignment(client.getTokenClaims().sub, externalId, {
-            done: nouveauStatut === "TERMINE",
-          });
+          // Includes vides : la reponse n'est pas utilisee, et l'include par
+          // defaut "teacher.person" fait planter le serveur Scolengo (voir
+          // le meme correctif dans sync.ts).
+          await client.patchHomeworkAssignment(
+            client.getTokenClaims().sub,
+            externalId,
+            { done: nouveauStatut === "TERMINE" },
+            undefined,
+            [],
+          );
         }
       });
     } catch (e) {

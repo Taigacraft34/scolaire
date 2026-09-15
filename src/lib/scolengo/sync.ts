@@ -76,8 +76,21 @@ async function executerSynchronisation(utilisateurId: string, options: OptionsSy
     const studentId = client.getTokenClaims().sub;
 
     // --- Devoirs (+ detection automatique des controles) ---
+    // Includes explicites : on omet "teacher.person" (inclus par defaut par la
+    // lib), dont la resolution fait planter le serveur Scolengo cote API avec
+    // "couldn't create a new instance of ... PersonAbstractModel". On ne lit
+    // que devoir.teacher.firstName/lastName, portes par la ressource "teacher"
+    // elle-meme - l'include "person" est inutile ici.
     const devoirs = await recupererToutesLesPages((limit, offset) =>
-      client.getHomeworkAssignments(studentId, formatDateAPI(dateDebut), formatDateAPI(dateFin), limit, offset),
+      client.getHomeworkAssignments(
+        studentId,
+        formatDateAPI(dateDebut),
+        formatDateAPI(dateFin),
+        limit,
+        offset,
+        undefined,
+        ["subject", "teacher"],
+      ),
     );
 
     for (const devoir of devoirs) {
