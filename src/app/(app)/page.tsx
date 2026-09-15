@@ -25,6 +25,7 @@ type Synchro = {
   statut: "EN_COURS" | "SUCCES" | "ECHEC";
   demarreeLe: Date;
   termineeLe: Date | null;
+  erreurs: string | null;
 };
 
 // La ligne de fraîcheur : elle dit la vérité même quand la dernière synchro a
@@ -69,7 +70,7 @@ export default async function PageTableauDeBord() {
   ] = await Promise.all([
     prisma.utilisateur.findUnique({
       where: { id: utilisateurId },
-      select: { fuseauHoraire: true },
+      select: { fuseauHoraire: true, modeDeveloppeur: true },
     }),
     prisma.devoir.findMany({
       where: { utilisateurId, statut: "A_FAIRE", date: { lt: debutAuj } },
@@ -97,7 +98,7 @@ export default async function PageTableauDeBord() {
     prisma.synchronisation.findFirst({
       where: { utilisateurId },
       orderBy: { demarreeLe: "desc" },
-      select: { statut: true, demarreeLe: true, termineeLe: true },
+      select: { statut: true, demarreeLe: true, termineeLe: true, erreurs: true },
     }),
     prisma.seanceEmploiDuTemps.findMany({
       where: { utilisateurId, debut: { gte: debutAuj, lt: finAuj } },
@@ -204,6 +205,14 @@ export default async function PageTableauDeBord() {
       >
         {sync.texte}
       </Link>
+
+      {/* Le detail de l'erreur n'a de sens que pour quelqu'un qui debug : on
+          le reserve au mode developpeur pour ne pas polluer l'accueil. */}
+      {utilisateur?.modeDeveloppeur && derniereSynchro?.statut === "ECHEC" && derniereSynchro.erreurs && (
+        <p className="-mt-[calc(var(--carreau)*0.5)] whitespace-pre-wrap font-mono text-xs text-bic-red/80">
+          {derniereSynchro.erreurs}
+        </p>
+      )}
 
       {enRetard.length > 0 && (
         <section className="flex flex-col">
