@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { BoutonSoumission } from "@/components/BoutonSoumission";
@@ -347,6 +348,17 @@ export default async function PageParametres({
               Enregistrer
             </BoutonSoumission>
           </form>
+        </section>
+
+        <section className={encart}>
+          <h3 className={titreSection + " mb-2 block"}>Rappels personnalisés</h3>
+          <p className="mb-3 font-body text-sm text-ink-soft">
+            Des rappels récurrents (ex : sac de sport le lundi), envoyés les jours choisis sur les canaux des
+            rappels de devoirs, et affichés dans la liste des devoirs la veille et le jour même.
+          </p>
+          <Link href="/parametres/rappels" className={boutonPrincipal}>
+            Gérer les rappels
+          </Link>
         </section>
 
         <section className={encart}>

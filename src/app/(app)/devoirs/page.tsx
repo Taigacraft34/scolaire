@@ -6,8 +6,10 @@ import { nettoyerHtml } from "@/lib/html";
 import { FormulaireSynchronisation } from "@/components/FormulaireSynchronisation";
 import { ChampsDevoir } from "@/components/ChampsDevoir";
 import { LigneDevoir, type DevoirLigne } from "@/components/LigneDevoir";
+import { LigneRappel, type RappelLigne } from "@/components/LigneRappel";
 import { MiseEnAvantRecherche } from "@/components/MiseEnAvantRecherche";
 import { dateCourte } from "@/lib/dates";
+import { jourSemaineFuseau } from "@/lib/fuseau";
 import { boutonPrincipal, boutonSecondaire, champ, encart, label, titrePage, titreSection } from "@/lib/ui";
 import { creerDevoirManuel } from "./actions";
 
@@ -27,21 +29,26 @@ function enLigne(devoir: DevoirAvecMatiere): DevoirLigne {
 function GroupeDevoirs({
   titre,
   devoirs,
+  rappels = [],
   idUrgent,
 }: {
   titre: string;
   devoirs: DevoirAvecMatiere[];
+  rappels?: RappelLigne[];
   idUrgent?: string;
 }) {
-  if (devoirs.length === 0) return null;
+  if (devoirs.length === 0 && rappels.length === 0) return null;
   return (
     <section className="flex flex-col">
       <h2 className={titreSection + " mb-1"}>
-        {titre} <span className="tabulaire text-ink-soft/70">· {devoirs.length}</span>
+        {titre} <span className="tabulaire text-ink-soft/70">· {devoirs.length + rappels.length}</span>
       </h2>
       <ul className="flex flex-col">
         {devoirs.map((devoir) => (
           <LigneDevoir key={devoir.id} devoir={enLigne(devoir)} urgent={devoir.id === idUrgent} />
+        ))}
+        {rappels.map((rappel) => (
+          <LigneRappel key={rappel.id} rappel={rappel} />
         ))}
       </ul>
     </section>
@@ -69,9 +76,20 @@ export default async function PageDevoirs({
     : null;
   const afficherPasses = passes === "1" || (devoirFocus ? devoirFocus.date < debutAujourdhui : false);
 
-  const [utilisateur, devoirsAVenir, devoirsPassesCount, devoirsPasses, derniereSynchro, matieres, seances] =
-    await Promise.all([
-      prisma.utilisateur.findUnique({ where: { id: utilisateurId }, select: { modeDeveloppeur: true } }),
+  const [
+    utilisateur,
+    devoirsAVenir,
+    devoirsPassesCount,
+    devoirsPasses,
+    derniereSynchro,
+    matieres,
+    seances,
+    rappels,
+  ] = await Promise.all([
+      prisma.utilisateur.findUnique({
+        where: { id: utilisateurId },
+        select: { modeDeveloppeur: true, fuseauHoraire: true },
+      }),
       prisma.devoir.findMany({
         where: { utilisateurId, date: { gte: debutAujourdhui } },
         include: { matiere: true },
@@ -95,16 +113,40 @@ export default async function PageDevoirs({
         orderBy: { debut: "asc" },
         take: 500,
       }),
+      prisma.rappel.findMany({
+        where: { utilisateurId, actif: true },
+        include: { matiere: true },
+        orderBy: { heure: "asc" },
+      }),
     ]);
 
   const modeDeveloppeur = utilisateur?.modeDeveloppeur ?? false;
+
+  // Un rappel s'affiche le jour meme et la veille (jours de la semaine dans le
+  // fuseau de l'utilisateur, 1 = lundi ... 7 = dimanche).
+  const jourAujourdhui = jourSemaineFuseau(new Date(), utilisateur?.fuseauHoraire ?? "Europe/Paris");
+  const jourDemain = (jourAujourdhui % 7) + 1;
+  function rappelsDuJour(jour: number): RappelLigne[] {
+    return rappels
+      .filter((r) => r.jours.includes(jour))
+      .map((r) => ({
+        id: r.id,
+        titre: r.titre,
+        description: r.description,
+        matiere: r.matiere?.nom ?? null,
+        heure: r.heure,
+      }));
+  }
+  const rappelsAujourdhui = rappelsDuJour(jourAujourdhui);
+  const rappelsDemain = rappelsDuJour(jourDemain);
 
   const pourAujourdhui = devoirsAVenir.filter((d) => d.date < finAujourdhui);
   const pourDemain = devoirsAVenir.filter((d) => d.date >= finAujourdhui && d.date < finDemain);
   const pourPlusTard = devoirsAVenir.filter((d) => d.date >= finDemain);
   const idUrgent = (pourAujourdhui[0] ?? pourDemain[0])?.id;
 
-  const aucunAVenir = devoirsAVenir.length === 0;
+  const aucunAVenir =
+    devoirsAVenir.length === 0 && rappelsAujourdhui.length === 0 && rappelsDemain.length === 0;
   const aucunDevoir = aucunAVenir && devoirsPassesCount === 0;
 
   return (
@@ -146,8 +188,18 @@ export default async function PageDevoirs({
             <p className="font-body leading-[var(--carreau)] text-ink-soft">Aucun devoir à venir.</p>
           ) : (
             <>
-              <GroupeDevoirs titre="Pour aujourd'hui" devoirs={pourAujourdhui} idUrgent={idUrgent} />
-              <GroupeDevoirs titre="Pour demain" devoirs={pourDemain} idUrgent={idUrgent} />
+              <GroupeDevoirs
+                titre="Pour aujourd'hui"
+                devoirs={pourAujourdhui}
+                rappels={rappelsAujourdhui}
+                idUrgent={idUrgent}
+              />
+              <GroupeDevoirs
+                titre="Pour demain"
+                devoirs={pourDemain}
+                rappels={rappelsDemain}
+                idUrgent={idUrgent}
+              />
               <GroupeDevoirs titre="Pour plus tard" devoirs={pourPlusTard} />
             </>
           )}

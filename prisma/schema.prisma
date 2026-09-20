@@ -123,6 +123,7 @@ model Utilisateur {
   synchronisations  Synchronisation[]
   journaux          Journal[]
   documents         Document[]
+  rappelsPersonnalises Rappel[]
 
   // Emploi du temps synchronise depuis MonBureauNumerique (seances datees).
   seancesEmploiDuTemps SeanceEmploiDuTemps[]
@@ -164,6 +165,7 @@ model Matiere {
   controles Controle[]
   notes     Note[]
   chapitres Chapitre[]
+  rappelsPersonnalises Rappel[]
 
   @@unique([utilisateurId, nom])
   @@map("matieres")
@@ -422,6 +424,36 @@ model Notification {
   createdAt DateTime @default(now())
 
   @@map("notifications")
+}
+
+// Rappel personnalise et recurrent, cree par l'utilisateur (ex: "Sac de sport"
+// tous les lundis) : independant des devoirs et des controles. Il est envoye
+// les jours choisis, a l'heure choisie, sur les canaux des rappels de devoirs
+// de l'utilisateur, et affiche dans la liste des devoirs la veille et le jour meme.
+model Rappel {
+  id            String @id @default(cuid())
+  utilisateurId String
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+
+  // Matiere facultative : le rappel survit a sa suppression.
+  matiereId String?
+  matiere   Matiere? @relation(fields: [matiereId], references: [id], onDelete: SetNull)
+
+  titre       String
+  description String?
+  jours       Int[]   // jours de la semaine, 1 = lundi ... 7 = dimanche
+  heure       String  @default("07:00") // "HH:MM", dans le fuseau de l'utilisateur
+  actif       Boolean @default(true)
+
+  // Jour ("AAAA-MM-JJ", fuseau de l'utilisateur) du dernier envoi : evite les
+  // doublons quand la tache planifiee repasse plusieurs fois dans la journee.
+  dernierEnvoiJour String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([utilisateurId])
+  @@map("rappels")
 }
 
 // ---------------------------------------------------------------------------

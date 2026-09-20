@@ -20,3 +20,11 @@ export function partiesFuseau(date: Date, timeZone: string) {
     cleJour: `${val("year")}-${val("month")}-${val("day")}`,
   };
 }
+
+// Jour de la semaine d'une date dans le fuseau de l'utilisateur, numéroté
+// comme les rappels : 1 = lundi ... 7 = dimanche.
+export function jourSemaineFuseau(date: Date, timeZone: string): number {
+  const court = new Intl.DateTimeFormat("en-US", { timeZone, weekday: "short" }).format(date);
+  const index = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].indexOf(court);
+  return index + 1;
+}

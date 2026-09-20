@@ -80,7 +80,8 @@ Deux routes internes doivent être appelées régulièrement par un cron externe
 # Synchronisation MBN (frequence choisie par chaque utilisateur en reglages)
 */10 * * * * curl -fsS -H "Authorization: Bearer $NOTIFICATIONS_CRON_SECRET" https://votre-domaine/api/synchronisation/verifier
 
-# Envoi des rappels dus
+# Envoi des rappels dus (devoirs, contrôles et rappels personnalisés récurrents :
+# ces derniers partent à l'heure choisie, à la précision de ce cron)
 */10 * * * * curl -fsS -H "Authorization: Bearer $NOTIFICATIONS_CRON_SECRET" https://votre-domaine/api/notifications/verifier
 ```
 
