@@ -27,3 +27,28 @@ export function libelleJours(jours: number[]): string {
     .filter(Boolean)
     .join(" ");
 }
+
+// Rappels actifs tombant un jour donné (1 = lundi ... 7 = dimanche), sous la
+// forme attendue par LigneRappel. Le jour d'aujourd'hui et celui de demain
+// suffisent aux listes de devoirs : un rappel s'y affiche la veille et le jour même.
+export function rappelsDuJour(
+  rappels: {
+    id: string;
+    titre: string;
+    description: string | null;
+    jours: number[];
+    heure: string;
+    matiere: { nom: string } | null;
+  }[],
+  jour: number,
+) {
+  return rappels
+    .filter((r) => r.jours.includes(jour))
+    .map((r) => ({
+      id: r.id,
+      titre: r.titre,
+      description: r.description,
+      matiere: r.matiere?.nom ?? null,
+      heure: r.heure,
+    }));
+}

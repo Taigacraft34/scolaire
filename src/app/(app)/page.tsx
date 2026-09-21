@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
-import { partiesFuseau } from "@/lib/fuseau";
+import { jourSemaineFuseau, partiesFuseau } from "@/lib/fuseau";
+import { rappelsDuJour } from "@/lib/rappels";
 import { memeMatiere } from "@/lib/prochainCours";
 import { dateCourte, dateLongue, ilYa } from "@/lib/dates";
 import { LigneObligation } from "@/components/LigneObligation";
+import { LigneRappel } from "@/components/LigneRappel";
 import { LigneSeance } from "@/components/LigneSeance";
 import { SlipControle } from "@/components/SlipControle";
 import { titreSection } from "@/lib/ui";
@@ -67,6 +69,7 @@ export default async function PageTableauDeBord() {
     derniereSynchro,
     seancesJour,
     seancesDemain,
+    rappels,
   ] = await Promise.all([
     prisma.utilisateur.findUnique({
       where: { id: utilisateurId },
@@ -108,9 +111,19 @@ export default async function PageTableauDeBord() {
       where: { utilisateurId, debut: { gte: finAuj, lt: finDemain } },
       orderBy: { debut: "asc" },
     }),
+    prisma.rappel.findMany({
+      where: { utilisateurId, actif: true },
+      include: { matiere: true },
+      orderBy: { heure: "asc" },
+    }),
   ]);
 
   const timeZone = utilisateur?.fuseauHoraire || "Europe/Paris";
+
+  // Un rappel s'affiche le jour meme et la veille.
+  const jourAuj = jourSemaineFuseau(maintenant, timeZone);
+  const rappelsAuj = rappelsDuJour(rappels, jourAuj);
+  const rappelsDemain = rappelsDuJour(rappels, (jourAuj % 7) + 1);
 
   const pondere = notes.reduce((a, n) => a + (n.noteObtenue / n.noteMaximale) * 20 * n.coefficient, 0);
   const coeffs = notes.reduce((a, n) => a + n.coefficient, 0);
@@ -244,7 +257,7 @@ export default async function PageTableauDeBord() {
 
       <section className="flex flex-col">
         <h2 className={titreSection + " mb-1"}>Pour aujourd&apos;hui</h2>
-        {pourAuj.length === 0 ? (
+        {pourAuj.length === 0 && rappelsAuj.length === 0 ? (
           <p className="leading-[var(--carreau)] text-ink-soft">Rien à rendre aujourd&apos;hui.</p>
         ) : (
           <ul className="flex flex-col">
@@ -259,6 +272,9 @@ export default async function PageTableauDeBord() {
                 devoir={{ id: d.id, coche: false }}
                 retour="/"
               />
+            ))}
+            {rappelsAuj.map((r) => (
+              <LigneRappel key={r.id} rappel={r} />
             ))}
           </ul>
         )}
@@ -286,9 +302,9 @@ export default async function PageTableauDeBord() {
         </section>
       )}
 
-      {(pourDemain.length > 0 || pourPlusTard.length > 0) && (
+      {(pourDemain.length > 0 || rappelsDemain.length > 0 || pourPlusTard.length > 0) && (
         <div className="flex flex-col gap-[calc(var(--carreau)*0.5)]">
-          {pourDemain.length > 0 && (
+          {(pourDemain.length > 0 || rappelsDemain.length > 0) && (
             <section className="flex flex-col">
               <h2 className={titreSection + " mb-1 text-ink-blue/70"}>Demain</h2>
               <ul className="flex flex-col">
@@ -302,6 +318,9 @@ export default async function PageTableauDeBord() {
                     devoir={{ id: d.id, coche: false }}
                     retour="/"
                   />
+                ))}
+                {rappelsDemain.map((r) => (
+                  <LigneRappel key={r.id} rappel={r} />
                 ))}
               </ul>
             </section>

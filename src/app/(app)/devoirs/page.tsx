@@ -10,6 +10,7 @@ import { LigneRappel, type RappelLigne } from "@/components/LigneRappel";
 import { MiseEnAvantRecherche } from "@/components/MiseEnAvantRecherche";
 import { dateCourte } from "@/lib/dates";
 import { jourSemaineFuseau } from "@/lib/fuseau";
+import { rappelsDuJour } from "@/lib/rappels";
 import { boutonPrincipal, boutonSecondaire, champ, encart, label, titrePage, titreSection } from "@/lib/ui";
 import { creerDevoirManuel } from "./actions";
 
@@ -126,19 +127,8 @@ export default async function PageDevoirs({
   // fuseau de l'utilisateur, 1 = lundi ... 7 = dimanche).
   const jourAujourdhui = jourSemaineFuseau(new Date(), utilisateur?.fuseauHoraire ?? "Europe/Paris");
   const jourDemain = (jourAujourdhui % 7) + 1;
-  function rappelsDuJour(jour: number): RappelLigne[] {
-    return rappels
-      .filter((r) => r.jours.includes(jour))
-      .map((r) => ({
-        id: r.id,
-        titre: r.titre,
-        description: r.description,
-        matiere: r.matiere?.nom ?? null,
-        heure: r.heure,
-      }));
-  }
-  const rappelsAujourdhui = rappelsDuJour(jourAujourdhui);
-  const rappelsDemain = rappelsDuJour(jourDemain);
+  const rappelsAujourdhui = rappelsDuJour(rappels, jourAujourdhui);
+  const rappelsDemain = rappelsDuJour(rappels, jourDemain);
 
   const pourAujourdhui = devoirsAVenir.filter((d) => d.date < finAujourdhui);
   const pourDemain = devoirsAVenir.filter((d) => d.date >= finAujourdhui && d.date < finDemain);
