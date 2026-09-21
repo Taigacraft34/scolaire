@@ -35,7 +35,7 @@ export function LigneDevoir({ devoir, urgent = false }: { devoir: DevoirLigne; u
           </span>
           <span
             className={
-              "min-w-0 flex-1 truncate " +
+              "min-w-0 flex-1 truncate group-open:overflow-visible group-open:whitespace-normal " +
               (fait
                 ? "text-ink-soft line-through decoration-bic-green"
                 : urgent

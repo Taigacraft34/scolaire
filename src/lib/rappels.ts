@@ -37,7 +37,6 @@ export function rappelsDuJour(
     titre: string;
     description: string | null;
     jours: number[];
-    heure: string;
     matiere: { nom: string } | null;
   }[],
   jour: number,
@@ -49,6 +48,5 @@ export function rappelsDuJour(
       titre: r.titre,
       description: r.description,
       matiere: r.matiere?.nom ?? null,
-      heure: r.heure,
     }));
 }
