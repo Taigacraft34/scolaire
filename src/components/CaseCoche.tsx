@@ -5,8 +5,9 @@ import { basculerStatutDevoir } from "@/app/(app)/devoirs/actions";
 
 // La case dans la marge. Cocher un devoir y dessine un trait de stylo vert
 // (le geste signature) ; le serveur renvoie l'état qui fait foi. La case visible
-// reste petite (elle vit dans la marge) mais la zone tactile déborde dans la
-// gouttière, où il n'y a rien d'autre à toucher.
+// reste petite (elle vit dans la marge) mais la zone tactile la déborde un peu.
+// Sur téléphone elle reste collée à la case (~30 px), sinon un appui à côté la
+// cocherait ; à partir de sm, elle s'étend dans la gouttière à gauche.
 function Bouton({ coche, intitule }: { coche: boolean; intitule?: string }) {
   const { pending } = useFormStatus();
   const trace = pending && !coche;
@@ -19,7 +20,7 @@ function Bouton({ coche, intitule }: { coche: boolean; intitule?: string }) {
       aria-pressed={coche}
       aria-label={nom}
       title={nom}
-      className="relative grid h-[1.15rem] w-[1.15rem] place-items-center rounded-sm border border-ink-soft/70 text-bic-green transition-colors hover:border-bic-green disabled:opacity-100 before:absolute before:content-[''] before:top-1/2 before:-translate-y-1/2 before:h-9 before:-left-[2.6rem] before:-right-[0.15rem]"
+      className="relative grid h-[1.15rem] w-[1.15rem] place-items-center rounded-sm border border-ink-soft/70 text-bic-green transition-colors hover:border-bic-green disabled:opacity-100 before:absolute before:content-[''] before:-top-[0.4rem] before:-bottom-[0.4rem] before:-left-[0.6rem] before:-right-[0.15rem] sm:before:top-1/2 sm:before:bottom-auto sm:before:-translate-y-1/2 sm:before:h-9 sm:before:-left-[2.6rem]"
       disabled={pending}
     >
       {(coche || trace) && (
