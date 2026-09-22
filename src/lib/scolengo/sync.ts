@@ -183,8 +183,36 @@ async function executerSynchronisation(utilisateurId: string, options: OptionsSy
 
     for (const periode of periodes) {
       try {
+        // Le service d'evaluation porte une relation "teachers" dont la
+        // resolution fait planter le serveur Scolengo avec "couldn't create
+        // a new instance of ... PersonAbstractModel" (meme famille de bug
+        // que "teacher.person" sur les devoirs, voir plus haut) - mais ici le
+        // simple fait de retirer "teachers" des includes ne suffit pas : le
+        // serveur construit quand meme le lien de la relation, quel que soit
+        // "include". Seul un sparse fieldset JSON:API ("fields", documente en
+        // commentaire dans scolengo-api) permet d'exclure "teachers" des
+        // champs renvoyes pour la ressource evaluationService. On ne lit
+        // jamais service.teachers ici, donc l'exclusion est sans consequence.
         const services = await recupererToutesLesPages((limit, offset) =>
-          client.getEvaluation(studentId, periode.id, limit, offset),
+          client.getEvaluation(
+            studentId,
+            periode.id,
+            limit,
+            offset,
+            {
+              fields: {
+                evaluationService: "coefficient,average,studentAverage,scale,subject,evaluations",
+              },
+            },
+            [
+              "subject",
+              "evaluations",
+              "evaluations.evaluationResult",
+              "evaluations.evaluationResult.subSkillsEvaluationResults",
+              "evaluations.evaluationResult.subSkillsEvaluationResults.subSkill",
+              "evaluations.subSkills",
+            ],
+          ),
         );
 
         for (const service of services) {
