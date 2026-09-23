@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { auth, signOut } from "@/auth";
+import { memoriserIdTokenPourDeconnexion } from "@/lib/deconnexionZitadel";
 import { BasculeTheme } from "@/components/BasculeTheme";
 import { BarreRecherche } from "@/components/BarreRecherche";
 import { Onglets } from "@/components/Onglets";
@@ -56,7 +57,9 @@ export default async function LayoutApplication({
             <form
               action={async () => {
                 "use server";
-                await signOut({ redirectTo: "/connexion" });
+                await memoriserIdTokenPourDeconnexion();
+                // ?deconnexion=1 : /connexion propose alors de fermer aussi la session ZITADEL.
+                await signOut({ redirectTo: "/connexion?deconnexion=1" });
               }}
             >
               <BoutonSoumission texteChargement="Déconnexion…" className="shrink-0 font-body text-xs font-bold text-ink-soft underline decoration-1 underline-offset-4 hover:text-bic-red">

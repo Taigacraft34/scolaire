@@ -3,16 +3,21 @@ import { auth, signIn } from "@/auth";
 import { boutonPrincipal } from "@/lib/ui";
 import { NOM_APP } from "@/lib/marque";
 import { BoutonSoumission } from "@/components/BoutonSoumission";
+import { PopupDeconnexion } from "@/components/PopupDeconnexion";
+import { urlDeconnexionZitadel } from "@/lib/deconnexionZitadel";
 
 export default async function PageConnexion({
   searchParams,
 }: {
-  searchParams: Promise<{ callbackUrl?: string }>;
+  searchParams: Promise<{ callbackUrl?: string; deconnexion?: string }>;
 }) {
   const session = await auth();
-  const { callbackUrl } = await searchParams;
+  const { callbackUrl, deconnexion } = await searchParams;
 
   if (session) redirect(callbackUrl ?? "/");
+
+  // Le lien passe par /connexion/zitadel, qui y ajoute l'id_token memorise.
+  const proposerDeconnexionZitadel = deconnexion === "1" && urlDeconnexionZitadel(null) !== null;
 
   return (
     <main className="regle cahier-marge relative flex flex-1 flex-col justify-center bg-paper px-[calc(var(--marge)+var(--carreau))] pr-[var(--carreau)]">
@@ -37,6 +42,7 @@ export default async function PageConnexion({
           </BoutonSoumission>
         </form>
       </div>
+      {proposerDeconnexionZitadel && <PopupDeconnexion />}
     </main>
   );
 }

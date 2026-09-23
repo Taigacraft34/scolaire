@@ -65,12 +65,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       return true;
     },
-    async jwt({ token, profile }) {
+    async jwt({ token, profile, account }) {
       // A la premiere connexion on memorise le "sub" ZITADEL dans le token ;
       // ensuite on relit l'utilisateur en base a chaque requete pour que les
       // changements (role, mode developpeur, desactivation) soient pris en
       // compte sans attendre une reconnexion.
       if (profile?.sub) token.zitadelSub = profile.sub as string;
+      // Garde l'id_token (dans le cookie de session chiffre, jamais expose a
+      // la session cote client) : il sert d'id_token_hint pour fermer la
+      // session ZITADEL de ce compte a la deconnexion (lib/deconnexionZitadel).
+      if (account?.id_token) token.idToken = account.id_token;
 
       const sub = (token.zitadelSub as string | undefined) ?? token.sub;
       if (sub) {
