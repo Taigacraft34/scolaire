@@ -13,6 +13,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: { strategy: "jwt" },
   pages: {
     signIn: "/connexion",
+    error: "/connexion/erreur",
   },
   callbacks: {
     // Il n'existe aucun formulaire d'inscription : une authentification ZITADEL
