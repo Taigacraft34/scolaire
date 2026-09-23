@@ -9,16 +9,18 @@ export function BoutonSoumission({
   texteChargement = "En cours…",
   className,
   disabled = false,
+  ariaLabel,
 }: {
   children: React.ReactNode;
   texteChargement?: string;
   className?: string;
   disabled?: boolean;
+  ariaLabel?: string;
 }) {
   const { pending } = useFormStatus();
 
   return (
-    <button type="submit" disabled={pending || disabled} className={className}>
+    <button type="submit" disabled={pending || disabled} aria-label={ariaLabel} className={className}>
       {pending ? (
         <span className="inline-flex items-center gap-2">
           {/* spinner-anime : exempte explicitement de la règle globale

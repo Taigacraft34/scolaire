@@ -5,6 +5,7 @@ import { BarreRecherche } from "@/components/BarreRecherche";
 import { Onglets } from "@/components/Onglets";
 import { nomAffiche } from "@/lib/marque";
 import { estEnModeStreamer } from "@/lib/modeStreamer";
+import { BoutonSoumission } from "@/components/BoutonSoumission";
 
 const LIENS_NAV = [
   { href: "/", label: "Accueil" },
@@ -58,12 +59,9 @@ export default async function LayoutApplication({
                 await signOut({ redirectTo: "/connexion" });
               }}
             >
-              <button
-                type="submit"
-                className="shrink-0 font-body text-xs font-bold text-ink-soft underline decoration-1 underline-offset-4 hover:text-bic-red"
-              >
+              <BoutonSoumission texteChargement="Déconnexion…" className="shrink-0 font-body text-xs font-bold text-ink-soft underline decoration-1 underline-offset-4 hover:text-bic-red">
                 Quitter
-              </button>
+              </BoutonSoumission>
             </form>
           </div>
         </div>

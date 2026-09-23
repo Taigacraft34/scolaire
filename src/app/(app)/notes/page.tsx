@@ -5,6 +5,7 @@ import { BoutonSupprimer } from "@/components/BoutonSupprimer";
 import { IconeChevronBas } from "@/components/Icone";
 import { boutonEncadre, champ, etiquette, label, titrePage, titreSection } from "@/lib/ui";
 import { ajouterCopie, supprimerCopie } from "./actions";
+import { BoutonSoumission } from "@/components/BoutonSoumission";
 
 function fmtNote(n: number): string {
   return String(Number.isInteger(n) ? n : n.toFixed(2)).replace(".", ",");
@@ -160,9 +161,9 @@ export default async function PageNotes({
                       multiple
                       className="font-body text-xs text-ink-soft file:mr-2 file:rounded-sm file:border file:border-ink-soft/50 file:bg-transparent file:px-2 file:py-1 file:font-body file:text-xs file:font-bold file:text-ink"
                     />
-                    <button type="submit" className={boutonEncadre + " text-xs"}>
+                    <BoutonSoumission texteChargement="Envoi…" className={boutonEncadre + " text-xs"}>
                       Ajouter une copie
-                    </button>
+                    </BoutonSoumission>
                   </form>
                 </div>
               </details>

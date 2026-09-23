@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { auth, signIn } from "@/auth";
 import { boutonPrincipal } from "@/lib/ui";
 import { NOM_APP } from "@/lib/marque";
+import { BoutonSoumission } from "@/components/BoutonSoumission";
 
 export default async function PageConnexion({
   searchParams,
@@ -31,9 +32,9 @@ export default async function PageConnexion({
             await signIn("zitadel", { redirectTo: callbackUrl ?? "/" });
           }}
         >
-          <button type="submit" className={boutonPrincipal + " px-6 py-2.5"}>
+          <BoutonSoumission texteChargement="Connexion…" className={boutonPrincipal + " px-6 py-2.5"}>
             Se connecter avec ZITADEL
-          </button>
+          </BoutonSoumission>
         </form>
       </div>
     </main>

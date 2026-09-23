@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { IconeChevronDroite, IconeImprimante } from "@/components/Icone";
 import { boutonPrincipal, boutonSecondaire, champ, encart, titrePage, titreSection } from "@/lib/ui";
 import { creerMatiere } from "./actions";
+import { BoutonSoumission } from "@/components/BoutonSoumission";
 
 export default async function PageCoursMatieres({
   searchParams,
@@ -34,9 +35,9 @@ export default async function PageCoursMatieres({
         {erreur && <p className="mb-2 font-body text-sm text-bic-red">{erreur}</p>}
         <form action={creerMatiere} className="flex flex-wrap gap-2">
           <input name="nom" required placeholder="Nom de la matière" className={champ + " flex-1 min-w-40"} />
-          <button type="submit" className={boutonPrincipal}>
+          <BoutonSoumission texteChargement="Ajout…" className={boutonPrincipal}>
             Ajouter
-          </button>
+          </BoutonSoumission>
         </form>
       </section>
 

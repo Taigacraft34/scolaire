@@ -16,7 +16,6 @@ export async function creerControleManuel(formData: FormData) {
 
   const matiereNom = String(formData.get("matiere") ?? "").trim();
   const dateBrute = String(formData.get("date") ?? "").trim();
-  const heure = String(formData.get("heure") ?? "").trim() || null;
   const chapitreLibre = String(formData.get("chapitre") ?? "").trim() || null;
   const commentaire = String(formData.get("commentaire") ?? "").trim() || null;
   const devoirId = String(formData.get("devoirId") ?? "").trim() || null;
@@ -44,7 +43,6 @@ export async function creerControleManuel(formData: FormData) {
       utilisateurId: session.user.id,
       matiereId: matiere.id,
       date,
-      heure,
       chapitreLibre,
       commentaire,
       type: "MANUEL",
@@ -60,6 +58,50 @@ export async function creerControleManuel(formData: FormData) {
   revalidatePath("/controles");
   revalidatePath("/devoirs");
   redirect("/controles");
+}
+
+export async function modifierControle(formData: FormData) {
+  const session = await auth();
+  if (!session?.user) redirect("/connexion");
+
+  const controleId = String(formData.get("controleId") ?? "").trim();
+  const matiereNom = String(formData.get("matiere") ?? "").trim();
+  const dateBrute = String(formData.get("date") ?? "").trim();
+  const chapitreLibre = String(formData.get("chapitre") ?? "").trim() || null;
+  const commentaire = String(formData.get("commentaire") ?? "").trim() || null;
+
+  if (!controleId) redirect("/controles");
+  if (!matiereNom || !dateBrute) {
+    redirect(`/controles?erreur=${encodeURIComponent("Matière et date sont requis.")}`);
+  }
+
+  const controle = await prisma.controle.findFirst({ where: { id: controleId, utilisateurId: session.user.id } });
+  if (!controle) redirect("/controles");
+
+  const matiere = await trouverOuCreerMatiere(session.user.id, matiereNom);
+  const date = new Date(dateBrute);
+  const dateChangee = date.getTime() !== controle.date.getTime();
+
+  await prisma.controle.update({
+    where: { id: controle.id },
+    data: {
+      matiereId: matiere.id,
+      date,
+      chapitreLibre,
+      commentaire,
+      statut: date.getTime() < Date.now() ? "PASSE" : "A_VENIR",
+    },
+  });
+
+  // Les rappels sont calcules depuis la date : on reprogramme ceux pas encore envoyes.
+  if (dateChangee) {
+    await prisma.notification.deleteMany({ where: { controleId: controle.id, envoyee: false } });
+    await genererRappelsPourControle(controle.id, session.user.id);
+  }
+
+  revalidatePath("/controles");
+  revalidatePath("/emploi-du-temps");
+  redirect(`/controles?focus=${controle.id}`);
 }
 
 export async function lierDevoirAuControle(formData: FormData) {

@@ -13,6 +13,7 @@ import { jourSemaineFuseau } from "@/lib/fuseau";
 import { rappelsDuJour } from "@/lib/rappels";
 import { boutonPrincipal, boutonSecondaire, champ, encart, label, titrePage, titreSection } from "@/lib/ui";
 import { creerDevoirManuel } from "./actions";
+import { BoutonSoumission } from "@/components/BoutonSoumission";
 
 type DevoirAvecMatiere = Devoir & { matiere: Matiere };
 
@@ -158,9 +159,9 @@ export default async function PageDevoirs({
             </label>
             <textarea id="description" name="description" rows={2} className={champ} />
           </div>
-          <button type="submit" className={boutonPrincipal + " self-start"}>
+          <BoutonSoumission texteChargement="Ajout…" className={boutonPrincipal + " self-start"}>
             Ajouter
-          </button>
+          </BoutonSoumission>
         </form>
       </section>
 

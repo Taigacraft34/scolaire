@@ -11,10 +11,12 @@ export function SelecteurMatiereChamp({
   matieres,
   valeur,
   onChange,
+  id = "matiere",
 }: {
   matieres: string[];
   valeur: string;
   onChange: (valeur: string) => void;
+  id?: string;
 }) {
   const [nouvelle, setNouvelle] = useState(matieres.length === 0);
 
@@ -26,7 +28,7 @@ export function SelecteurMatiereChamp({
   return (
     <div className={blocChamp}>
       <div className="flex items-center justify-between gap-2">
-        <label className={CLASSE_LABEL} htmlFor="matiere">
+        <label className={CLASSE_LABEL} htmlFor={id}>
           Matière
         </label>
         {matieres.length > 0 && (
@@ -41,7 +43,7 @@ export function SelecteurMatiereChamp({
       </div>
       {!nouvelle ? (
         <select
-          id="matiere"
+          id={id}
           name="matiere"
           required
           value={valeur}
@@ -59,7 +61,7 @@ export function SelecteurMatiereChamp({
         </select>
       ) : (
         <input
-          id="matiere"
+          id={id}
           name="matiere"
           required
           autoFocus={matieres.length > 0}

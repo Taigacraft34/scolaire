@@ -404,9 +404,9 @@ export default async function PageParametres({
           </form>
           {parametreNtfy && (
             <form action={supprimerNtfy} className="mt-2">
-              <button type="submit" className="font-body text-xs font-bold text-bic-red underline decoration-1 underline-offset-4">
+              <BoutonSoumission className="font-body text-xs font-bold text-bic-red underline decoration-1 underline-offset-4">
                 Désactiver les notifications ntfy
-              </button>
+              </BoutonSoumission>
             </form>
           )}
         </section>

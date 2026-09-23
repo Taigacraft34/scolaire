@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { IconeChevronDroite, IconeFlecheGauche } from "@/components/Icone";
 import { boutonPrincipal, champ, encart, titrePage, titreSection } from "@/lib/ui";
 import { creerChapitre } from "../actions";
+import { BoutonSoumission } from "@/components/BoutonSoumission";
 
 export default async function PageChapitresMatiere({
   params,
@@ -44,9 +45,9 @@ export default async function PageChapitresMatiere({
         <form action={creerChapitre} className="flex flex-wrap gap-2">
           <input type="hidden" name="matiereId" value={matiere.id} />
           <input name="nom" required placeholder="Nom du chapitre" className={champ + " flex-1 min-w-40"} />
-          <button type="submit" className={boutonPrincipal}>
+          <BoutonSoumission texteChargement="Ajout…" className={boutonPrincipal}>
             Ajouter
-          </button>
+          </BoutonSoumission>
         </form>
       </section>
 

@@ -4,6 +4,8 @@ import { libelleStatutControle } from "@/lib/libelles";
 import { FormulaireSynchronisation } from "@/components/FormulaireSynchronisation";
 import { ChampsControle } from "@/components/ChampsControle";
 import { BoutonSupprimer } from "@/components/BoutonSupprimer";
+import { BoutonSoumission } from "@/components/BoutonSoumission";
+import { ModifierControle } from "@/components/ModifierControle";
 import { MiseEnAvantRecherche } from "@/components/MiseEnAvantRecherche";
 import { formatDateInput } from "@/lib/prochainCours";
 import { IconeCroix } from "@/components/Icone";
@@ -90,12 +92,6 @@ export default async function PageControles({
                 date: formatDateInput(devoir.date),
               }))}
             />
-            <div className="flex flex-col gap-1 sm:min-w-[7rem]">
-              <label className={label} htmlFor="heure">
-                Heure
-              </label>
-              <input type="time" id="heure" name="heure" className={champ} />
-            </div>
             <div className={blocChamp}>
               <label className={label} htmlFor="chapitre">
                 Chapitre
@@ -109,9 +105,9 @@ export default async function PageControles({
             </label>
             <textarea id="commentaire" name="commentaire" rows={2} className={champ} />
           </div>
-          <button type="submit" className={boutonPrincipal + " self-start"}>
+          <BoutonSoumission texteChargement="Ajout…" className={boutonPrincipal + " self-start"}>
             Ajouter
-          </button>
+          </BoutonSoumission>
         </form>
       </section>
 
@@ -160,6 +156,21 @@ export default async function PageControles({
                   )}
                 </p>
 
+                {controle.commentaire && (
+                  <p className="whitespace-pre-wrap font-body text-sm text-ink-soft">{controle.commentaire}</p>
+                )}
+
+                <ModifierControle
+                  matieres={matieres.map((m) => m.nom)}
+                  controle={{
+                    id: controle.id,
+                    matiere: controle.matiere.nom,
+                    date: formatDateInput(controle.date),
+                    chapitre: controle.chapitreLibre,
+                    commentaire: controle.commentaire,
+                  }}
+                />
+
                 {controle.devoirSource ? (
                   <p className="font-body text-xs text-ink-soft">
                     Devoir associé — {controle.devoirSource.matiere.nom} · {controle.devoirSource.titre}
@@ -177,9 +188,9 @@ export default async function PageControles({
                         </option>
                       ))}
                     </select>
-                    <button type="submit" className={boutonEncadre + " text-xs"}>
+                    <BoutonSoumission texteChargement="Liaison…" className={boutonEncadre + " text-xs"}>
                       Lier
-                    </button>
+                    </BoutonSoumission>
                   </form>
                 ) : null}
 
@@ -196,9 +207,9 @@ export default async function PageControles({
                         <form action={delierChapitreDuControle}>
                           <input type="hidden" name="controleId" value={controle.id} />
                           <input type="hidden" name="chapitreId" value={liaison.chapitreId} />
-                          <button type="submit" className="text-bic-red" aria-label="Délier">
+                          <BoutonSoumission texteChargement="" className="text-bic-red" ariaLabel="Délier">
                             <IconeCroix className="text-[0.7em]" />
-                          </button>
+                          </BoutonSoumission>
                         </form>
                       </li>
                     ))}
@@ -218,9 +229,9 @@ export default async function PageControles({
                         </option>
                       ))}
                     </select>
-                    <button type="submit" className={boutonEncadre + " text-xs"}>
+                    <BoutonSoumission texteChargement="Liaison…" className={boutonEncadre + " text-xs"}>
                       Lier
-                    </button>
+                    </BoutonSoumission>
                   </form>
                 )}
               </li>

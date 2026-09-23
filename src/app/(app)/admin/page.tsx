@@ -5,6 +5,7 @@ import { estEnModeStreamer } from "@/lib/modeStreamer";
 import { LIBELLES_STATUT_SYNCHRONISATION } from "@/lib/libelles";
 import { BoutonSupprimer } from "@/components/BoutonSupprimer";
 import { boutonPrincipal, champ, encart, label, titrePage, titreSection } from "@/lib/ui";
+import { BoutonSoumission } from "@/components/BoutonSoumission";
 import {
   autoriserEmail,
   basculerActivationUtilisateur,
@@ -76,9 +77,9 @@ export default async function PageAdmin({
               <option value="ADMIN">Administrateur</option>
             </select>
           </div>
-          <button type="submit" className={boutonPrincipal}>
+          <BoutonSoumission className={boutonPrincipal}>
             Autoriser
-          </button>
+          </BoutonSoumission>
         </form>
 
         {emailsAutorises.length > 0 && (
@@ -92,9 +93,9 @@ export default async function PageAdmin({
                   </span>
                   <form action={revoquerAutorisation}>
                     <input type="hidden" name="id" value={e.id} />
-                    <button type="submit" className="font-body text-xs font-bold text-bic-red underline decoration-1 underline-offset-4">
+                    <BoutonSoumission className="font-body text-xs font-bold text-bic-red underline decoration-1 underline-offset-4">
                       Révoquer
-                    </button>
+                    </BoutonSoumission>
                   </form>
                 </li>
               ))}
@@ -135,9 +136,9 @@ export default async function PageAdmin({
                     <div className="flex items-center gap-3">
                       <form action={basculerActivationUtilisateur}>
                         <input type="hidden" name="utilisateurId" value={u.id} />
-                        <button type="submit" className="font-body text-xs font-bold text-ink-blue underline decoration-1 underline-offset-4">
+                        <BoutonSoumission className="font-body text-xs font-bold text-ink-blue underline decoration-1 underline-offset-4">
                           {u.actif ? "Désactiver" : "Activer"}
-                        </button>
+                        </BoutonSoumission>
                       </form>
                       <form action={supprimerUtilisateur}>
                         <input type="hidden" name="utilisateurId" value={u.id} />

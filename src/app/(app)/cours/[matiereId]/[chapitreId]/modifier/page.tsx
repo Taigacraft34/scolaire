@@ -6,6 +6,7 @@ import { EditeurBlocsCours, type BlocInitial } from "@/components/EditeurBlocsCo
 import { IconeFlecheGauche } from "@/components/Icone";
 import { boutonPrincipal, titrePage } from "@/lib/ui";
 import { enregistrerContenuChapitre } from "../../../actions";
+import { BoutonSoumission } from "@/components/BoutonSoumission";
 
 export default async function PageModifierChapitre({
   params,
@@ -51,9 +52,9 @@ export default async function PageModifierChapitre({
 
         <EditeurBlocsCours blocsInitiaux={blocsInitiaux} />
 
-        <button type="submit" className={boutonPrincipal + " self-start"}>
+        <BoutonSoumission texteChargement="Enregistrement…" className={boutonPrincipal + " self-start"}>
           Enregistrer
-        </button>
+        </BoutonSoumission>
       </form>
     </div>
   );
