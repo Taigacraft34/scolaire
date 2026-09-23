@@ -4,10 +4,10 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { cheminInterne } from "@/lib/redirection";
 
 function retourValide(formData: FormData): string {
-  const retourBrut = String(formData.get("retour") ?? "").trim();
-  return retourBrut.startsWith("/") ? retourBrut : "/emploi-du-temps";
+  return cheminInterne(formData.get("retour"), "/emploi-du-temps");
 }
 
 // Note personnelle sur une seance : n'est jamais touchee par la synchronisation

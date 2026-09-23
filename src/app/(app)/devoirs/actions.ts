@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { trouverOuCreerMatiere } from "@/lib/matieres";
+import { cheminInterne } from "@/lib/redirection";
 import { synchroniserUtilisateur } from "@/lib/scolengo/sync";
 import { avecVerrouScolengo, getClientScolengo } from "@/lib/scolengo/client";
 import { genererRappelsPourDevoir, supprimerRappelsDevoirNonEnvoyes } from "@/lib/notifications/rappels";
@@ -72,8 +73,7 @@ export async function basculerStatutDevoir(formData: FormData) {
   const devoirId = String(formData.get("devoirId") ?? "").trim();
   // Permet d'appeler l'action depuis une autre page (ex: emploi du temps) et d'y
   // revenir. On limite aux chemins internes.
-  const retourBrut = String(formData.get("retour") ?? "").trim();
-  const retour = retourBrut.startsWith("/") ? retourBrut : "/devoirs";
+  const retour = cheminInterne(formData.get("retour"), "/devoirs");
 
   const devoir = await prisma.devoir.findFirst({ where: { id: devoirId, utilisateurId: session.user.id } });
   if (!devoir) redirect(retour);

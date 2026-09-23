@@ -5,6 +5,7 @@ import { NOM_APP } from "@/lib/marque";
 import { BoutonSoumission } from "@/components/BoutonSoumission";
 import { PopupDeconnexion } from "@/components/PopupDeconnexion";
 import { urlDeconnexionZitadel } from "@/lib/deconnexionZitadel";
+import { cheminInterne } from "@/lib/redirection";
 
 export default async function PageConnexion({
   searchParams,
@@ -12,9 +13,10 @@ export default async function PageConnexion({
   searchParams: Promise<{ callbackUrl?: string; deconnexion?: string }>;
 }) {
   const session = await auth();
-  const { callbackUrl, deconnexion } = await searchParams;
+  const { callbackUrl: callbackBrut, deconnexion } = await searchParams;
+  const callbackUrl = cheminInterne(callbackBrut, "/");
 
-  if (session) redirect(callbackUrl ?? "/");
+  if (session) redirect(callbackUrl);
 
   // Le lien passe par /connexion/zitadel, qui y ajoute l'id_token memorise.
   const proposerDeconnexionZitadel = deconnexion === "1" && urlDeconnexionZitadel(null) !== null;
@@ -34,7 +36,7 @@ export default async function PageConnexion({
         <form
           action={async () => {
             "use server";
-            await signIn("zitadel", { redirectTo: callbackUrl ?? "/" });
+            await signIn("zitadel", { redirectTo: callbackUrl });
           }}
         >
           <BoutonSoumission texteChargement="Connexion…" className={boutonPrincipal + " px-6 py-2.5"}>

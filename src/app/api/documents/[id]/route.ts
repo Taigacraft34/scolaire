@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { enTetesFichier } from "@/lib/reponseFichier";
 
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
@@ -16,11 +17,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   try {
     const contenu = await readFile(document.cheminStockage);
     return new NextResponse(new Uint8Array(contenu), {
-      headers: {
-        "Content-Type": document.typeMime,
-        "Content-Disposition": `inline; filename="${encodeURIComponent(document.nomFichier)}"`,
-        "Cache-Control": "private, max-age=3600",
-      },
+      headers: enTetesFichier(document.typeMime, document.nomFichier),
     });
   } catch {
     return new NextResponse("Fichier introuvable sur le disque", { status: 404 });

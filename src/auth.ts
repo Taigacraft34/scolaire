@@ -81,12 +81,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const utilisateur = await prisma.utilisateur.findUnique({
           where: { zitadelSub: sub },
         });
-        if (utilisateur) {
-          token.utilisateurId = utilisateur.id;
-          token.role = utilisateur.role;
-          token.actif = utilisateur.actif;
-          token.modeDeveloppeur = utilisateur.modeDeveloppeur;
-        }
+        // Compte desactive ou supprime par un admin : null efface le cookie de
+        // session des la requete suivante (sinon le JWT resterait valable
+        // jusqu'a son expiration, 30 jours).
+        if (!utilisateur || !utilisateur.actif) return null;
+
+        token.utilisateurId = utilisateur.id;
+        token.role = utilisateur.role;
+        token.actif = utilisateur.actif;
+        token.modeDeveloppeur = utilisateur.modeDeveloppeur;
       }
       return token;
     },

@@ -2,6 +2,7 @@ import { Readable } from "node:stream";
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { enTetesFichier } from "@/lib/reponseFichier";
 import { lirePiecesJointes, type PieceJointe } from "@/lib/piecesJointes";
 import { avecVerrouScolengo, getClientScolengo } from "@/lib/scolengo/client";
 
@@ -68,11 +69,7 @@ export async function GET(
     });
 
     return new NextResponse(Readable.toWeb(flux as Readable) as ReadableStream, {
-      headers: {
-        "Content-Type": piece.typeMime ?? "application/octet-stream",
-        "Content-Disposition": `inline; filename*=UTF-8''${encodeURIComponent(piece.nom)}`,
-        "Cache-Control": "private, max-age=3600",
-      },
+      headers: enTetesFichier(piece.typeMime, piece.nom),
     });
   } catch (e) {
     console.error(`Echec du telechargement de la piece jointe ${piece.id} :`, e);
