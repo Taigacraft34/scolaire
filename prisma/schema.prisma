@@ -110,6 +110,10 @@ model Utilisateur {
 
   preferencesAffichage Json?
 
+  // Deconnexion back-channel ZITADEL sans "sid" : toute session de l'app
+  // ouverte avant cette date est refusee (voir api/zitadel/deconnexion).
+  sessionsRevoqueesLe DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -532,4 +536,15 @@ model SeanceEmploiDuTemps {
   @@unique([utilisateurId, externalId])
   @@index([utilisateurId, debut])
   @@map("seances_emploi_du_temps")
+}
+
+// Sessions ZITADEL fermees (deconnexion back-channel) : une session de l'app
+// portant ce "sid" est refusee a la requete suivante. Purgees au-dela de la
+// duree de vie d'une session de l'app (30 jours).
+model SessionZitadelRevoquee {
+  sid        String   @id
+  revoqueeLe DateTime @default(now())
+
+  @@index([revoqueeLe])
+  @@map("sessions_zitadel_revoquees")
 }

@@ -1,4 +1,5 @@
 import NextAuth from "next-auth";
+import { decodeJwt } from "jose";
 import ZITADEL from "next-auth/providers/zitadel";
 import { prisma } from "@/lib/prisma";
 
@@ -75,6 +76,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       // la session cote client) : il sert d'id_token_hint pour fermer la
       // session ZITADEL de ce compte a la deconnexion (lib/deconnexionZitadel).
       if (account?.id_token) token.idToken = account.id_token;
+      // Deconnexion back-channel (lib/deconnexionBackChannel) : "sid" relie
+      // cette session a la session ZITADEL, connecteLe permet de revoquer
+      // toutes les sessions ouvertes avant une date. Le "iat" du JWT ne sert
+      // pas : Auth.js le renouvelle a chaque requete.
+      if (account) {
+        const sid = profile?.sid ?? (account.id_token ? decodeJwt(account.id_token).sid : undefined);
+        token.sid = typeof sid === "string" ? sid : undefined;
+        token.connecteLe = Date.now();
+      }
 
       const sub = (token.zitadelSub as string | undefined) ?? token.sub;
       if (sub) {
@@ -85,6 +95,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         // session des la requete suivante (sinon le JWT resterait valable
         // jusqu'a son expiration, 30 jours).
         if (!utilisateur || !utilisateur.actif) return null;
+
+        // Session fermee cote ZITADEL (deconnexion back-channel).
+        const connecteLe = typeof token.connecteLe === "number" ? token.connecteLe : 0;
+        if (utilisateur.sessionsRevoqueesLe && connecteLe < utilisateur.sessionsRevoqueesLe.getTime()) return null;
+        if (typeof token.sid === "string") {
+          const revoquee = await prisma.sessionZitadelRevoquee.findUnique({ where: { sid: token.sid } });
+          if (revoquee) return null;
+        }
 
         token.utilisateurId = utilisateur.id;
         token.role = utilisateur.role;

@@ -11,7 +11,9 @@ export default auth((request) => {
     pathname.startsWith("/api/auth") ||
     // Protegees par leur propre secret partage (voir les routes), pas par une session ZITADEL.
     pathname.startsWith("/api/notifications/verifier") ||
-    pathname.startsWith("/api/synchronisation/verifier");
+    pathname.startsWith("/api/synchronisation/verifier") ||
+    // Appelee par ZITADEL (deconnexion back-channel), authentifiee par la signature du logout_token.
+    pathname === "/api/zitadel/deconnexion";
 
   if (estPublique) return NextResponse.next();
 
