@@ -4,6 +4,8 @@ import { useOptimistic } from "react";
 import { CaseCoche } from "@/components/CaseCoche";
 import { BoutonSupprimer } from "@/components/BoutonSupprimer";
 import { IconeChevronBas } from "@/components/Icone";
+import { ListePiecesJointes } from "@/components/ListePiecesJointes";
+import type { PieceJointeAffichee } from "@/lib/piecesJointes";
 import { supprimerDevoir } from "@/app/(app)/devoirs/actions";
 
 export interface DevoirLigne {
@@ -11,6 +13,7 @@ export interface DevoirLigne {
   titre: string;
   fait: boolean;
   descriptionHtml: string | null;
+  piecesJointes: PieceJointeAffichee[];
   matiere: string;
   dateLabel: string;
 }
@@ -65,6 +68,7 @@ export function LigneDevoir({ devoir, urgent = false }: { devoir: DevoirLigne; u
           ) : (
             <p className="font-body text-sm leading-[var(--carreau)] text-ink-soft">Aucune description.</p>
           )}
+          <ListePiecesJointes pieces={devoir.piecesJointes} className="mt-1" />
           <form action={supprimerDevoir} className="mt-1">
             <input type="hidden" name="devoirId" value={devoir.id} />
             <BoutonSupprimer libelle="Supprimer le devoir" />

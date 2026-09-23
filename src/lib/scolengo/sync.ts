@@ -1,6 +1,7 @@
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { trouverOuCreerMatiere } from "@/lib/matieres";
+import { depuisScolengo } from "@/lib/piecesJointes";
 import {
   genererRappelsPourControle,
   genererRappelsPourDevoir,
@@ -105,6 +106,20 @@ async function executerSynchronisation(utilisateurId: string, options: OptionsSy
           ? [devoir.teacher.firstName, devoir.teacher.lastName].filter(Boolean).join(" ") || null
           : null;
 
+        // La liste /homework-assignments refuse l'include "attachments"
+        // ("include [attachments] not supported") : seul le detail d'un devoir
+        // porte ses pieces jointes, d'ou un appel par devoir. Un echec ici ne
+        // doit pas bloquer le devoir : on garde alors les pieces deja connues.
+        let piecesJointes: Prisma.InputJsonValue | undefined;
+        try {
+          const detail = await client.getHomeworkAssignment(studentId, devoir.id, undefined, ["attachments"]);
+          piecesJointes = depuisScolengo(detail.attachments) as unknown as Prisma.InputJsonValue;
+        } catch (e) {
+          erreurs.push(
+            `Pieces jointes du devoir "${devoir.title ?? devoir.id}" : ${e instanceof Error ? e.message : String(e)}`,
+          );
+        }
+
         const titre = devoir.title?.trim() || "Devoir";
         const description = devoir.html ?? null;
         const dateEcheance = devoir.dueDateTime ? new Date(devoir.dueDateTime) : new Date();
@@ -120,6 +135,7 @@ async function executerSynchronisation(utilisateurId: string, options: OptionsSy
           statut: devoir.done ? ("TERMINE" as const) : ("A_FAIRE" as const),
           provenance: "MBN" as const,
           externalId: devoir.id,
+          piecesJointes,
         };
 
         const devoirExistant = await prisma.devoir.findFirst({
@@ -304,7 +320,12 @@ async function executerSynchronisation(utilisateurId: string, options: OptionsSy
             try {
               const detail = await client.getLesson(studentId, seance.id);
               if (detail.contents && detail.contents.length > 0) {
-                contenuSeance = detail.contents.map((c) => ({ id: c.id, titre: c.title, html: c.html }));
+                contenuSeance = detail.contents.map((c) => ({
+                  id: c.id,
+                  titre: c.title,
+                  html: c.html,
+                  piecesJointes: depuisScolengo(c.attachments) as unknown as Prisma.InputJsonValue[],
+                }));
               }
             } catch (e) {
               erreurs.push(

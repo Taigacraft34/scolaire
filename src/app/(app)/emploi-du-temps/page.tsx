@@ -8,6 +8,7 @@ import { partiesFuseau } from "@/lib/fuseau";
 import { dateCourte, dateMoyenne, ilYa } from "@/lib/dates";
 import { libelleStatutControle } from "@/lib/libelles";
 import { nettoyerHtml } from "@/lib/html";
+import { lirePiecesJointes, pourAffichage } from "@/lib/piecesJointes";
 import { estEnModeStreamer } from "@/lib/modeStreamer";
 import {
   GrilleEmploiDuTemps,
@@ -17,7 +18,7 @@ import {
   type DevoirGrille,
   type JourGrille,
 } from "@/components/GrilleEmploiDuTemps";
-import type { Controle, Devoir, Matiere, SeanceEmploiDuTemps } from "@/generated/prisma/client";
+import type { Controle, Devoir, Matiere, Prisma, SeanceEmploiDuTemps } from "@/generated/prisma/client";
 import { IconeFlecheGauche, IconeFlecheDroite } from "@/components/Icone";
 import { boutonEncadre, titrePage } from "@/lib/ui";
 
@@ -193,18 +194,24 @@ export default async function PageEmploiDuTemps({
     id: d.id,
     titre: d.titre,
     descriptionHtml: d.description ? nettoyerHtml(d.description) : null,
+    piecesJointes: pourAffichage(lirePiecesJointes(d.piecesJointes), "devoir", d.id),
     statut: d.statut,
     dateLabel: dateMoyenne(d.date),
   });
 
-  const enContenusSync = (contenuSeance: SeanceEmploiDuTemps["contenuSeance"]): ContenuSeanceGrille[] => {
-    if (!Array.isArray(contenuSeance)) return [];
-    return contenuSeance
+  const enContenusSync = (seance: SeanceEmploiDuTemps): ContenuSeanceGrille[] => {
+    if (!Array.isArray(seance.contenuSeance)) return [];
+    return seance.contenuSeance
       .filter(
-        (c): c is { id: string; titre: string | null; html: string } =>
+        (c): c is { id: string; titre: string | null; html: string; piecesJointes?: Prisma.JsonValue } =>
           !!c && typeof c === "object" && "html" in c && typeof (c as { html: unknown }).html === "string",
       )
-      .map((c) => ({ id: c.id, titre: c.titre ?? "", html: nettoyerHtml(c.html) }));
+      .map((c) => ({
+        id: c.id,
+        titre: c.titre ?? "",
+        html: nettoyerHtml(c.html),
+        piecesJointes: pourAffichage(lirePiecesJointes(c.piecesJointes), "seance", seance.id),
+      }));
   };
 
   const enControle = (c: ControleAvecMatiere): ControleGrille => ({
@@ -220,7 +227,7 @@ export default async function PageEmploiDuTemps({
     cle: j.cle,
     libelle: j.libelle,
     blocs: j.blocs.map<BlocGrille>((b) => {
-      const contenusSync = enContenusSync(b.seance.contenuSeance);
+      const contenusSync = enContenusSync(b.seance);
       const contenuManuelTexte = b.seance.contenuManuel;
       return {
         id: b.seance.id,
@@ -244,7 +251,7 @@ export default async function PageEmploiDuTemps({
           contenusSync.length > 0
             ? contenusSync
             : contenuManuelTexte
-              ? [{ id: "manuel", titre: "", html: nettoyerHtml(contenuManuelTexte) }]
+              ? [{ id: "manuel", titre: "", html: nettoyerHtml(contenuManuelTexte), piecesJointes: [] }]
               : [],
         contenuSynchronise: contenusSync.length > 0,
         contenuManuelTexte,

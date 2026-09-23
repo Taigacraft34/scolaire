@@ -6,12 +6,15 @@ import { basculerStatutDevoir } from "@/app/(app)/devoirs/actions";
 import { enregistrerActiviteSeance, supprimerActiviteSeance } from "@/app/(app)/emploi-du-temps/actions";
 import { BoutonSoumission } from "@/components/BoutonSoumission";
 import { IconeCroix } from "@/components/Icone";
+import { ListePiecesJointes } from "@/components/ListePiecesJointes";
+import type { PieceJointeAffichee } from "@/lib/piecesJointes";
 import { boutonEncadre, boutonPrincipal, boutonRouge, boutonSecondaire, champ } from "@/lib/ui";
 
 export interface DevoirGrille {
   id: string;
   titre: string;
   descriptionHtml: string | null;
+  piecesJointes: PieceJointeAffichee[];
   statut: "A_FAIRE" | "TERMINE";
   dateLabel: string;
 }
@@ -29,6 +32,7 @@ export interface ContenuSeanceGrille {
   id: string;
   titre: string;
   html: string;
+  piecesJointes: PieceJointeAffichee[];
 }
 
 export interface BlocGrille {
@@ -393,6 +397,7 @@ export function GrilleEmploiDuTemps({
                       className="mt-1 whitespace-pre-wrap font-body text-xs text-ink-soft [&_a]:text-ink-blue [&_a]:underline"
                       dangerouslySetInnerHTML={{ __html: contenu.html }}
                     />
+                    <ListePiecesJointes pieces={contenu.piecesJointes} className="mt-1.5" />
                   </div>
                 ))
               ) : editionActiviteId === blocActif.id ? (
@@ -511,6 +516,7 @@ export function GrilleEmploiDuTemps({
                 ) : (
                   <p className="mt-1 font-body text-xs text-ink-soft">Aucune description.</p>
                 )}
+                <ListePiecesJointes pieces={devoir.piecesJointes} className="mt-1.5" />
                 <div className="mt-2 flex flex-wrap items-center gap-3">
                   <form action={basculerStatutDevoir}>
                     <input type="hidden" name="devoirId" value={devoir.id} />

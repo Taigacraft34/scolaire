@@ -214,6 +214,11 @@ model Devoir {
   provenance  Provenance   @default(MANUEL)
   externalId  String?      // identifiant MBN pour reconciliation lors des sync
 
+  // Pieces jointes MBN : liste { id, nom, typeMime, taille, url }, remplacee a
+  // chaque synchronisation. Les fichiers restent sur MBN et sont servis via
+  // /api/pieces-jointes (le telechargement exige le jeton Scolengo).
+  piecesJointes Json?
+
   // Lorsqu'un mot-cle est detecte, le devoir donne naissance a un Controle.
   controleGenere Controle?
 
@@ -513,7 +518,7 @@ model SeanceEmploiDuTemps {
   annule     Boolean @default(false)
 
   // "Activite en seance" renseignee par l'enseignant sur MBN : liste de blocs
-  // { id, titre, html }, remplacee entierement a chaque synchronisation.
+  // { id, titre, html, piecesJointes? }, remplacee entierement a chaque synchronisation.
   contenuSeance Json?
 
   // Note personnelle saisie par l'utilisateur quand MBN n'a rien : jamais

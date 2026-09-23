@@ -3,6 +3,7 @@ import type { Devoir, Matiere } from "@/generated/prisma/client";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { nettoyerHtml } from "@/lib/html";
+import { lirePiecesJointes, pourAffichage } from "@/lib/piecesJointes";
 import { FormulaireSynchronisation } from "@/components/FormulaireSynchronisation";
 import { ChampsDevoir } from "@/components/ChampsDevoir";
 import { LigneDevoir, type DevoirLigne } from "@/components/LigneDevoir";
@@ -23,6 +24,7 @@ function enLigne(devoir: DevoirAvecMatiere): DevoirLigne {
     titre: devoir.titre,
     fait: devoir.statut === "TERMINE",
     descriptionHtml: devoir.description ? nettoyerHtml(devoir.description) : null,
+    piecesJointes: pourAffichage(lirePiecesJointes(devoir.piecesJointes), "devoir", devoir.id),
     matiere: devoir.matiere.nom,
     dateLabel: dateCourte(devoir.date),
   };
